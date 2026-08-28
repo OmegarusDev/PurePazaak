@@ -419,18 +419,23 @@ function drawCard(g,x,y,w,h,card,o={}){
     if(lbl){g.fillStyle='#fff';g.textAlign='center';g.textBaseline='middle';
       g.font=`700 ${Math.round(h*0.22)}px "Arial Narrow",Arial,sans-serif`;g.fillText(lbl,w/2,h*0.5);}
   }else{
-    const isTopBlue=(card.kind==='mod'&&card.sign>0)||(card.kind==='dual'&&orient>0);
-    const topColor=isTopBlue?CARD_COLORS.blue.b:CARD_COLORS.red.b;
-    const bottomColor=isTopBlue?CARD_COLORS.red.b:CARD_COLORS.blue.b;
+    const isPlus=card.kind==='mod'&&card.sign>0;
+    const isMinus=card.kind==='mod'&&card.sign<0;
+    const isDual=card.kind==='dual';
+    let bandColor;
+    if(isPlus) bandColor=CARD_COLORS.blue.b;
+    else if(isMinus) bandColor=CARD_COLORS.red.b;
+    else bandColor=orient>0?CARD_COLORS.blue.b:CARD_COLORS.red.b;
     const nd=h*0.12,nw=w*0.6,bb=h*0.38,bt=h*0.62;
     g.save();g.clip(p);
     g.beginPath();g.moveTo(0,0);g.lineTo(w,0);g.lineTo(w,bb);
     g.lineTo(w*0.5+nw/2,bb);g.lineTo(w*0.5,bb+nd);g.lineTo(w*0.5-nw/2,bb);g.lineTo(0,bb);g.closePath();
-    g.fillStyle=topColor;g.fill();
+    g.fillStyle=bandColor;g.fill();
+    const bandColor2=isDual?(orient>0?CARD_COLORS.red.b:CARD_COLORS.blue.b):bandColor;
     g.beginPath();g.moveTo(0,bt);g.lineTo(w*0.5-nw/2,bt);g.lineTo(w*0.5,bt-nd);
     g.lineTo(w*0.5+nw/2,bt);g.lineTo(w,bt);g.lineTo(w,h);g.lineTo(0,h);g.closePath();
-    g.fillStyle=bottomColor;g.fill();
-    g.strokeStyle='#8a7a30';g.lineWidth=1.5;
+    g.fillStyle=bandColor2;g.fill();
+    g.strokeStyle='rgba(120,100,40,0.7)';g.lineWidth=1.5;
     g.beginPath();g.moveTo(w*0.5-nw/2,bb);g.lineTo(w*0.5,bb+nd);g.lineTo(w*0.5+nw/2,bb);g.stroke();
     g.beginPath();g.moveTo(w*0.5-nw/2,bt);g.lineTo(w*0.5,bt-nd);g.lineTo(w*0.5+nw/2,bt);g.stroke();
     g.restore();
@@ -443,19 +448,26 @@ function drawCard(g,x,y,w,h,card,o={}){
     g.fillText(lbl,px+pw/2,py+ph/2+1);
     const sy=h*0.82,sh=h*0.18;
     g.save();g.clip(p);
-    g.fillStyle=CARD_COLORS.red.b;g.fillRect(0,sy,w/2,sh);
-    g.fillStyle=CARD_COLORS.blue.b;g.fillRect(w/2,sy,w/2,sh);
-    g.fillStyle='#000';g.font='700 10px "Arial Narrow",Arial,sans-serif';
-    g.textAlign='center';g.textBaseline='middle';
-    g.fillText('-',w*0.25,sy+sh/2);g.fillText('+',w*0.75,sy+sh/2);
+    if(isDual){
+      g.fillStyle=CARD_COLORS.red.b;g.fillRect(0,sy,w/2,sh);
+      g.fillStyle=CARD_COLORS.blue.b;g.fillRect(w/2,sy,w/2,sh);
+      g.fillStyle='#000';g.font='700 10px "Arial Narrow",Arial,sans-serif';
+      g.textAlign='center';g.textBaseline='middle';
+      g.fillText('-',w*0.25,sy+sh/2);g.fillText('+',w*0.75,sy+sh/2);
+    }else{
+      g.fillStyle=bandColor;g.fillRect(0,sy,w,sh);
+      g.fillStyle='#000';g.font='700 10px "Arial Narrow",Arial,sans-serif';
+      g.textAlign='center';g.textBaseline='middle';
+      g.fillText(isPlus?'+':isMinus?'-':orient>0?'+':'-',w*0.5,sy+sh/2);
+    }
     g.restore();
     const bx=w-w*0.15,by=h*0.12,br=w*0.08;
     g.beginPath();g.arc(bx,by,br,0,Math.PI*2);
-    g.fillStyle=isTopBlue?CARD_COLORS.blue.b:CARD_COLORS.red.b;g.fill();
+    g.fillStyle=bandColor;g.fill();
     g.strokeStyle='rgba(0,0,0,0.5)';g.lineWidth=1;g.stroke();
     g.fillStyle='#fff';g.font=`700 ${Math.round(br*1.2)}px "Arial Narrow",Arial,sans-serif`;
     g.textAlign='center';g.textBaseline='middle';
-    g.fillText(isTopBlue?'+':'-',bx,by);
+    g.fillText(isPlus?'+':isMinus?'-':orient>0?'+':'-',bx,by);
   }
   g.restore();
 }
