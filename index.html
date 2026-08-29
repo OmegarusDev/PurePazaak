@@ -357,7 +357,7 @@ function computeLayout(){
   }
 }
 function slotRect(grid,r,c){return {x:grid.x+c*(L.sw+L.gap),y:grid.y+r*(L.sh+L.gap),w:L.sw,h:L.sh};}
-const CARD_COLORS={green:{b:'#3aa54a',l:'#66cc6e',d:'#1e6e2e'},blue:{b:'#2743cf',l:'#4a66ee',d:'#131f78'},red:{b:'#b52222',l:'#e04040',d:'#6c0f0f'},gold:{b:'#c8a830',l:'#ecd460',d:'#8a6e10'},silver:{b:'#a8a8ae',l:'#cacace',d:'#787880'}};
+const CARD_COLORS={green:{b:'#2fa040',l:'#5ac468',d:'#1a6e2a'},blue:{b:'#15308a',l:'#2f4fb8',d:'#0a1f60'},red:{b:'#9c1e1e',l:'#d04030',d:'#5a0f0f'},gold:{b:'#b89a1e',l:'#e0c854',d:'#7a5a0a'},silver:{b:'#a8a8ae',l:'#cacace',d:'#787880'}};
 const TEX={};
 function makeTex(key,base,light,dark){
   const c=document.createElement('canvas');c.width=96;c.height=112;const g=c.getContext('2d');
@@ -406,7 +406,7 @@ function drawCard(g,x,y,w,h,card,o={}){
   const isMain=card.kind==='main';
   const isSpecial=card.kind==='tie'||card.kind==='dbl'||card.kind==='flip';
   if(o.glow!==false){g.save();g.shadowColor=CARD_COLORS[key].b;g.shadowBlur=9;g.fillStyle='#000';g.fill(p);g.restore();}
-  g.save();g.clip(p);g.drawImage(TEX[key],0,0,w,h);g.restore();
+  g.save();g.clip(p);g.drawImage(TEX[isMain||isSpecial?key:'silver'],0,0,w,h);g.restore();
   g.strokeStyle='rgba(0,0,0,0.6)';g.lineWidth=1.5;g.stroke(p);
   if(isMain||isSpecial){
     g.save();g.clip(p);
@@ -426,7 +426,7 @@ function drawCard(g,x,y,w,h,card,o={}){
     if(isPlus) bandColor=CARD_COLORS.blue.b;
     else if(isMinus) bandColor=CARD_COLORS.red.b;
     else bandColor=orient>0?CARD_COLORS.blue.b:CARD_COLORS.red.b;
-    const nd=h*0.12,nw=w*0.6,bb=h*0.38,bt=h*0.62;
+    const nd=h*0.068,nw=w*0.55,bb=h*0.330,bt=h*0.525;
     g.save();g.clip(p);
     g.beginPath();g.moveTo(0,0);g.lineTo(w,0);g.lineTo(w,bb);
     g.lineTo(w*0.5+nw/2,bb);g.lineTo(w*0.5,bb+nd);g.lineTo(w*0.5-nw/2,bb);g.lineTo(0,bb);g.closePath();
@@ -435,18 +435,18 @@ function drawCard(g,x,y,w,h,card,o={}){
     g.beginPath();g.moveTo(0,bt);g.lineTo(w*0.5-nw/2,bt);g.lineTo(w*0.5,bt-nd);
     g.lineTo(w*0.5+nw/2,bt);g.lineTo(w,bt);g.lineTo(w,h);g.lineTo(0,h);g.closePath();
     g.fillStyle=bandColor2;g.fill();
-    g.strokeStyle='rgba(120,100,40,0.7)';g.lineWidth=1.5;
+    g.strokeStyle='rgba(180,160,90,0.55)';g.lineWidth=1.2;
     g.beginPath();g.moveTo(w*0.5-nw/2,bb);g.lineTo(w*0.5,bb+nd);g.lineTo(w*0.5+nw/2,bb);g.stroke();
     g.beginPath();g.moveTo(w*0.5-nw/2,bt);g.lineTo(w*0.5,bt-nd);g.lineTo(w*0.5+nw/2,bt);g.stroke();
     g.restore();
-    const px=w*0.15,py=h*0.38,pw=w*0.7,ph=h*0.24;
+    const px=w*0.225,py=h*0.33,pw=w*0.55,ph=h*0.19;
     rr(g,px,py,pw,ph,4);g.fillStyle='#0b0b0e';g.fill();
-    g.strokeStyle='rgba(255,255,255,0.14)';g.lineWidth=1;g.stroke();
+    g.strokeStyle='rgba(255,255,255,0.10)';g.lineWidth=1;g.stroke();
     const lbl=cardLabel(card,orient);
     g.fillStyle='#fff';g.textAlign='center';g.textBaseline='middle';
-    g.font=`700 ${Math.round(ph*(lbl.length>3?0.58:0.78))}px "Arial Narrow",Arial,sans-serif`;
+    g.font=`700 ${Math.round(ph*(lbl.length>3?0.58:0.76))}px "Arial Narrow",Arial,sans-serif`;
     g.fillText(lbl,px+pw/2,py+ph/2+1);
-    const sy=h*0.82,sh=h*0.18;
+    const sy=h*0.86,sh=h*0.14;
     g.save();g.clip(p);
     if(isDual){
       g.fillStyle=CARD_COLORS.red.b;g.fillRect(0,sy,w/2,sh);
