@@ -532,10 +532,11 @@ function drawCard(g,x,y,w,h,card,o={}){
     // badge - GEOM.badge circle at top-right, deterministic, yellow with plus/minus
     const bd=GEOM.badge;
     const bx=bd.cx*w,by=bd.cy*h,br=bd.r*Math.min(w,h);
+    const badgeFill=isPlus?CARD_COLORS.blue.b:isMinus?CARD_COLORS.red.b:(orient>0?CARD_COLORS.blue.b:CARD_COLORS.red.b);
     g.beginPath();g.arc(bx,by,br,0,Math.PI*2);
-    g.fillStyle='#f0c040';g.fill();
+    g.fillStyle=badgeFill;g.fill();
     g.strokeStyle='rgba(0,0,0,0.35)';g.lineWidth=1;g.stroke();
-    g.fillStyle='#000';g.font=`700 ${Math.round(br*1.1)}px "Arial Narrow",Arial,sans-serif`;
+    g.fillStyle='#f0c040';g.font=`700 ${Math.round(br*1.1)}px "Arial Narrow",Arial,sans-serif`;
     g.textAlign='center';g.textBaseline='middle';
     g.fillText(isPlus?'+':isMinus?'-':orient>0?'+':'-',bx,by+1);
   }
