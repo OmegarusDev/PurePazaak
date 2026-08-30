@@ -19,8 +19,8 @@ body{background:#141417;color:#cfd4de;font-family:"Arial Narrow",Arial,Helvetica
 .kbtn.danger{color:var(--red);text-shadow:0 0 6px rgba(224,85,85,.4)}
 .kbtn.danger:hover{border-color:var(--red);color:#ff8080;box-shadow:0 0 14px rgba(224,85,85,.3)}
 .kbtn.sm{min-width:clamp(90px,50vw,110px);padding:8px 14px;font-size:clamp(11px,3vw,13px);letter-spacing:clamp(2px,1vw,3px)}
-.logo{font-size:clamp(48px,12vw,82px);font-weight:700;letter-spacing:clamp(12px,3vw,24px);margin-left:clamp(8px,2vw,24px);color:#7fd4ff;text-shadow:0 0 18px rgba(58,162,232,.9),0 0 46px rgba(58,162,232,.45)}
-.logo-sub{font-size:clamp(14px,4vw,20px);font-weight:700;letter-spacing:clamp(8px,2vw,15px);margin-left:clamp(6px,1vw,15px);color:var(--amber);text-shadow:0 0 12px rgba(232,164,31,.6)}
+.logo{font-size:clamp(48px,12vw,82px);font-weight:700;letter-spacing:clamp(12px,3vw,24px);margin-left:clamp(8px,2vw,24px);color:#7fd4ff;text-shadow:0 0 18px rgba(58,162,232,.9),0 0 46px rgba(58,162,232,.45);font-family:"Eurostile","Bank Gothic","Arial Narrow",Arial,sans-serif}
+.logo-sub{font-size:clamp(14px,4vw,20px);font-weight:700;letter-spacing:clamp(8px,2vw,15px);margin-left:clamp(6px,1vw,15px);color:var(--amber);text-shadow:0 0 12px rgba(232,164,31,.6);font-family:"Eurostile","Bank Gothic","Arial Narrow",Arial,sans-serif}
 .panel{background:linear-gradient(180deg,rgba(72,72,80,.92),rgba(38,38,44,.94));border:1px solid rgba(200,200,212,.35);border-radius:14px;padding:clamp(16px,4vw,26px) clamp(20px,5vw,34px);box-shadow:0 8px 30px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.12);display:flex;flex-direction:column;gap:clamp(8px,2vw,12px);align-items:center;width:100%;max-width:90vw}
 .scrh{font-size:26px;font-weight:700;letter-spacing:10px;color:#7fd4ff;text-shadow:0 0 12px rgba(58,162,232,.7)}
 .foot{font-size:12px;letter-spacing:3px;color:#6a6a74}
@@ -326,30 +326,35 @@ function computeLayout(){
   PORTRAIT=window.innerHeight>window.innerWidth;
   if(!PORTRAIT){
     W=1024;H=768;
+    // Authentic KOTOR proportions from RefBoard 1080x607 (frame 187,33,710x539 => 0.173,0.054,0.657,0.888)
+    // Top black bars 262,58,229x27 (0.2426,0.0955,0.212,0.0445) and 589,58,229x27 (0.545,0.0955)
     L={
-      frame:{x:72,y:64,w:880,h:640,r:30},
-      top:{x:100,y:78,w:824,h:32},
-      orbP:{x:124,y:94,r:13},orbO:{x:900,y:94,r:13},
-      nameP:{x:146,y:94},nameO:{x:878,y:94},
-      badges:[{x:448,y:79},{x:524,y:79}],bw:52,bh:30,
-      chanP:{x:104,y:130,w:22,h:190},chanO:{x:898,y:130,w:22,h:190},
-      gridP:{x:176,y:130},gridO:{x:530,y:130},sw:102,sh:110,gap:6,
-      labP:{x:104,y:486,w:386,h:24},labO:{x:534,y:486,w:386,h:24},
-      handO:{x:534,y:516,sw:92,sh:108,hgap:6},
-      proj:{x:512,y:121},
-      vent:{x:104,y:658,w:386,h:42}
+      frame:{x:177,y:42,w:673,h:682,r:28},
+      top:{x:248,y:73,w:541,h:34},
+      topP:{x:248,y:73,w:217,h:34}, topO:{x:558,y:73,w:217,h:34},
+      orbP:{x:204,y:90,r:14},orbO:{x:820,y:90,r:14},
+      nameP:{x:232,y:90},nameO:{x:792,y:90},
+      badges:[{x:456,y:74},{x:518,y:74}],bw:48,bh:28,
+      chanP:{x:196,y:128,w:20,h:184},chanO:{x:808,y:128,w:20,h:184},
+      gridP:{x:236,y:128},gridO:{x:518,y:128},sw:96,sh:104,gap:7,
+      labP:{x:196,y:468,w:368,h:22},labO:{x:518,y:468,w:368,h:22},
+      handO:{x:518,y:500,sw:86,sh:102,hgap:6},
+      proj:{x:512,y:118},
+      vent:{x:196,y:642,w:368,h:38}
     };
   }else{
     W=720;H=1180;
+    // Vertical: stack player (bottom) / opponent (top) with same proportions, keep reactive
     L={
       frame:{x:20,y:20,w:680,h:1140,r:28},
       top:{x:40,y:36,w:640,h:28},
-      orbP:{x:60,y:600,r:11},orbO:{x:60,y:72,r:11},
-      nameP:{x:82,y:600},nameO:{x:82,y:72},
-      badges:[{x:588,y:594,w:54,h:30},{x:588,y:66,w:54,h:30}],bw:54,bh:30,
-      chanP:{x:128,y:620,w:14,h:494},chanO:{x:128,y:110,w:14,h:494},
-      gridP:{x:152,y:620},gridO:{x:152,y:110},sw:132,sh:158,gap:10,
-      labP:{x:152,y:596,w:416,h:22},labO:{x:152,y:86,w:416,h:22},
+      topP:{x:40,y:36,w:308,h:28}, topO:{x:372,y:36,w:308,h:28},
+      orbP:{x:58,y:50,r:12},orbO:{x:662,y:50,r:12},
+      nameP:{x:82,y:50},nameO:{x:638,y:50},
+      badges:[{x:320,y:50},{x:382,y:50}],bw:48,bh:26,
+      chanP:{x:28,y:620,w:14,h:420},chanO:{x:28,y:110,w:14,h:420},
+      gridP:{x:52,y:620},gridO:{x:52,y:110},sw:132,sh:148,gap:10,
+      labP:{x:52,y:596,w:416,h:22},labO:{x:52,y:86,w:416,h:22},
       handO:null,
       proj:{x:360,y:606},
       vent:null
@@ -361,7 +366,7 @@ const CARD_COLORS={green:{b:'#2fa040',l:'#5ac468',d:'#1a6e2a'},blue:{b:'#0a2ec0'
 const TEX={};
 function makeTex(key,base,light,dark){
   const c=document.createElement('canvas');c.width=96;c.height=112;const g=c.getContext('2d');
-  const horizontal=key==='blue'||key==='red';
+  const horizontal=key==='blue'||key==='red'||key==='green';
   const lg=horizontal?g.createLinearGradient(0,0,96,0):g.createLinearGradient(0,0,0,112);
   if(horizontal){
     lg.addColorStop(0,shade(base,-8));lg.addColorStop(0.5,shade(base,10));lg.addColorStop(1,shade(base,-12));
@@ -457,9 +462,9 @@ function drawCard(g,x,y,w,h,card,o={}){
   const isMain=card.kind==='main';
   const isSpecial=card.kind==='tie'||card.kind==='dbl'||card.kind==='flip';
   if(o.glow!==false){g.save();g.shadowColor=CARD_COLORS[key].b;g.shadowBlur=9;g.fillStyle='#000';g.fill(p);g.restore();}
-  g.save();g.clip(p);g.drawImage(TEX[isMain||isSpecial?key:'taupe'],0,0,w,h);g.restore();
+  g.save();g.clip(p);g.drawImage(TEX[isSpecial?key:'taupe'],0,0,w,h);g.restore();
   g.strokeStyle='rgba(0,0,0,0.6)';g.lineWidth=1.5;g.stroke(p);
-  if(isMain||isSpecial){
+  if(isSpecial){
     g.save();g.clip(p);
     const d=Math.min(w,h)*0.42,cx=w/2,cy=h*0.5;
     const dp=new Path2D();dp.moveTo(cx,cy-d/2);dp.lineTo(cx+d/2,cy);dp.lineTo(cx,cy+d/2);dp.lineTo(cx-d/2,cy);dp.closePath();
@@ -470,11 +475,13 @@ function drawCard(g,x,y,w,h,card,o={}){
     if(lbl){g.fillStyle='#fff';g.textAlign='center';g.textBaseline='middle';
       g.font=`700 ${Math.round(h*0.22)}px "Arial Narrow",Arial,sans-serif`;g.fillText(lbl,w/2,h*0.5);}
   }else{
+    const isMainCard=isMain;
     const isPlus=card.kind==='mod'&&card.sign>0;
     const isMinus=card.kind==='mod'&&card.sign<0;
     const isDual=card.kind==='dual';
     let bandKey,bandKey2;
-    if(isPlus){bandKey='blue';bandKey2='blue';}
+    if(isMainCard){bandKey='green';bandKey2='green';}
+    else if(isPlus){bandKey='blue';bandKey2='blue';}
     else if(isMinus){bandKey='red';bandKey2='red';}
     else{bandKey=orient>0?'blue':'red';bandKey2=orient>0?'red':'blue';}
     // --- Pure vector geometry (GEOM) — deterministic, res-independent, svgsmith-analysed ---
@@ -516,6 +523,14 @@ function drawCard(g,x,y,w,h,card,o={}){
       g.fillStyle='#000';g.font=`700 ${Math.round(sh*0.55)}px "Arial Narrow",Arial,sans-serif`;
       g.textAlign='center';g.textBaseline='middle';
       g.fillText('-',(b.x+b.w*0.25)*w,(b.y+b.h/2)*h+1);g.fillText('+',(b.x+b.w*0.75)*w,(b.y+b.h/2)*h+1);
+    }else if(isMainCard){
+      // main deck (green) bottom strip - solid green, no glyph
+      const b=GEOM.bottomStrip;
+      g.save();g.translate(b.x*w,b.y*h);
+      const bp2=rrPath(b.w*w,b.h*h,Math.min(w,h)*b.r);
+      g.clip(bp2);
+      g.drawImage(TEX[bandKey],-b.x*w,-b.y*h,w,h);
+      g.restore();
     }else{
       // bottom strip - GEOM.bottomStrip rounded rect, single colour (pure code)
       const b=GEOM.bottomStrip;
@@ -529,16 +544,18 @@ function drawCard(g,x,y,w,h,card,o={}){
       g.fillText(isPlus?'+':isMinus?'-':orient>0?'+':'-',(b.x+b.w/2)*w,(b.y+b.h/2)*h+1);
     }
     g.restore();
-    // badge - GEOM.badge circle at top-right, deterministic, yellow with plus/minus
-    const bd=GEOM.badge;
-    const bx=bd.cx*w,by=bd.cy*h,br=bd.r*Math.min(w,h);
-    const badgeFill=isPlus?CARD_COLORS.blue.b:isMinus?CARD_COLORS.red.b:(orient>0?CARD_COLORS.blue.b:CARD_COLORS.red.b);
-    g.beginPath();g.arc(bx,by,br,0,Math.PI*2);
-    g.fillStyle=badgeFill;g.fill();
-    g.strokeStyle='rgba(0,0,0,0.35)';g.lineWidth=1;g.stroke();
-    g.fillStyle='#f0c040';g.font=`700 ${Math.round(br*1.1)}px "Arial Narrow",Arial,sans-serif`;
-    g.textAlign='center';g.textBaseline='middle';
-    g.fillText(isPlus?'+':isMinus?'-':orient>0?'+':'-',bx,by+1);
+    // badge - GEOM.badge circle at top-right for mod/dual only (main has no badge)
+    if(!isMainCard){
+      const bd=GEOM.badge;
+      const bx=bd.cx*w,by=bd.cy*h,br=bd.r*Math.min(w,h);
+      const badgeFill=isPlus?CARD_COLORS.blue.b:isMinus?CARD_COLORS.red.b:(orient>0?CARD_COLORS.blue.b:CARD_COLORS.red.b);
+      g.beginPath();g.arc(bx,by,br,0,Math.PI*2);
+      g.fillStyle=badgeFill;g.fill();
+      g.strokeStyle='rgba(0,0,0,0.35)';g.lineWidth=1;g.stroke();
+      g.fillStyle='#f0c040';g.font=`700 ${Math.round(br*1.1)}px "Arial Narrow",Arial,sans-serif`;
+      g.textAlign='center';g.textBaseline='middle';
+      g.fillText(isPlus?'+':isMinus?'-':orient>0?'+':'-',bx,by+1);
+    }
   }
   g.restore();
 }
@@ -563,22 +580,24 @@ function drawRivet(g,x,y){
   g.beginPath();g.arc(x-1.5,y-1.8,1.1,0,7);g.fillStyle='rgba(255,255,255,0.7)';g.fill();
 }
 function drawFrame(g){
-  brushed(g,0,0,W,H,'#26262a',true);
+  // Authentic KOTOR brushed outside + inner frame
+  brushed(g,0,0,W,H,'#8a8a8e',false);
   const f=L.frame;
   g.save();rr(g,f.x,f.y,f.w,f.h,f.r);g.clip();
   const gr=g.createLinearGradient(0,f.y,0,f.y+f.h);
-  gr.addColorStop(0,'#7e7e86');gr.addColorStop(0.12,'#5c5c64');gr.addColorStop(0.5,'#4a4a52');gr.addColorStop(1,'#38383e');
+  gr.addColorStop(0,'#9a9aa2');gr.addColorStop(0.15,'#7a7a82');gr.addColorStop(0.5,'#5e5e66');gr.addColorStop(1,'#4a4a52');
   g.fillStyle=gr;g.fillRect(f.x,f.y,f.w,f.h);
-  for(let y=f.y;y<f.y+f.h;y++){if(Math.random()<0.5){const a=Math.random()*0.045;
-    g.strokeStyle=Math.random()<0.5?`rgba(255,255,255,${a})`:`rgba(0,0,0,${a*1.3})`;
+  for(let y=f.y;y<f.y+f.h;y++){if(Math.random()<0.45){const a=Math.random()*0.035;
+    g.strokeStyle=Math.random()<0.5?`rgba(255,255,255,${a})`:`rgba(0,0,0,${a*1.2})`;
     g.beginPath();g.moveTo(f.x,y+0.5);g.lineTo(f.x+f.w,y+0.5);g.stroke();}}
-  rr(g,f.x+12,f.y+12,f.w-24,f.h-24,f.r-8);g.fillStyle='rgba(0,0,0,0.10)';g.fill();
-  g.strokeStyle='rgba(255,255,255,0.07)';g.lineWidth=1;g.stroke();
+  // inner bevel
+  rr(g,f.x+10,f.y+10,f.w-20,f.h-20,f.r-7);g.fillStyle='rgba(0,0,0,0.14)';g.fill();
+  g.strokeStyle='rgba(255,255,255,0.06)';g.lineWidth=1;g.stroke();
   g.restore();
-  g.strokeStyle='rgba(200,200,212,0.5)';g.lineWidth=2;rr(g,f.x,f.y,f.w,f.h,f.r);g.stroke();
-  g.strokeStyle='rgba(0,0,0,0.55)';g.lineWidth=1;rr(g,f.x+2.5,f.y+2.5,f.w-5,f.h-5,f.r-2);g.stroke();
-  drawRivet(g,f.x+18,f.y+18);drawRivet(g,f.x+f.w-18,f.y+18);
-  drawRivet(g,f.x+18,f.y+f.h-18);drawRivet(g,f.x+f.w-18,f.y+f.h-18);
+  g.strokeStyle='rgba(200,200,212,0.45)';g.lineWidth=2;rr(g,f.x,f.y,f.w,f.h,f.r);g.stroke();
+  g.strokeStyle='rgba(0,0,0,0.55)';g.lineWidth=1;rr(g,f.x+2,f.y+2,f.w-4,f.h-4,f.r-2);g.stroke();
+  drawRivet(g,f.x+16,f.y+16);drawRivet(g,f.x+f.w-16,f.y+16);
+  drawRivet(g,f.x+16,f.y+f.h-16);drawRivet(g,f.x+f.w-16,f.y+f.h-16);
 }
 function drawSlot(g,rct){
   const gr=g.createLinearGradient(0,rct.y,0,rct.y+rct.h);
@@ -858,13 +877,16 @@ function renderStatic(){
   STATIC=document.createElement('canvas');STATIC.width=W*DPR;STATIC.height=H*DPR;
   const g=STATIC.getContext('2d');g.setTransform(DPR,0,0,DPR,0,0);
   drawFrame(g);
-  rr(g,L.top.x,L.top.y,L.top.w,L.top.h,16);
-  g.fillStyle='#0a0a0c';g.fill();g.strokeStyle='#000';g.lineWidth=1;g.stroke();
-  g.strokeStyle='rgba(255,255,255,0.09)';
-  g.beginPath();g.moveTo(L.top.x+14,L.top.y+1.5);g.lineTo(L.top.x+L.top.w-14,L.top.y+1.5);g.stroke();
+  // Authentic KOTOR top: two black bars with gap for scores, orbs at outer ends
+  for(const top of [L.topP, L.topO]){
+    rr(g,top.x,top.y,top.w,top.h,8);
+    g.fillStyle='#0a0a0c';g.fill();g.strokeStyle='#000';g.lineWidth=1;g.stroke();
+    g.strokeStyle='rgba(255,255,255,0.07)';
+    g.beginPath();g.moveTo(top.x+10,top.y+1.5);g.lineTo(top.x+top.w-10,top.y+1.5);g.stroke();
+  }
   const on=M;
-  tText(g,'YOU',L.nameP.x,L.nameP.y,13,'#ecd883',3,'left');
-  tText(g,on?on.opp.name:'OPPONENT',L.nameO.x,L.nameO.y,13,'#ecd883',3,'right');
+  tText(g,'YOU',L.nameP.x,L.nameP.y,12,'#ecd883',2.5,'left');
+  tText(g,on?on.opp.name:'OPPONENT',L.nameO.x,L.nameO.y,12,'#ecd883',2.5,'right');
   if(!PORTRAIT){
     drawVentDecor(g,350,82);drawCircleDecor(g,[386,402,418],94,-1);
     drawCircleDecor(g,[590,606,622],94,0);drawVentDecor(g,636,82);
