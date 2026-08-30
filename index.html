@@ -344,19 +344,19 @@ function computeLayout(){
     };
   }else{
     W=720;H=1180;
-    // Vertical: stack player (bottom) / opponent (top) with same proportions, keep reactive
+    // Vertical: stack player (bottom) / opponent (top), keep reactive, leave room for hand DOM at bottom
     L={
-      frame:{x:20,y:20,w:680,h:1140,r:28},
+      frame:{x:20,y:20,w:680,h:820,r:28},
       top:{x:40,y:36,w:640,h:28},
       topP:{x:40,y:36,w:308,h:28}, topO:{x:372,y:36,w:308,h:28},
       orbP:{x:58,y:50,r:12},orbO:{x:662,y:50,r:12},
       nameP:{x:82,y:50},nameO:{x:638,y:50},
       badges:[{x:320,y:50},{x:382,y:50}],bw:48,bh:26,
-      chanP:{x:28,y:620,w:14,h:420},chanO:{x:28,y:110,w:14,h:420},
+      chanP:{x:28,y:620,w:14,h:180},chanO:{x:28,y:110,w:14,h:180},
       gridP:{x:52,y:620},gridO:{x:52,y:110},sw:132,sh:148,gap:10,
       labP:{x:52,y:596,w:416,h:22},labO:{x:52,y:86,w:416,h:22},
       handO:null,
-      proj:{x:360,y:606},
+      proj:{x:360,y:520},
       vent:null
     };
   }
@@ -497,9 +497,9 @@ function drawCard(g,x,y,w,h,card,o={}){
     // black panel - GEOM.blackPanel rounded rect (0.1678,0.3303,0.6678,0.1969, r0.012) - deterministic
     const bp=GEOM.blackPanel;
     rr(g,bp.x*w,bp.y*h,bp.w*w,bp.h*h,Math.min(w,h)*bp.r);
-    g.fillStyle=bp.fill;g.fill();
-    g.strokeStyle=bp.stroke;g.lineWidth=1;g.stroke();
-    g.strokeStyle=bp.stroke2;g.lineWidth=bp.lw;g.stroke();
+    g.fillStyle='#0b0b0e';g.fill();
+    g.strokeStyle='rgba(255,255,255,0.08)';g.lineWidth=1;g.stroke();
+    g.strokeStyle='rgba(40,30,20,0.6)';g.lineWidth=1.2;g.stroke();
     const lbl=cardLabel(card,orient);
     g.fillStyle='#fff';g.textAlign='center';g.textBaseline='middle';
     const bh2=bp.h*h;
