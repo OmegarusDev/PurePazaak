@@ -63,8 +63,8 @@ body{background:#141417;color:#cfd4de;font-family:"Arial Narrow",Arial,Helvetica
 .deckside{display:flex;flex-direction:column;gap:14px;align-items:center;min-width:280px;width:100%;max-width:300px;align-self:flex-start;height:auto}
 #deckcount{font-size:20px;font-weight:700;letter-spacing:4px;color:var(--gold)}
 #deckcount.full{color:#5fce6e;text-shadow:0 0 10px rgba(95,206,110,.5)}
-#sidedeck{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:8px}
-.sslot{width:64px;height:76px;border:1px dashed #3a3a44;border-radius:6px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+#sidedeck{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;width:100%}
+.sslot{width:100%;aspect-ratio:64/76;min-height:76px;border:1px dashed #3a3a44;border-radius:6px;display:flex;align-items:center;justify-content:center;cursor:pointer}
 .sslot:hover{border-color:var(--red)}
 .sslot canvas{width:100%;max-width:64px;height:auto;aspect-ratio:64/76}
 .deckbtns{display:flex;gap:10px}
