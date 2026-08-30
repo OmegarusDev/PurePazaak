@@ -363,22 +363,23 @@ function makeTex(key,base,light,dark){
   const c=document.createElement('canvas');c.width=96;c.height=112;const g=c.getContext('2d');
   const horizontal=key==='blue'||key==='red';
   const lg=horizontal?g.createLinearGradient(0,0,96,0):g.createLinearGradient(0,0,0,112);
-  lg.addColorStop(0,light);lg.addColorStop(0.45,base);lg.addColorStop(1,dark);
+  if(horizontal){
+    lg.addColorStop(0,shade(base,-8));lg.addColorStop(0.5,shade(base,10));lg.addColorStop(1,shade(base,-12));
+  }else{
+    lg.addColorStop(0,light);lg.addColorStop(0.45,base);lg.addColorStop(1,dark);
+  }
   g.fillStyle=lg;g.fillRect(0,0,96,112);
-  for(let i=0;i<112;i++){if(Math.random()<0.85){const a=Math.random()*0.06;
-    g.strokeStyle=Math.random()<0.5?`rgba(255,255,255,${a})`:`rgba(0,0,0,${a*1.4})`;
+  for(let i=0;i<112;i++){if(Math.random()<0.80){const a=Math.random()*(horizontal?0.05:0.06);
+    g.strokeStyle=Math.random()<0.5?`rgba(255,255,255,${a})`:`rgba(0,0,0,${a*1.3})`;
     g.beginPath();
-    if(horizontal){g.moveTo(0.5+i%96,0);g.lineTo(0.5+i%96,112);}else{g.moveTo(0,i+0.5);g.lineTo(96,i+0.5);}
+    if(horizontal){g.moveTo(0,i+0.5);g.lineTo(96,i+0.5);}else{g.moveTo(0.5+i%96,0);g.lineTo(0.5+i%96,112);}
     g.stroke();}}
   const rg=g.createRadialGradient(48,48,18,48,56,92);
-  rg.addColorStop(0,'rgba(255,255,255,0.10)');rg.addColorStop(0.7,'rgba(0,0,0,0)');rg.addColorStop(1,'rgba(0,0,0,0.25)');
+  rg.addColorStop(0,'rgba(255,255,255,0.08)');rg.addColorStop(0.7,'rgba(0,0,0,0)');rg.addColorStop(1,'rgba(0,0,0,0.22)');
   g.fillStyle=rg;g.fillRect(0,0,96,112);
   TEX[key]=c;
 }
 function initTextures(){for(const k in CARD_COLORS)makeTex(k,CARD_COLORS[k].b,CARD_COLORS[k].l,CARD_COLORS[k].d);}
-function cardPath(w,h){
-  return rrPath(w,h,Math.min(w,h)*0.045);
-}
 function cardPath(w,h){
   return rrPath(w,h,Math.min(w,h)*0.045);
 }
@@ -389,19 +390,19 @@ function cardPath(w,h){
 // Symmetry: topPanel ↔ midPanel are vertical translations dy=0.5155 with V inverted (rotational 180° around centre 0.5,0.43); blackPanel centred (0.5,0.4287); badge circle rotationally symmetric
 const GEOM={
   outer:{x:0,y:0,w:1,h:0.996,r:0.045},
-  // Top/mid panels — SAME dimensions, inverted V, centred (per polish: top was 0.7921w too wide vs mid 0.7305w)
-  // Unified: w0.7305 h0.1655 x0.1347 (0.5-w/2) — top at y0.0647, mid at y0.5718 (dy0.5071), V base 0.40w depth 0.548h (mid) / 0.405h (top) now unified to 0.48h avg for symmetry
-  topPanel:{x:0.1347,y:0.0647,w:0.7305,h:0.1655, r:0.012, nw:0.40, nd:0.48, tip:{x:0.5,y:0.1956}},
-  // Mid panel — same w/h as top, V inverted (tip down)
-  midPanel:{x:0.1347,y:0.5718,w:0.7305,h:0.1655, r:0.012, nw:0.40, nd:0.48, tip:{x:0.5,y:0.6625}},
+  // Top/mid panels — SAME dimensions, inverted V, centred + diamond centred on blackPanel (0.4287)
+  // Unified: w0.7305 h0.1655 x0.1347 — top y0.0924 (was 0.0647), mid y0.5995 (was 0.5718) dy0.5071, V 0.40w/0.48h
+  topPanel:{x:0.1347,y:0.0924,w:0.7305,h:0.1655, r:0.012, nw:0.40, nd:0.48, tip:{x:0.5,y:0.1785}},
+  // Mid panel — same w/h as top, V inverted (tip down) at 0.6789
+  midPanel:{x:0.1347,y:0.5995,w:0.7305,h:0.1655, r:0.012, nw:0.40, nd:0.48, tip:{x:0.5,y:0.6789}},
   // Black panel — rounded rect, centred
   blackPanel:{x:0.1678,y:0.3303,w:0.6678,h:0.1969,r:0.012},
   // Bottom strip — same width as top/mid for perfect symmetry, centred
   bottomStrip:{x:0.1347,y:0.8333,w:0.7305,h:0.1628,r:0.012},
   // Badge — circle at top-right, plus/minus glyph centred
   badge:{cx:0.822,cy:0.1497,r:0.0482},
-  // Diamond — implicit gap between Vs, height 0.5004h (0.1508->0.6512), width 0.40w at mid (inverted symmetry)
-  diamond:{tipTop:{x:0.5,y:0.1508}, tipBot:{x:0.5,y:0.6512}, baseTop:0.2302, baseBot:0.5718}
+  // Diamond — implicit gap between Vs, height 0.5004h (0.1785->0.6789), width 0.40w at mid, centred on blackPanel
+  diamond:{tipTop:{x:0.5,y:0.1785}, tipBot:{x:0.5,y:0.6789}, baseTop:0.2579, baseBot:0.5995}
 };
 function vNotchedTopPath(x,y,w,h,r,nw,nd){
   const p=new Path2D();
