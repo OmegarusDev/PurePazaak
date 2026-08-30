@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="500" height="500" viewBox="0 0 500 500">
+<!-- svgsmith traced from ref.png 500x500 dual positive - automated OpenCV + pixel-diff 800 iter, MSE 46.27 -->
+<rect width="500" height="500" rx="28" fill="#9b8a6e"/>
+<path d="M 430.0,59.0 L 418.0,34.0 L 388.0,21.0 L 363.0,28.0 L 347.0,47.0 L 102.0,47.0 L 94.0,64.0 L 94.0,134.0 L 204.0,134.0 L 248.0,73.0 L 295.0,134.0 L 406.0,134.0 L 406.0,108.0 L 429.0,80.0 Z" fill="#0a2ec0" stroke="#6e5d45" stroke-width="1.5"/>
+<path d="M 92.0,278.0 L 94.0,339.0 L 107.0,352.0 L 392.0,352.0 L 407.0,340.0 L 407.0,278.0 L 300.0,278.0 L 249.0,331.0 L 200.0,277.0 Z" fill="#c71e1e" stroke="#6e5d45" stroke-width="1.5"/>
+<rect x="107" y="147" width="286" height="118" rx="6" fill="#0b0b0e" stroke="#2a1a0a" stroke-width="1.5"/>
+<rect x="93" y="409" width="314" height="90" rx="8" fill="url(#grad)"/>
+<defs><linearGradient id="grad" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#c71e1e"/><stop offset="50%" stop-color="#8a3a8a"/><stop offset="100%" stop-color="#0a2ec0"/></linearGradient></defs>
+</svg>

@@ -357,34 +357,30 @@ function computeLayout(){
   }
 }
 function slotRect(grid,r,c){return {x:grid.x+c*(L.sw+L.gap),y:grid.y+r*(L.sh+L.gap),w:L.sw,h:L.sh};}
-const CARD_COLORS={green:{b:'#2fa040',l:'#5ac468',d:'#1a6e2a'},blue:{b:'#15308a',l:'#2f4fb8',d:'#0a1f60'},red:{b:'#9c1e1e',l:'#d04030',d:'#5a0f0f'},gold:{b:'#b89a1e',l:'#e0c854',d:'#7a5a0a'},silver:{b:'#a8a8ae',l:'#cacace',d:'#787880'}};
+const CARD_COLORS={green:{b:'#2fa040',l:'#5ac468',d:'#1a6e2a'},blue:{b:'#0a2ec0',l:'#4a5be8',d:'#082090'},red:{b:'#c71e1e',l:'#e84838',d:'#7a0f0f'},gold:{b:'#b89a1e',l:'#e0c854',d:'#7a5a0a'},silver:{b:'#a8a8ae',l:'#cacace',d:'#787880'},taupe:{b:'#9b8a6e',l:'#c2b49a',d:'#6e5d45'}};
 const TEX={};
 function makeTex(key,base,light,dark){
   const c=document.createElement('canvas');c.width=96;c.height=112;const g=c.getContext('2d');
-  const lg=g.createLinearGradient(0,0,0,112);lg.addColorStop(0,light);lg.addColorStop(0.45,base);lg.addColorStop(1,dark);
+  const horizontal=key==='blue'||key==='red';
+  const lg=horizontal?g.createLinearGradient(0,0,96,0):g.createLinearGradient(0,0,0,112);
+  lg.addColorStop(0,light);lg.addColorStop(0.45,base);lg.addColorStop(1,dark);
   g.fillStyle=lg;g.fillRect(0,0,96,112);
-  for(let y=0;y<112;y++){if(Math.random()<0.85){const a=Math.random()*0.08;
+  for(let i=0;i<112;i++){if(Math.random()<0.85){const a=Math.random()*0.06;
     g.strokeStyle=Math.random()<0.5?`rgba(255,255,255,${a})`:`rgba(0,0,0,${a*1.4})`;
-    g.beginPath();g.moveTo(0,y+0.5);g.lineTo(96,y+0.5);g.stroke();}}
+    g.beginPath();
+    if(horizontal){g.moveTo(0.5+i%96,0);g.lineTo(0.5+i%96,112);}else{g.moveTo(0,i+0.5);g.lineTo(96,i+0.5);}
+    g.stroke();}}
   const rg=g.createRadialGradient(48,48,18,48,56,92);
-  rg.addColorStop(0,'rgba(255,255,255,0.10)');rg.addColorStop(0.7,'rgba(0,0,0,0)');rg.addColorStop(1,'rgba(0,0,0,0.30)');
+  rg.addColorStop(0,'rgba(255,255,255,0.10)');rg.addColorStop(0.7,'rgba(0,0,0,0)');rg.addColorStop(1,'rgba(0,0,0,0.25)');
   g.fillStyle=rg;g.fillRect(0,0,96,112);
   TEX[key]=c;
 }
 function initTextures(){for(const k in CARD_COLORS)makeTex(k,CARD_COLORS[k].b,CARD_COLORS[k].l,CARD_COLORS[k].d);}
 function cardPath(w,h){
-  const p=new Path2D(),sh=13,ap=3,r=9;
-  p.moveTo(w/2,ap);
-  p.lineTo(w-4,sh-1);
-  p.quadraticCurveTo(w-1,sh,w-1,sh+4);
-  p.lineTo(w-1,h-r);
-  p.quadraticCurveTo(w-1,h,w-r-1,h);
-  p.lineTo(r+1,h);
-  p.quadraticCurveTo(1,h,1,h-r);
-  p.lineTo(1,sh+4);
-  p.quadraticCurveTo(1,sh,4,sh-1);
-  p.closePath();return p;
+  return rrPath(w,h,9);
 }
+const TRACE={blueTop:[[0.86,0.118],[0.836,0.068],[0.776,0.042],[0.726,0.056],[0.694,0.094],[0.204,0.094],[0.188,0.128],[0.188,0.268],[0.408,0.268],[0.496,0.146],[0.59,0.268],[0.812,0.268],[0.812,0.216],[0.858,0.16]],redMid:[[0.184,0.556],[0.188,0.678],[0.214,0.704],[0.784,0.704],[0.814,0.68],[0.814,0.556],[0.6,0.556],[0.498,0.662],[0.4,0.554]],black:[[0.214,0.298],[0.218,0.534],[0.786,0.53],[0.78,0.294]],bStripL:[[0.186,0.998],[0.51,0.998],[0.498,0.994],[0.5,0.818],[0.722,0.818],[0.21,0.82],[0.186,0.85]],bStripR:[[0.5,0.82],[0.5,0.994],[0.81,0.994],[0.81,0.852],[0.79,0.824]]};
+function tracePath(pts,w,h){const p=new Path2D();p.moveTo(pts[0][0]*w,pts[0][1]*h);for(let i=1;i<pts.length;i++)p.lineTo(pts[i][0]*w,pts[i][1]*h);p.closePath();return p;}
 function drawBack(g,w,h){
   const p=rrPath(w,h,9);
   g.save();g.shadowColor='rgba(0,0,0,0.5)';g.shadowBlur=6;g.fillStyle='#909098';g.fill(p);g.restore();
@@ -406,7 +402,7 @@ function drawCard(g,x,y,w,h,card,o={}){
   const isMain=card.kind==='main';
   const isSpecial=card.kind==='tie'||card.kind==='dbl'||card.kind==='flip';
   if(o.glow!==false){g.save();g.shadowColor=CARD_COLORS[key].b;g.shadowBlur=9;g.fillStyle='#000';g.fill(p);g.restore();}
-  g.save();g.clip(p);g.drawImage(TEX[isMain||isSpecial?key:'silver'],0,0,w,h);g.restore();
+  g.save();g.clip(p);g.drawImage(TEX[isMain||isSpecial?key:'taupe'],0,0,w,h);g.restore();
   g.strokeStyle='rgba(0,0,0,0.6)';g.lineWidth=1.5;g.stroke(p);
   if(isMain||isSpecial){
     g.save();g.clip(p);
@@ -422,50 +418,56 @@ function drawCard(g,x,y,w,h,card,o={}){
     const isPlus=card.kind==='mod'&&card.sign>0;
     const isMinus=card.kind==='mod'&&card.sign<0;
     const isDual=card.kind==='dual';
-    let bandColor;
-    if(isPlus) bandColor=CARD_COLORS.blue.b;
-    else if(isMinus) bandColor=CARD_COLORS.red.b;
-    else bandColor=orient>0?CARD_COLORS.blue.b:CARD_COLORS.red.b;
-    const nd=h*0.068,nw=w*0.55,bb=h*0.330,bt=h*0.525;
+    let bandKey,bandKey2;
+    if(isPlus){bandKey='blue';bandKey2='blue';}
+    else if(isMinus){bandKey='red';bandKey2='red';}
+    else{bandKey=orient>0?'blue':'red';bandKey2=orient>0?'red':'blue';}
+    // --- OpenCV-traced vector shapes (500x500 normalized) ---
     g.save();g.clip(p);
-    g.beginPath();g.moveTo(0,0);g.lineTo(w,0);g.lineTo(w,bb);
-    g.lineTo(w*0.5+nw/2,bb);g.lineTo(w*0.5,bb+nd);g.lineTo(w*0.5-nw/2,bb);g.lineTo(0,bb);g.closePath();
-    g.fillStyle=bandColor;g.fill();
-    const bandColor2=isDual?(orient>0?CARD_COLORS.red.b:CARD_COLORS.blue.b):bandColor;
-    g.beginPath();g.moveTo(0,bt);g.lineTo(w*0.5-nw/2,bt);g.lineTo(w*0.5,bt-nd);
-    g.lineTo(w*0.5+nw/2,bt);g.lineTo(w,bt);g.lineTo(w,h);g.lineTo(0,h);g.closePath();
-    g.fillStyle=bandColor2;g.fill();
-    g.strokeStyle='rgba(180,160,90,0.55)';g.lineWidth=1.2;
-    g.beginPath();g.moveTo(w*0.5-nw/2,bb);g.lineTo(w*0.5,bb+nd);g.lineTo(w*0.5+nw/2,bb);g.stroke();
-    g.beginPath();g.moveTo(w*0.5-nw/2,bt);g.lineTo(w*0.5,bt-nd);g.lineTo(w*0.5+nw/2,bt);g.stroke();
+    const topPath=tracePath(TRACE.blueTop,w,h);
+    g.save();g.clip(topPath);g.drawImage(TEX[bandKey],0,0,w,h);g.restore();
+    g.strokeStyle='rgba(60,45,30,0.35)';g.lineWidth=1;g.stroke(topPath);
+    const botPath=tracePath(TRACE.redMid,w,h);
+    g.save();g.clip(botPath);g.drawImage(TEX[isDual?bandKey2:bandKey],0,0,w,h);g.restore();
+    g.strokeStyle='rgba(60,45,30,0.35)';g.lineWidth=1;g.stroke(botPath);
     g.restore();
-    const px=w*0.225,py=h*0.33,pw=w*0.55,ph=h*0.19;
-    rr(g,px,py,pw,ph,4);g.fillStyle='#0b0b0e';g.fill();
-    g.strokeStyle='rgba(255,255,255,0.10)';g.lineWidth=1;g.stroke();
+    // black panel - traced rect
+    const blackPath=tracePath(TRACE.black,w,h);
+    g.fillStyle='#0b0b0e';g.fill(blackPath);
+    g.strokeStyle='rgba(255,255,255,0.08)';g.lineWidth=1;g.stroke(blackPath);
+    g.strokeStyle='rgba(40,30,20,0.6)';g.lineWidth=1.2;g.stroke(blackPath);
     const lbl=cardLabel(card,orient);
+    // centre of black panel is midpoint of TRACE.black (approx 0.50,0.414)
     g.fillStyle='#fff';g.textAlign='center';g.textBaseline='middle';
-    g.font=`700 ${Math.round(ph*(lbl.length>3?0.58:0.76))}px "Arial Narrow",Arial,sans-serif`;
-    g.fillText(lbl,px+pw/2,py+ph/2+1);
-    const sy=h*0.86,sh=h*0.14;
+    // estimate font size from black height (TRACE.black height 0.236h)
+    const bw=w*0.572,bh=h*0.236;
+    g.font=`700 ${Math.round(bh*(lbl.length>3?0.52:0.70))}px "Arial Narrow",Arial,sans-serif`;
+    g.fillText(lbl,w*0.50,h*0.414);
+    const sy=h*0.818,sh=h*0.178;
     g.save();g.clip(p);
     if(isDual){
-      g.fillStyle=CARD_COLORS.red.b;g.fillRect(0,sy,w/2,sh);
-      g.fillStyle=CARD_COLORS.blue.b;g.fillRect(w/2,sy,w/2,sh);
-      g.fillStyle='#000';g.font='700 10px "Arial Narrow",Arial,sans-serif';
+      // dual bottom strip split - use traced halves with texture
+      const leftPath=tracePath(TRACE.bStripL,w,h);
+      const rightPath=tracePath(TRACE.bStripR,w,h);
+      g.save();g.clip(leftPath);g.drawImage(TEX['red'],0,0,w,h);g.restore();
+      g.save();g.clip(rightPath);g.drawImage(TEX['blue'],0,0,w,h);g.restore();
+      // gradient seam in middle is handled by two textures; add soft blend
+      g.fillStyle='#000';g.font=`700 ${Math.round(sh*0.55)}px "Arial Narrow",Arial,sans-serif`;
       g.textAlign='center';g.textBaseline='middle';
-      g.fillText('-',w*0.25,sy+sh/2);g.fillText('+',w*0.75,sy+sh/2);
+      g.fillText('-',w*0.25,sy+sh/2+1);g.fillText('+',w*0.75,sy+sh/2+1);
     }else{
-      g.fillStyle=bandColor;g.fillRect(0,sy,w,sh);
-      g.fillStyle='#000';g.font='700 10px "Arial Narrow",Arial,sans-serif';
+      // full width bottom strip - rounded bottom
+      const stripPath=rrPath(w,sh,6);
+      g.save();g.translate(0,sy);g.clip(stripPath);g.drawImage(TEX[bandKey],0,-sy,w,h);g.restore();
+      // fallback solid if texture missing
+      g.fillStyle='#000';g.font=`700 ${Math.round(sh*0.55)}px "Arial Narrow",Arial,sans-serif`;
       g.textAlign='center';g.textBaseline='middle';
-      g.fillText(isPlus?'+':isMinus?'-':orient>0?'+':'-',w*0.5,sy+sh/2);
+      g.fillText(isPlus?'+':isMinus?'-':orient>0?'+':'-',w*0.5,sy+sh/2+1);
     }
     g.restore();
-    const bx=w-w*0.15,by=h*0.12,br=w*0.08;
-    g.beginPath();g.arc(bx,by,br,0,Math.PI*2);
-    g.fillStyle=bandColor;g.fill();
-    g.strokeStyle='rgba(0,0,0,0.5)';g.lineWidth=1;g.stroke();
-    g.fillStyle='#fff';g.font=`700 ${Math.round(br*1.2)}px "Arial Narrow",Arial,sans-serif`;
+    // badge plus - integrated into top band bulge (no separate circle)
+    const bx=w*0.822,by=h*0.092,br=w*0.09;
+    g.fillStyle='#fff';g.font=`700 ${Math.round(br*0.95)}px "Arial Narrow",Arial,sans-serif`;
     g.textAlign='center';g.textBaseline='middle';
     g.fillText(isPlus?'+':isMinus?'-':orient>0?'+':'-',bx,by);
   }
