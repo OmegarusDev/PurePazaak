@@ -403,7 +403,8 @@ function cardPath(w,h){
 const GEOM={
   outer:{x:0,y:0,w:1,h:0.996,r:0.045},
   // Top/mid panels — SAME dimensions, inverted V, centred + diamond centred on blackPanel (0.4287)
-  // Unified: w0.7305 h0.1655 x0.1347 — top y0.0924 (was 0.0647), mid y0.5995 (was 0.5718) dy0.5071, V 0.40w/0.48h
+  // Unified: w0.7305 h0.1655 x0.1347 — top y0.0924, mid y0.5995 dy0.5071, V 0.40w/0.48h
+  // Badge slightly inset from corner by 2px (0.004w) to avoid optical illusion of being too far out
   topPanel:{x:0.1347,y:0.0924,w:0.7305,h:0.1655, r:0.012, nw:0.40, nd:0.48, tip:{x:0.5,y:0.1785}},
   // Mid panel — same w/h as top, V inverted (tip down) at 0.6789
   midPanel:{x:0.1347,y:0.5995,w:0.7305,h:0.1655, r:0.012, nw:0.40, nd:0.48, tip:{x:0.5,y:0.6789}},
@@ -411,9 +412,8 @@ const GEOM={
   blackPanel:{x:0.1678,y:0.3303,w:0.6678,h:0.1969,r:0.012},
   // Bottom strip — same width as top/mid for perfect symmetry, centred
   bottomStrip:{x:0.1347,y:0.8333,w:0.7305,h:0.1628,r:0.012},
-  // Badge — circle centred ON the top-right corner of the top coloured rect (x+w, y), no black outline, blends
-  // RefPlus top-right corner 0.9353,0.0596 vs badge 0.8269,0.1490 was offset; now exact corner 0.8652,0.0924 (GEOM.topPanel x+w, y)
-  badge:{cx:0.8652,cy:0.0924,r:0.0482},
+  // Badge — circle 2px inset from corner (0.8652,0.0924 -> 0.861,0.098) so centre is 0.004w left and 0.006h down, blends, no outline, subtle depth
+  badge:{cx:0.861,cy:0.098,r:0.0482},
   // Diamond — implicit gap between Vs, height 0.5004h (0.1785->0.6789), width 0.40w at mid, centred on blackPanel
   diamond:{tipTop:{x:0.5,y:0.1785}, tipBot:{x:0.5,y:0.6789}, baseTop:0.2579, baseBot:0.5995}
 };
@@ -431,6 +431,16 @@ function vNotchedTopPath(x,y,w,h,r,nw,nd){
   p.lineTo(x,y+rpx);
   p.quadraticCurveTo(x,y,x+rpx,y);
   p.closePath();return p;
+}
+function vNotchedTopWithBadgePath(x,y,w,h,r,nw,nd,bx,by,br){
+  const p=vNotchedTopPath(x,y,w,h,r,nw,nd);
+  // Add badge circle as part of same shape so it shares brushed texture (no flat fill)
+  // Use even-odd to union: add circle path
+  const c=new Path2D();
+  c.arc(bx,by,br,0,Math.PI*2);
+  // Combine by adding to p (Path2D doesn't have union, so we will clip with both separately, but for texture we need to draw with combined clip)
+  // Instead return array of paths to be clipped together
+  return [p,c];
 }
 function vNotchedMidPath(x,y,w,h,r,nw,nd){
   const p=new Path2D();
@@ -552,20 +562,22 @@ function drawCard(g,x,y,w,h,card,o={}){
       g.fillText(isPlus?'+':isMinus?'-':orient>0?'+':'-',(b.x+b.w/2)*w,(b.y+b.h/2)*h+1);
     }
     g.restore();
-    // badge - GEOM.badge circle centred ON corner of top rect, no black outline, blends, very subtle depth
+    // badge - GEOM.badge circle slightly inset from corner, no black outline, blends, shares panel's brushed texture
     if(!isMainCard){
       const bd=GEOM.badge;
       const bx=bd.cx*w,by=bd.cy*h,br=bd.r*Math.min(w,h);
-      const badgeFill=isPlus?CARD_COLORS.blue.b:isMinus?CARD_COLORS.red.b:(orient>0?CARD_COLORS.blue.b:CARD_COLORS.red.b);
-      g.beginPath();g.arc(bx,by,br,0,Math.PI*2);
-      g.fillStyle=badgeFill;g.fill();
-      // subtle depth: inner highlight, no black outline
-      g.fillStyle='rgba(255,255,255,0.14)';
+      const badgeKey=isPlus?'blue':isMinus?'red':(orient>0?'blue':'red');
+      // Badge shares the same brushed metal texture as the top panel (not flat)
+      g.save();
+      g.beginPath();g.arc(bx,by,br,0,Math.PI*2);g.clip();
+      g.drawImage(TEX[badgeKey],0,0,w,h);
+      g.restore();
+      // very subtle depth: inner highlight
+      g.fillStyle='rgba(255,255,255,0.13)';
       g.beginPath();g.arc(bx-br*0.28,by-br*0.32,br*0.22,0,Math.PI*2);g.fill();
       g.fillStyle='#f0c040';g.font=`700 ${Math.round(br*1.05)}px "Arial Narrow",Arial,sans-serif`;
       g.textAlign='center';g.textBaseline='middle';
-      // subtle text shadow for depth
-      g.fillStyle='rgba(0,0,0,0.25)';g.fillText(isPlus?'+':isMinus?'-':orient>0?'+':'-',bx+0.5,by+1.5);
+      g.fillStyle='rgba(0,0,0,0.22)';g.fillText(isPlus?'+':isMinus?'-':orient>0?'+':'-',bx+0.5,by+1.5);
       g.fillStyle='#f0c040';g.fillText(isPlus?'+':isMinus?'-':orient>0?'+':'-',bx,by+1);
     }
   }
