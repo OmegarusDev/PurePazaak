@@ -58,15 +58,15 @@ body{background:#141417;color:#cfd4de;font-family:"Arial Narrow",Arial,Helvetica
   .deckbtns{flex-direction:column;width:100%}
   .deckbtns .kbtn{width:100%}
 }
-.cell canvas{width:100%;max-width:64px;height:auto;aspect-ratio:64/76}
+.cell canvas{width:100%;max-width:64px;height:auto;aspect-ratio:64/80}
 .cell .cnt{font-size:11px;letter-spacing:1px;color:#9aa2b4}
 .deckside{display:flex;flex-direction:column;gap:14px;align-items:center;min-width:280px;width:100%;max-width:300px;align-self:flex-start;height:auto}
 #deckcount{font-size:20px;font-weight:700;letter-spacing:4px;color:var(--gold)}
 #deckcount.full{color:#5fce6e;text-shadow:0 0 10px rgba(95,206,110,.5)}
 #sidedeck{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;width:100%}
-.sslot{width:100%;aspect-ratio:64/76;min-height:76px;border:1px dashed #3a3a44;border-radius:6px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.sslot{width:100%;aspect-ratio:64/80;min-height:80px;border:1px dashed #3a3a44;border-radius:6px;display:flex;align-items:center;justify-content:center;cursor:pointer}
 .sslot:hover{border-color:var(--red)}
-.sslot canvas{width:100%;max-width:64px;height:auto;aspect-ratio:64/76}
+.sslot canvas{width:100%;max-width:64px;height:auto;aspect-ratio:64/80}
 .deckbtns{display:flex;gap:10px}
 .deckbtns .kbtn{min-width:130px;padding:9px 12px;font-size:13px}
 #table{width:min(92vw,calc(86vh*1.3333));max-width:100%;aspect-ratio:1024/768;border-radius:16px;box-shadow:0 10px 44px rgba(0,0,0,.65);touch-action:none}
@@ -91,7 +91,7 @@ body{background:#141417;color:#cfd4de;font-family:"Arial Narrow",Arial,Helvetica
 .match-board{display:flex;align-items:center;justify-content:center;min-width:0;flex:1 1 auto}
 .match-controls{display:flex;flex-direction:column;gap:12px;align-items:center;justify-content:flex-start;width:clamp(220px,24vw,300px);flex:0 0 auto}
 .hand{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
-.handcard{position:relative;width:64px;height:84px;cursor:pointer;border:2px solid transparent;border-radius:9px;background:transparent;padding:0;touch-action:manipulation}
+.handcard{position:relative;width:64px;height:86px;cursor:pointer;border:2px solid transparent;border-radius:9px;background:transparent;padding:0;touch-action:manipulation}
 .handcard canvas{width:100%;height:100%;display:block}
 .handcard.sel{border-color:#f2e33c;box-shadow:0 0 12px rgba(242,227,60,.5)}
 .handcard.used,.handcard.dis{opacity:.4}
@@ -108,7 +108,7 @@ body{background:#141417;color:#cfd4de;font-family:"Arial Narrow",Arial,Helvetica
   .match-wrap{flex-direction:column;justify-content:flex-start;height:100%;padding:8px;gap:8px;overflow:hidden}
   .match-board{flex:1 1 auto;width:100%;min-height:0;align-items:center;justify-content:center}
   .match-controls{width:100%;flex-direction:column;flex:0 0 auto;gap:10px;background:linear-gradient(180deg,rgba(22,22,28,.96),rgba(10,10,14,.98));border-top:1px solid rgba(200,200,212,.28);box-shadow:0 -6px 22px rgba(0,0,0,.45);padding:10px 12px}
-  .handcard{width:clamp(52px,16vw,68px);height:auto;aspect-ratio:64/84}
+  .handcard{width:clamp(52px,16vw,68px);height:auto;aspect-ratio:64/86}
   #table{width:auto;height:auto;max-width:100%;max-height:100%;aspect-ratio:720/1180}
   #scr-deck{overflow:hidden;justify-content:space-between;padding:6px;gap:4px;height:100%;box-sizing:border-box}
   .deckwrap{flex-direction:column;align-items:stretch;width:100%;flex:1;min-height:0;gap:4px}
@@ -343,9 +343,9 @@ function computeLayout(){
       nameP:{x:232,y:90},nameO:{x:792,y:90},
       badges:[{x:456,y:74},{x:518,y:74}],bw:48,bh:28,
       chanP:{x:196,y:128,w:20,h:184},chanO:{x:808,y:128,w:20,h:184},
-      gridP:{x:236,y:128},gridO:{x:518,y:128},sw:96,sh:104,gap:7,
+      gridP:{x:236,y:128},gridO:{x:518,y:128},sw:96,sh:108,gap:7,
       labP:{x:196,y:468,w:368,h:22},labO:{x:518,y:468,w:368,h:22},
-      handO:{x:518,y:500,sw:86,sh:102,hgap:6},
+      handO:{x:518,y:500,sw:86,sh:106,hgap:6},
       proj:{x:512,y:118},
       vent:{x:196,y:642,w:368,h:38}
     };
@@ -360,7 +360,7 @@ function computeLayout(){
       nameP:{x:82,y:50},nameO:{x:638,y:50},
       badges:[{x:320,y:50},{x:382,y:50}],bw:48,bh:26,
       chanP:{x:28,y:620,w:14,h:180},chanO:{x:28,y:110,w:14,h:180},
-      gridP:{x:52,y:620},gridO:{x:52,y:110},sw:132,sh:148,gap:10,
+      gridP:{x:52,y:620},gridO:{x:52,y:110},sw:132,sh:152,gap:10,
       labP:{x:52,y:596,w:416,h:22},labO:{x:52,y:86,w:416,h:22},
       handO:null,
       proj:{x:360,y:520},
@@ -412,8 +412,9 @@ const GEOM={
   blackPanel:{x:0.1678,y:0.3303,w:0.6678,h:0.1969,r:0.012},
   // Bottom strip — same width as top/mid for perfect symmetry, centred
   bottomStrip:{x:0.1347,y:0.8333,w:0.7305,h:0.1628,r:0.012},
-  // Badge — circle 2px inset from corner (0.8652,0.0924 -> 0.861,0.098) so centre is 0.004w left and 0.006h down, blends, no outline, subtle depth
-  badge:{cx:0.861,cy:0.098,r:0.0482},
+  // Badge — circle 6px inset from corner (0.8652,0.0924 -> 0.850,0.115) so centre is 0.015w left and 0.023h down, larger, blends, no outline
+  // RefPlus badge at 0.8269,0.1490 was 0.108 left, 0.089 down from corner 0.9353,0.0596, but low-res crop is off by ~0.02; ideal is 0.015/0.023 for optical centre on corner
+  badge:{cx:0.850,cy:0.115,r:0.055},
   // Diamond — implicit gap between Vs, height 0.5004h (0.1785->0.6789), width 0.40w at mid, centred on blackPanel
   diamond:{tipTop:{x:0.5,y:0.1785}, tipBot:{x:0.5,y:0.6789}, baseTop:0.2579, baseBot:0.5995}
 };
@@ -575,10 +576,10 @@ function drawCard(g,x,y,w,h,card,o={}){
       // very subtle depth: inner highlight
       g.fillStyle='rgba(255,255,255,0.13)';
       g.beginPath();g.arc(bx-br*0.28,by-br*0.32,br*0.22,0,Math.PI*2);g.fill();
-      g.fillStyle='#f0c040';g.font=`700 ${Math.round(br*1.05)}px "Arial Narrow",Arial,sans-serif`;
+      g.fillStyle='#f0c040';g.font=`900 ${Math.round(br*1.45)}px "Arial Narrow",Arial,sans-serif`;
       g.textAlign='center';g.textBaseline='middle';
-      g.fillStyle='rgba(0,0,0,0.22)';g.fillText(isPlus?'+':isMinus?'-':orient>0?'+':'-',bx+0.5,by+1.5);
-      g.fillStyle='#f0c040';g.fillText(isPlus?'+':isMinus?'-':orient>0?'+':'-',bx,by+1);
+      g.fillStyle='rgba(0,0,0,0.28)';g.fillText(isPlus?'+':isMinus?'-':orient>0?'+':'-',bx+0.5,by+1.5);
+      g.fillStyle='#ffe55c';g.fillText(isPlus?'+':isMinus?'-':orient>0?'+':'-',bx,by+0.5);
     }
   }
   g.restore();
@@ -1007,7 +1008,7 @@ function buildCircuit(){
 const DECK_ORDER=['+1','+2','+3','+4','+5','+6','-1','-2','-3','-4','-5','-6','\u00B11','\u00B12','\u00B13','\u00B14','\u00B15','\u00B16','TIE','DBL','2&4','3&6'];
 function ownedIds(){return DECK_ORDER.filter(id=>(SAVE.unlocked[id]||0)>0);}
 function inDeckCount(id){return deckSel.filter(x=>x===id).length;}
-function drawMini(cvs,id,w=64,h=76){
+function drawMini(cvs,id,w=64,h=80){
   const d=Math.min(2,window.devicePixelRatio||1);
   cvs.width=w*d;cvs.height=h*d;
   const g=cvs.getContext('2d');g.setTransform(d,0,0,d,0,0);
@@ -1037,7 +1038,7 @@ function buildDeckUI(){
     slot.className='sslot';
     if(deckSel[i]){
       const cvs=document.createElement('canvas');
-      slot.appendChild(cvs);drawMini(cvs,deckSel[i],64,76);
+      slot.appendChild(cvs);drawMini(cvs,deckSel[i],64,80);
       slot.onclick=()=>{AUDIO.play('click');deckSel.splice(i,1);buildDeckUI();};
     }
     sd.appendChild(slot);
