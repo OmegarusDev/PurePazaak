@@ -1,0 +1,23 @@
+/* Match: canvas letterboxes via object-fit; controls scroll if short. */
+#scr-match{padding:0;justify-content:center}
+.match-wrap{display:flex;flex-direction:row;align-items:stretch;justify-content:center;gap:14px;width:100%;height:100%;min-height:0;padding:12px}
+.match-board{display:flex;align-items:center;justify-content:center;min-width:0;min-height:0;flex:1 1 auto}
+#table{width:100%;height:100%;object-fit:contain;border-radius:8px;touch-action:none;min-width:0;min-height:0}
+.match-controls{display:flex;flex-direction:column;gap:12px;align-items:center;justify-content:center;width:clamp(200px,24vw,280px);flex:0 0 auto;min-height:0;overflow-y:auto;padding:4px}
+.hand{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.handcard{position:relative;width:62px;height:84px;cursor:pointer;border:1px solid transparent;border-radius:7px;background:rgba(2,4,9,.5);padding:0;touch-action:manipulation}
+.handcard canvas{width:100%;height:100%;display:block;object-fit:contain}
+.handcard:hover{border-color:var(--line-hi)}
+.handcard.sel{border-color:var(--select);box-shadow:0 0 12px rgba(215,224,92,.5)}
+.handcard.used,.handcard.dis{opacity:.4}
+.handcard.dis{pointer-events:none}
+.pinfo{font-size:12px;letter-spacing:.26em;text-indent:.26em;color:var(--gold);min-height:18px;text-align:center}
+.ctrl-btns{display:flex;flex-direction:column;align-items:stretch;gap:8px;width:100%}
+.ctrl-btns .kbtn{width:100%}
+.ctrl-btns .kbtn.primary{border-left-color:var(--gold);border-right-color:var(--gold);color:var(--gold-hi);text-shadow:0 0 10px rgba(232,195,74,.5)}
+.ctrl-btns .kbtn.primary:hover{color:#fff3c0;box-shadow:0 0 18px rgba(232,195,74,.35)}
+.ctrl-btns .kbtn.primary:disabled{border-left-color:var(--rail);border-right-color:var(--rail);color:var(--ice)}
+.ctrl-secondary{display:flex;gap:8px;width:100%}
+.ctrl-secondary .kbtn{flex:1;min-width:0;width:auto}
+.ctrl-btns .kbtn.ghost{background:transparent;border-color:#232c3d;color:var(--faint)}
+.ctrl-btns .kbtn.ghost:hover{border-color:rgba(224,85,85,.6);color:#ff9a9a;text-shadow:none}

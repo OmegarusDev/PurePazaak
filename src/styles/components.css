@@ -1,0 +1,39 @@
+/* KOTOR1 menu-bar button: full-width navy bar, ice-blue caps, hairline gaps.
+   Hover/armed = yellow-green select (matches "NEW GAME" selected row). */
+.kbtn{display:block;width:min(340px,84vw);padding:11px 18px;background:linear-gradient(180deg,#0d1626,#080e1a);border:1px solid #000;border-left:3px solid var(--rail);border-right:3px solid var(--rail);border-radius:2px;color:var(--ice);font-family:var(--sans);font-size:13px;font-weight:500;letter-spacing:.28em;text-indent:.28em;text-transform:uppercase;text-align:center;cursor:pointer;touch-action:manipulation}
+.kbtn:hover,.kbtn:focus-visible{color:var(--select);border-left-color:var(--select);border-right-color:var(--select);text-shadow:0 0 10px rgba(215,224,92,.55);outline:none}
+.kbtn:active:not(:disabled){transform:translateY(1px)}
+.kbtn:disabled{opacity:.32;cursor:default;color:var(--ice);text-shadow:none}
+.kbtn.danger{color:#b06a6a;border-left-color:#5a2a2a;border-right-color:#5a2a2a}
+.kbtn.danger:hover{color:#ff9a9a;border-left-color:#a04040;border-right-color:#a04040;text-shadow:0 0 10px rgba(224,85,85,.4)}
+.kbtn.sm{width:auto;min-width:96px;padding:8px 12px;font-size:11px;letter-spacing:.22em;text-indent:.22em}
+/* Title masthead: gold Trajan serif over ice-blue, like the KOTOR1 marquee */
+.logo{font-family:var(--serif);font-size:clamp(40px,10vw,76px);font-weight:400;letter-spacing:clamp(10px,2.6vw,22px);margin-left:clamp(8px,2vw,22px);color:var(--gold);text-shadow:0 0 22px rgba(232,195,74,.35),0 2px 0 #000;text-align:center;line-height:1.05}
+.logo-sub{font-family:var(--sans);font-size:clamp(11px,3vw,15px);font-weight:500;letter-spacing:clamp(6px,1.8vw,12px);margin-left:clamp(5px,1vw,12px);color:var(--ice);text-shadow:0 0 12px rgba(63,182,255,.5);text-align:center}
+/* KOTOR1 menu stack: bars separated by black gaps, steel side rails */
+.kmenu{display:flex;flex-direction:column;gap:3px;width:min(360px,86vw);padding:10px;border:1px solid #101826;border-radius:8px;background:rgba(3,5,10,.72);box-shadow:0 10px 34px rgba(0,0,0,.6)}
+.kmenu .kbtn{width:100%}
+.kmenu .kbtn:first-child{border-top:1px solid #000}
+/* Generic navy panel with hairline steel border (charsheet language) */
+.panel{background:linear-gradient(180deg,rgba(12,19,34,.96),rgba(6,10,20,.96));border:1px solid var(--line);border-radius:var(--r);box-shadow:inset 0 1px 0 rgba(140,190,255,.12),inset 0 0 22px rgba(20,50,100,.18),0 8px 26px rgba(0,0,0,.55);display:flex;flex-direction:column;gap:clamp(8px,2vw,12px);align-items:center;width:min(560px,94vw);padding:clamp(14px,3.5vw,24px) clamp(16px,4vw,28px)}
+.scrh{font-family:var(--serif);font-weight:400;font-size:clamp(19px,5vw,27px);letter-spacing:.32em;text-indent:.32em;color:var(--gold);text-shadow:0 0 14px rgba(232,195,74,.3),0 2px 0 #000;text-align:center}
+.foot{font-size:10px;letter-spacing:.3em;text-indent:.3em;color:var(--faint);text-align:center}
+.volrow{display:flex;align-items:center;gap:12px;color:var(--ice);font-size:11px;letter-spacing:.25em;text-indent:0}
+.volrow input[type=range]{width:min(150px,38vw);accent-color:var(--cyan)}
+/* Dialogue box: near-black blue-outlined modal (dialogue/box refs + win overlay).
+   Thin steel-blue outer line, dark inner keyline, faint blue inner glow. */
+#modal{position:fixed;inset:0;background:rgba(2,3,8,.74);display:flex;align-items:center;justify-content:center;z-index:50;padding:16px}
+#modal.hidden{display:none}
+#modalbox{width:min(560px,94vw);max-height:86vh;max-height:86dvh;overflow-y:auto;background:linear-gradient(180deg,rgba(8,12,22,.97),rgba(4,6,13,.97));border:1px solid #4a7ab5;border-radius:6px;box-shadow:0 0 0 1px #010204,0 0 26px rgba(70,130,200,.28),inset 0 0 30px rgba(40,90,160,.14);padding:clamp(18px,4.5vw,28px) clamp(18px,5vw,32px);display:flex;flex-direction:column;gap:14px;align-items:center;text-align:center}
+#modalbox h2{font-family:var(--sans);font-weight:500;font-size:clamp(14px,4vw,17px);letter-spacing:.3em;text-indent:.3em;color:var(--pale);text-shadow:0 0 12px rgba(159,212,255,.55)}
+#modalbox p,#modalbox li{font-size:clamp(12px,3.6vw,14px);letter-spacing:.06em;line-height:1.7;color:var(--ink)}
+#modalbox ul{padding-left:20px;text-align:left}
+#modalbox .mrow{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+/* Win-overlay OK pill: transparent, thin pale outline (RefBoard2) */
+#modalbox .mrow .kbtn,#modalbox > .kbtn{width:auto;min-width:130px;border:1px solid rgba(220,235,255,.7);border-radius:6px;background:rgba(10,16,28,.6);color:var(--pale);letter-spacing:.24em;text-indent:.24em}
+#modalbox .mrow .kbtn:hover,#modalbox > .kbtn:hover{border-color:#fff;color:#fff;box-shadow:0 0 14px rgba(160,200,255,.35)}
+#modalbox .mrow .kbtn.danger{border-color:rgba(224,120,120,.6);color:#ffb0b0}
+.mcards{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
+.mcard{display:flex;flex-direction:column;align-items:center;gap:4px}
+.mcard canvas{width:68px;height:80px}
+.mcard span{font-size:11px;color:var(--gold);letter-spacing:.2em}

@@ -5,134 +5,213 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Pazaak: Outer Rim Circuit</title>
 <style>
-:root{--amber:#e8a41f;--cyan:#3aa2e8;--gold:#ecd883;--red:#e05555}
-*{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%;touch-action:none}
-body{background:#141417;color:#cfd4de;font-family:"Arial Narrow",Arial,Helvetica,sans-serif;overflow:hidden;user-select:none;-webkit-user-select:none}
-#app{position:relative;width:100vw;height:100vh}
-.screen{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:safe center;gap:20px;overflow-y:auto;background-image:var(--metal);background-size:256px;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
-.screen.active{display:flex}
-.kbtn{display:block;min-width:clamp(220px,70vw,300px);padding:12px 28px;background:linear-gradient(180deg,#3c3c44,#232329);border:1px solid #101014;border-top-color:rgba(255,255,255,.14);border-radius:6px;color:var(--amber);font-family:inherit;font-size:clamp(13px,3.5vw,15px);font-weight:700;letter-spacing:clamp(2px,1vw,4px);text-transform:uppercase;cursor:pointer;text-shadow:0 0 6px rgba(232,164,31,.45);touch-action:manipulation}
-.kbtn:hover{border-color:var(--amber);color:#ffd060;box-shadow:0 0 14px rgba(232,164,31,.35),inset 0 0 8px rgba(232,164,31,.12)}
-.kbtn:disabled{opacity:.35;cursor:default;box-shadow:none;border-color:#101014;color:var(--amber)}
-.kbtn:active:not(:disabled){transform:translateY(1px);box-shadow:inset 0 2px 8px rgba(0,0,0,.5)}
-.kbtn.danger{color:var(--red);text-shadow:0 0 6px rgba(224,85,85,.4)}
-.kbtn.danger:hover{border-color:var(--red);color:#ff8080;box-shadow:0 0 14px rgba(224,85,85,.3)}
-.kbtn.sm{min-width:clamp(90px,50vw,110px);padding:8px 14px;font-size:clamp(11px,3vw,13px);letter-spacing:clamp(2px,1vw,3px)}
-.logo{font-size:clamp(48px,12vw,82px);font-weight:700;letter-spacing:clamp(12px,3vw,24px);margin-left:clamp(8px,2vw,24px);color:#7fd4ff;text-shadow:0 0 18px rgba(58,162,232,.9),0 0 46px rgba(58,162,232,.45);font-family:"Eurostile","Bank Gothic","Arial Narrow",Arial,sans-serif}
-.logo-sub{font-size:clamp(14px,4vw,20px);font-weight:700;letter-spacing:clamp(8px,2vw,15px);margin-left:clamp(6px,1vw,15px);color:var(--amber);text-shadow:0 0 12px rgba(232,164,31,.6);font-family:"Eurostile","Bank Gothic","Arial Narrow",Arial,sans-serif}
-.panel{background:linear-gradient(180deg,rgba(72,72,80,.92),rgba(38,38,44,.94));border:1px solid rgba(200,200,212,.35);border-radius:14px;padding:clamp(16px,4vw,26px) clamp(20px,5vw,34px);box-shadow:0 8px 30px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.12);display:flex;flex-direction:column;gap:clamp(8px,2vw,12px);align-items:center;width:100%;max-width:90vw}
-.scrh{font-size:26px;font-weight:700;letter-spacing:10px;color:#7fd4ff;text-shadow:0 0 12px rgba(58,162,232,.7)}
-.foot{font-size:12px;letter-spacing:3px;color:#6a6a74}
-.volrow{display:flex;align-items:center;gap:12px;color:var(--gold);font-size:13px;letter-spacing:3px}
-.volrow input[type=range]{width:150px;accent-color:var(--amber)}
-#rungs{display:flex;flex-direction:column;gap:10px}
-.rung{display:grid;grid-template-columns:46px 1fr auto 110px;gap:16px;align-items:center;width:100%;max-width:660px;padding:12px 20px;background:linear-gradient(180deg,rgba(58,58,66,.88),rgba(32,32,38,.92));border:1px solid #1a1a20;border-radius:8px}
-.rung.next{border-color:var(--amber);cursor:pointer;box-shadow:0 0 12px rgba(232,164,31,.25)}
-.rung.next:hover{box-shadow:0 0 22px rgba(232,164,31,.5)}
-.rung.locked{opacity:.38}
-.rung.done{opacity:.8;cursor:pointer}
-.rung.done:hover{border-color:#3fae4a}
-.tier{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;color:#0c0c10}
-.tier.t1{background:linear-gradient(180deg,#8a8a94,#4a4a52)}
-.tier.t2{background:linear-gradient(180deg,#4a66ee,#1c2f8e);color:#dfe6ff}
-.tier.t3{background:linear-gradient(180deg,#e04040,#7a1414);color:#ffe0e0}
-.rname{font-size:17px;font-weight:700;letter-spacing:2px;color:#e8e8ee}
-.rtitle{font-size:12px;letter-spacing:3px;color:var(--gold)}
-.rstat{font-size:12px;letter-spacing:3px;text-align:right}
-.rung.next .rstat{color:var(--amber)}
-.rung.done .rstat{color:#5fce6e}
-.rung.locked .rstat{color:#55555e}
-.deckwrap{display:flex;gap:22px;align-items:flex-start;flex-wrap:nowrap;justify-content:center;max-height:72vh}
-#collection{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;max-height:56vh;overflow-y:auto;padding:8px;align-content:start;flex:1;min-width:280px;max-width:520px}
-.cell{display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 5px;background:rgba(20,20,26,.6);border:1px solid #1c1c22;border-radius:8px;cursor:pointer}
-.cell:hover{border-color:var(--cyan);box-shadow:0 0 10px rgba(58,162,232,.3)}
-.cell.maxed{opacity:.45;cursor:default}
-.cell.maxed:hover{border-color:#1c1c22;box-shadow:none}
-@media (max-width: 600px){
-  .cell{max-width:100%}
-  .cell canvas{max-width:100%}
-  .sslot{max-width:100%}
-  .sslot canvas{max-width:100%}
-  .kbtn.sm{min-width:100%}
-  .deckbtns{flex-direction:column;width:100%}
-  .deckbtns .kbtn{width:100%}
+:root{
+  /* KOTOR palette — sampled from refs:
+     menu bars/menu-blue (user crop), charsheet navy/cyan/green/yellow (moddb),
+     table silver/orange/cyan (RefBoard), win overlay (RefBoard2) */
+  --abyss:#04050b;
+  --navy:#0a0f1c;
+  --navy-2:#060a14;
+  --well:#020409;
+  --bar:#0b1322;
+  --line:#274a70;
+  --line-hi:#6ea3d8;
+  --rail:#2a5a8a;
+  --ink:#c9d4e4;
+  --dim:#8b96ab;
+  --faint:#5a6376;
+  --cyan:#3fb6ff;
+  --ice:#9fd4ff;
+  --pale:#cfe6ff;
+  --gold:#e8c34a;
+  --gold-hi:#ffe14d;
+  --select:#d7e05c;
+  --green:#46e06a;
+  --orange:#e87020;
+  /* legacy names (kept for compat) */
+  --amber:#e8c34a;
+  --red:#e05555;
+  /* type — system stacks only, zero-asset */
+  --serif:"Trajan Pro",Trajan,Cinzel,"Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+  --sans:"Futura","Futura Medium","Century Gothic","Avenir Next","Trebuchet MS","Arial Narrow",Arial,sans-serif;
+  --r:3px;
 }
-.cell canvas{width:100%;max-width:64px;height:auto;aspect-ratio:64/80}
-.cell .cnt{font-size:11px;letter-spacing:1px;color:#9aa2b4}
-.deckside{display:flex;flex-direction:column;gap:14px;align-items:center;min-width:280px;width:100%;max-width:300px;align-self:flex-start;height:auto}
-#deckcount{font-size:20px;font-weight:700;letter-spacing:4px;color:var(--gold)}
-#deckcount.full{color:#5fce6e;text-shadow:0 0 10px rgba(95,206,110,.5)}
-#sidedeck{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;width:100%}
-.sslot{width:100%;aspect-ratio:64/80;min-height:80px;border:1px dashed #3a3a44;border-radius:6px;display:flex;align-items:center;justify-content:center;cursor:pointer}
-.sslot:hover{border-color:var(--red)}
-.sslot canvas{width:100%;max-width:64px;height:auto;aspect-ratio:64/80}
-.deckbtns{display:flex;gap:10px}
-.deckbtns .kbtn{min-width:130px;padding:9px 12px;font-size:13px}
-#table{width:min(92vw,calc(86vh*1.3333));max-width:100%;aspect-ratio:1024/768;border-radius:16px;box-shadow:0 10px 44px rgba(0,0,0,.65);touch-action:none}
-#modal{position:fixed;inset:0;background:rgba(5,6,10,.74);display:flex;align-items:center;justify-content:center;z-index:50}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{background:var(--abyss);color:var(--ink);font-family:var(--sans);overflow:hidden;user-select:none;-webkit-user-select:none;touch-action:manipulation}
+/* deep-space backdrop: vignette + sparse starfield, pure CSS, zero assets */
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(1px 1px at 12% 22%,rgba(255,255,255,.7),transparent 60%),
+    radial-gradient(1px 1px at 68% 8%,rgba(255,255,255,.5),transparent 60%),
+    radial-gradient(1.5px 1.5px at 84% 34%,rgba(190,220,255,.8),transparent 60%),
+    radial-gradient(1px 1px at 32% 68%,rgba(255,255,255,.45),transparent 60%),
+    radial-gradient(1px 1px at 55% 82%,rgba(255,255,255,.55),transparent 60%),
+    radial-gradient(1.5px 1.5px at 8% 84%,rgba(190,220,255,.6),transparent 60%),
+    radial-gradient(1px 1px at 44% 12%,rgba(255,255,255,.5),transparent 60%),
+    radial-gradient(1px 1px at 92% 72%,rgba(255,255,255,.5),transparent 60%),
+    radial-gradient(1px 1px at 24% 44%,rgba(255,255,255,.4),transparent 60%),
+    radial-gradient(1px 1px at 76% 56%,rgba(190,220,255,.5),transparent 60%),
+    radial-gradient(ellipse 120% 90% at 50% 10%,rgba(20,40,80,.35),transparent 60%),
+    radial-gradient(ellipse 140% 120% at 50% 115%,rgba(0,0,0,.85),transparent 55%),
+    linear-gradient(180deg,#070b16 0%,#04050b 55%,#020308 100%);
+}
+#app{position:relative;width:100vw;height:100vh;height:100dvh;z-index:1}
+/* Shell: every screen is a centred column that can scroll internally.
+   justify-content stays centered for tall viewports; min-height:0 + overflow
+   keep short/landscape viewports reachable instead of clipped. */
+.screen{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:clamp(10px,2.4vh,22px);overflow-y:auto;min-height:0;padding:clamp(10px,2.5vh,24px) env(safe-area-inset-right) clamp(10px,2.5vh,24px) env(safe-area-inset-left);padding-top:calc(clamp(10px,2.5vh,24px) + env(safe-area-inset-top));padding-bottom:calc(clamp(10px,2.5vh,24px) + env(safe-area-inset-bottom))}
+.screen.active{display:flex}
+/* Children never squash (that causes overlap, not scroll); designated wells
+   (.deckwrap, #rungs, .match-controls) re-enable shrink + internal scroll. */
+.screen > *{flex-shrink:0;min-width:0}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-track{background:#070b14}
+::-webkit-scrollbar-thumb{background:#274a70;border-radius:5px;border:2px solid #070b14}
+/* KOTOR1 menu-bar button: full-width navy bar, ice-blue caps, hairline gaps.
+   Hover/armed = yellow-green select (matches "NEW GAME" selected row). */
+.kbtn{display:block;width:min(340px,84vw);padding:11px 18px;background:linear-gradient(180deg,#0d1626,#080e1a);border:1px solid #000;border-left:3px solid var(--rail);border-right:3px solid var(--rail);border-radius:2px;color:var(--ice);font-family:var(--sans);font-size:13px;font-weight:500;letter-spacing:.28em;text-indent:.28em;text-transform:uppercase;text-align:center;cursor:pointer;touch-action:manipulation}
+.kbtn:hover,.kbtn:focus-visible{color:var(--select);border-left-color:var(--select);border-right-color:var(--select);text-shadow:0 0 10px rgba(215,224,92,.55);outline:none}
+.kbtn:active:not(:disabled){transform:translateY(1px)}
+.kbtn:disabled{opacity:.32;cursor:default;color:var(--ice);text-shadow:none}
+.kbtn.danger{color:#b06a6a;border-left-color:#5a2a2a;border-right-color:#5a2a2a}
+.kbtn.danger:hover{color:#ff9a9a;border-left-color:#a04040;border-right-color:#a04040;text-shadow:0 0 10px rgba(224,85,85,.4)}
+.kbtn.sm{width:auto;min-width:96px;padding:8px 12px;font-size:11px;letter-spacing:.22em;text-indent:.22em}
+/* Title masthead: gold Trajan serif over ice-blue, like the KOTOR1 marquee */
+.logo{font-family:var(--serif);font-size:clamp(40px,10vw,76px);font-weight:400;letter-spacing:clamp(10px,2.6vw,22px);margin-left:clamp(8px,2vw,22px);color:var(--gold);text-shadow:0 0 22px rgba(232,195,74,.35),0 2px 0 #000;text-align:center;line-height:1.05}
+.logo-sub{font-family:var(--sans);font-size:clamp(11px,3vw,15px);font-weight:500;letter-spacing:clamp(6px,1.8vw,12px);margin-left:clamp(5px,1vw,12px);color:var(--ice);text-shadow:0 0 12px rgba(63,182,255,.5);text-align:center}
+/* KOTOR1 menu stack: bars separated by black gaps, steel side rails */
+.kmenu{display:flex;flex-direction:column;gap:3px;width:min(360px,86vw);padding:10px;border:1px solid #101826;border-radius:8px;background:rgba(3,5,10,.72);box-shadow:0 10px 34px rgba(0,0,0,.6)}
+.kmenu .kbtn{width:100%}
+.kmenu .kbtn:first-child{border-top:1px solid #000}
+/* Generic navy panel with hairline steel border (charsheet language) */
+.panel{background:linear-gradient(180deg,rgba(12,19,34,.96),rgba(6,10,20,.96));border:1px solid var(--line);border-radius:var(--r);box-shadow:inset 0 1px 0 rgba(140,190,255,.12),inset 0 0 22px rgba(20,50,100,.18),0 8px 26px rgba(0,0,0,.55);display:flex;flex-direction:column;gap:clamp(8px,2vw,12px);align-items:center;width:min(560px,94vw);padding:clamp(14px,3.5vw,24px) clamp(16px,4vw,28px)}
+.scrh{font-family:var(--serif);font-weight:400;font-size:clamp(19px,5vw,27px);letter-spacing:.32em;text-indent:.32em;color:var(--gold);text-shadow:0 0 14px rgba(232,195,74,.3),0 2px 0 #000;text-align:center}
+.foot{font-size:10px;letter-spacing:.3em;text-indent:.3em;color:var(--faint);text-align:center}
+.volrow{display:flex;align-items:center;gap:12px;color:var(--ice);font-size:11px;letter-spacing:.25em;text-indent:0}
+.volrow input[type=range]{width:min(150px,38vw);accent-color:var(--cyan)}
+/* Dialogue box: near-black blue-outlined modal (dialogue/box refs + win overlay).
+   Thin steel-blue outer line, dark inner keyline, faint blue inner glow. */
+#modal{position:fixed;inset:0;background:rgba(2,3,8,.74);display:flex;align-items:center;justify-content:center;z-index:50;padding:16px}
 #modal.hidden{display:none}
-#modalbox{width:min(700px,92vw);max-height:86vh;overflow-y:auto;background:linear-gradient(180deg,#4a4a52,#26262c);border:1px solid rgba(200,200,212,.4);border-radius:14px;padding:clamp(20px,5vw,30px) clamp(20px,5vw,36px);box-shadow:0 12px 50px rgba(0,0,0,.7);display:flex;flex-direction:column;gap:16px;align-items:center}
-#modalbox h2{font-size:clamp(18px,5vw,22px);letter-spacing:8px;color:#7fd4ff;text-shadow:0 0 12px rgba(58,162,232,.6)}
-#modalbox p,#modalbox li{font-size:clamp(13px,4vw,14px);letter-spacing:1px;line-height:1.7;color:#c8d0de}
-#modalbox .mrow{flex-wrap:wrap;justify-content:center}
-#modalbox ul{padding-left:20px}
-#modalbox .mrow{display:flex;gap:14px}
+#modalbox{width:min(560px,94vw);max-height:86vh;max-height:86dvh;overflow-y:auto;background:linear-gradient(180deg,rgba(8,12,22,.97),rgba(4,6,13,.97));border:1px solid #4a7ab5;border-radius:6px;box-shadow:0 0 0 1px #010204,0 0 26px rgba(70,130,200,.28),inset 0 0 30px rgba(40,90,160,.14);padding:clamp(18px,4.5vw,28px) clamp(18px,5vw,32px);display:flex;flex-direction:column;gap:14px;align-items:center;text-align:center}
+#modalbox h2{font-family:var(--sans);font-weight:500;font-size:clamp(14px,4vw,17px);letter-spacing:.3em;text-indent:.3em;color:var(--pale);text-shadow:0 0 12px rgba(159,212,255,.55)}
+#modalbox p,#modalbox li{font-size:clamp(12px,3.6vw,14px);letter-spacing:.06em;line-height:1.7;color:var(--ink)}
+#modalbox ul{padding-left:20px;text-align:left}
+#modalbox .mrow{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+/* Win-overlay OK pill: transparent, thin pale outline (RefBoard2) */
+#modalbox .mrow .kbtn,#modalbox > .kbtn{width:auto;min-width:130px;border:1px solid rgba(220,235,255,.7);border-radius:6px;background:rgba(10,16,28,.6);color:var(--pale);letter-spacing:.24em;text-indent:.24em}
+#modalbox .mrow .kbtn:hover,#modalbox > .kbtn:hover{border-color:#fff;color:#fff;box-shadow:0 0 14px rgba(160,200,255,.35)}
+#modalbox .mrow .kbtn.danger{border-color:rgba(224,120,120,.6);color:#ffb0b0}
 .mcards{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
 .mcard{display:flex;flex-direction:column;align-items:center;gap:4px}
 .mcard canvas{width:68px;height:80px}
-.mcard span{font-size:12px;color:var(--gold);letter-spacing:2px}
-::-webkit-scrollbar{width:10px}
-::-webkit-scrollbar-track{background:#1a1a20}
-::-webkit-scrollbar-thumb{background:#3c3c44;border-radius:5px}
-/* Match screen hybrid layout */
-#scr-match{padding:0}
-.match-wrap{display:flex;flex-direction:row;align-items:center;justify-content:center;gap:18px;width:100%;height:100%;padding:14px;box-sizing:border-box}
-.match-board{display:flex;align-items:center;justify-content:center;min-width:0;flex:1 1 auto}
-.match-controls{display:flex;flex-direction:column;gap:12px;align-items:center;justify-content:flex-start;width:clamp(220px,24vw,300px);flex:0 0 auto}
-.hand{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
-.handcard{position:relative;width:64px;height:86px;cursor:pointer;border:2px solid transparent;border-radius:9px;background:transparent;padding:0;touch-action:manipulation}
-.handcard canvas{width:100%;height:100%;display:block}
-.handcard.sel{border-color:#f2e33c;box-shadow:0 0 12px rgba(242,227,60,.5)}
+.mcard span{font-size:11px;color:var(--gold);letter-spacing:.2em}
+#rungs{display:flex;flex-direction:column;gap:8px;width:min(620px,94vw);overflow-y:auto;min-height:0}
+/* Charsheet row: dark navy bar, hairline steel border, tier disc + stacked text + status */
+.rung{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;width:100%;padding:10px 14px;background:linear-gradient(180deg,#0c1322,#070c16);border:1px solid var(--line);border-radius:var(--r);min-width:0}
+.rung.next{border-color:#7a8a3a;box-shadow:0 0 12px rgba(215,224,92,.18),inset 0 0 16px rgba(215,224,92,.06);cursor:pointer}
+.rung.next:hover{border-color:var(--select);box-shadow:0 0 20px rgba(215,224,92,.4)}
+.rung.locked{opacity:.38}
+.rung.done{opacity:.85;cursor:pointer}
+.rung.done:hover{border-color:var(--green)}
+.tier{width:34px;height:34px;flex:0 0 auto;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;letter-spacing:.05em;color:#0c0c10;border:1px solid #000}
+.tier.t1{background:linear-gradient(180deg,#9a9aa4,#54545e)}
+.tier.t2{background:linear-gradient(180deg,#5a70f0,#22348e);color:#dfe6ff}
+.tier.t3{background:linear-gradient(180deg,#e05050,#7a1414);color:#ffe0e0}
+.rtext{display:flex;flex-direction:column;gap:2px;min-width:0;text-align:left}
+.rname{font-size:15px;font-weight:600;letter-spacing:.14em;color:var(--gold-hi);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rtitle{font-size:10px;letter-spacing:.28em;color:var(--cyan)}
+.rstat{font-size:10px;letter-spacing:.24em;text-align:right;white-space:nowrap}
+.rung.next .rstat{color:var(--select)}
+.rung.done .rstat{color:var(--green)}
+.rung.locked .rstat{color:var(--faint)}
+/* Deck builder: viewport-filling layout, no dead void, headers never clip.
+   Landscape: side-by-side stretched panels, collection grid takes spare height.
+   Portrait: stacked; collection panel flexes, its grid scrolls internally. */
+#scr-deck{container-type:size;container-name:deck}
+.deckwrap{display:flex;gap:16px;align-items:stretch;justify-content:center;width:min(980px,96vw);flex:1 1 auto;min-height:0;min-width:0;flex-wrap:nowrap}
+/* Collection panel is a flex column: fixed header + growing scroll well */
+.deckwrap .panel{flex:1 1 320px;min-width:min(320px,100%);min-height:0;max-width:560px;width:auto;display:flex;flex-direction:column}
+.deckhead{flex:0 0 auto;font-size:clamp(10px,1.6cqh,12px);letter-spacing:.3em;text-indent:.3em;color:var(--cyan)}
+#collection{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(88px,100%),1fr));gap:clamp(6px,1.2cqh,10px);width:100%;flex:1 1 auto;min-height:0;overflow-y:auto;padding:6px;align-content:start;align-items:start}
+.cell{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 4px;background:rgba(2,4,9,.7);border:1px solid var(--line);border-radius:var(--r);cursor:pointer;min-width:0;min-height:0}
+.cell:hover{border-color:var(--cyan);box-shadow:0 0 10px rgba(63,182,255,.35)}
+.cell.maxed{opacity:.45;cursor:default}
+.cell.maxed:hover{border-color:var(--line);box-shadow:none}
+/* Cards scale with viewport height but never exceed column width */
+.cell canvas{width:min(100%,14cqh);max-width:76px;height:auto;aspect-ratio:64/80;min-height:0}
+.cell .cnt{font-size:clamp(8px,1.4cqh,10px);letter-spacing:.08em;color:var(--dim);white-space:nowrap}
+/* Side deck column: fixed content, vertically centred in stretched panel */
+.deckside{display:flex;flex-direction:column;gap:clamp(8px,1.6cqh,12px);align-items:center;justify-content:center;flex:0 1 320px;min-width:min(300px,100%);min-height:0;width:100%;max-width:340px}
+#deckcount{font-size:clamp(15px,2.6cqh,19px);font-weight:600;letter-spacing:.3em;text-indent:.3em;color:var(--gold)}
+#deckcount.full{color:var(--green);text-shadow:0 0 10px rgba(70,224,106,.5)}
+#sidedeck{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;width:100%}
+.sslot{width:100%;aspect-ratio:64/80;max-height:17cqh;border:1px dashed #2c425f;border-radius:var(--r);display:flex;align-items:center;justify-content:center;cursor:pointer;background:rgba(2,4,9,.5);min-width:0;min-height:0;margin:auto}
+.sslot:hover{border-color:var(--red)}
+.sslot canvas{width:100%;height:100%;object-fit:contain;min-height:0}
+.deckbtns{display:flex;gap:8px;width:100%}
+.deckbtns .kbtn{flex:1;min-width:0;width:auto;font-size:11px}
+@media (max-width:600px){
+  .deckbtns .kbtn{font-size:10px;letter-spacing:.14em;text-indent:.14em}
+}
+/* Match: canvas letterboxes via object-fit; controls scroll if short. */
+#scr-match{padding:0;justify-content:center}
+.match-wrap{display:flex;flex-direction:row;align-items:stretch;justify-content:center;gap:14px;width:100%;height:100%;min-height:0;padding:12px}
+.match-board{display:flex;align-items:center;justify-content:center;min-width:0;min-height:0;flex:1 1 auto}
+#table{width:100%;height:100%;object-fit:contain;border-radius:8px;touch-action:none;min-width:0;min-height:0}
+.match-controls{display:flex;flex-direction:column;gap:12px;align-items:center;justify-content:center;width:clamp(200px,24vw,280px);flex:0 0 auto;min-height:0;overflow-y:auto;padding:4px}
+.hand{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.handcard{position:relative;width:62px;height:84px;cursor:pointer;border:1px solid transparent;border-radius:7px;background:rgba(2,4,9,.5);padding:0;touch-action:manipulation}
+.handcard canvas{width:100%;height:100%;display:block;object-fit:contain}
+.handcard:hover{border-color:var(--line-hi)}
+.handcard.sel{border-color:var(--select);box-shadow:0 0 12px rgba(215,224,92,.5)}
 .handcard.used,.handcard.dis{opacity:.4}
 .handcard.dis{pointer-events:none}
-  .pinfo{font-size:15px;letter-spacing:3px;color:var(--gold);min-height:20px;text-align:center}
-.ctrl-btns{display:flex;flex-direction:column;align-items:center;gap:10px}
-.ctrl-secondary{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
-.ctrl-btns .kbtn{min-width:clamp(96px,40vw,120px)}
-.ctrl-btns .kbtn.primary{min-width:clamp(150px,56vw,210px);padding:14px 30px;font-size:clamp(15px,4.2vw,18px);background:linear-gradient(180deg,#f2c64a,#c8861a);border-top-color:rgba(255,255,255,.4);color:#241a05;text-shadow:0 0 8px rgba(255,225,150,.5);box-shadow:0 0 16px rgba(232,164,31,.4)}
-.ctrl-btns .kbtn.primary:hover{border-color:#fff3c0;color:#3a2a06;box-shadow:0 0 22px rgba(242,198,74,.6)}
-.ctrl-btns .kbtn.ghost{background:transparent;border-color:rgba(200,200,212,.25);color:rgba(210,210,220,.55);text-shadow:none;box-shadow:none}
-.ctrl-btns .kbtn.ghost:hover{border-color:rgba(224,85,85,.6);color:#ff9a9a;box-shadow:none}
+.pinfo{font-size:12px;letter-spacing:.26em;text-indent:.26em;color:var(--gold);min-height:18px;text-align:center}
+.ctrl-btns{display:flex;flex-direction:column;align-items:stretch;gap:8px;width:100%}
+.ctrl-btns .kbtn{width:100%}
+.ctrl-btns .kbtn.primary{border-left-color:var(--gold);border-right-color:var(--gold);color:var(--gold-hi);text-shadow:0 0 10px rgba(232,195,74,.5)}
+.ctrl-btns .kbtn.primary:hover{color:#fff3c0;box-shadow:0 0 18px rgba(232,195,74,.35)}
+.ctrl-btns .kbtn.primary:disabled{border-left-color:var(--rail);border-right-color:var(--rail);color:var(--ice)}
+.ctrl-secondary{display:flex;gap:8px;width:100%}
+.ctrl-secondary .kbtn{flex:1;min-width:0;width:auto}
+.ctrl-btns .kbtn.ghost{background:transparent;border-color:#232c3d;color:var(--faint)}
+.ctrl-btns .kbtn.ghost:hover{border-color:rgba(224,85,85,.6);color:#ff9a9a;text-shadow:none}
+/* Portrait: board on top, controls docked bottom, both bounded so neither
+   crushes the other to zero. dvh units keep mobile browser chrome honest. */
 @media (orientation:portrait){
-  .match-wrap{flex-direction:column;justify-content:flex-start;height:100%;padding:8px;gap:8px;overflow:hidden}
-  .match-board{flex:1 1 auto;width:100%;min-height:0;align-items:center;justify-content:center}
-  .match-controls{width:100%;flex-direction:column;flex:0 0 auto;gap:10px;background:linear-gradient(180deg,rgba(22,22,28,.96),rgba(10,10,14,.98));border-top:1px solid rgba(200,200,212,.28);box-shadow:0 -6px 22px rgba(0,0,0,.45);padding:10px 12px}
-  .handcard{width:clamp(52px,16vw,68px);height:auto;aspect-ratio:64/86}
-  #table{width:auto;height:auto;max-width:100%;max-height:100%;aspect-ratio:720/1180}
-  #scr-deck{overflow:hidden;justify-content:space-between;padding:6px;gap:4px;height:100%;box-sizing:border-box}
-  .deckwrap{flex-direction:column;align-items:stretch;width:100%;flex:1;min-height:0;gap:4px}
-  .deckwrap .panel{max-width:none;width:100%;flex:0 0 auto;min-height:0;display:flex;flex-direction:column;padding:6px 10px;gap:4px;max-height:42vh}
-  .deckwrap .panel:first-child{flex:0 0 auto;max-height:45vh}
-  .deckside{max-width:none;min-width:0;width:100%;flex:0 0 auto;min-height:0;gap:4px;max-height:38vh}
-  #collection{width:100%;grid-template-columns:repeat(5,1fr);gap:3px;flex:0 0 auto;max-height:28vh;overflow:hidden;align-content:start;padding:2px}
-  #sidedeck{width:100%;grid-template-columns:repeat(5,1fr);gap:4px;flex:0 0 auto}
-  .sslot{width:auto;height:auto;aspect-ratio:64/76;min-height:58px}
-  .cell{padding:1px;gap:1px}
-  .cell .cnt{font-size:9px}
-  .cell canvas{width:100%;max-width:none;height:auto;aspect-ratio:64/76}
-  .sslot canvas{width:100%;max-width:none;height:auto;aspect-ratio:64/76}
-  .cell .cnt{font-size:10px}
-  .deckside .kbtn{width:100%;min-width:0;padding:8px 10px;font-size:12px}
-  .deckbtns{flex-direction:row;width:100%;gap:8px}
-  .deckbtns .kbtn{flex:1;min-width:0}
-  .match-controls .kbtn{width:100%;min-width:0}
-  .ctrl-secondary{width:100%}
-  .ctrl-secondary .kbtn{flex:1;min-width:0;width:auto}
-  #scr-deck .scrh{font-size:20px;letter-spacing:8px;margin:0}
-  #deckcount{font-size:18px;margin:0}
+  .match-wrap{flex-direction:column;justify-content:flex-start;align-items:stretch;padding:8px;gap:8px}
+  .match-board{flex:1 1 auto;width:100%;min-height:0}
+  .match-controls{width:100%;flex:0 1 auto;min-height:0;max-height:44dvh;overflow-y:auto;gap:8px;background:linear-gradient(180deg,rgba(10,15,26,.96),rgba(4,6,12,.98));border-top:1px solid var(--line);padding:10px 12px calc(10px + env(safe-area-inset-bottom))}
+  .handcard{width:clamp(50px,15.5vw,66px);height:auto;aspect-ratio:64/86}
+  .ctrl-btns{flex-direction:row;flex-wrap:wrap}
+  .ctrl-btns .kbtn.primary{flex:1 1 100%}
+  .ctrl-secondary{flex:1 1 100%}
+  #scr-deck{gap:8px;justify-content:flex-start}
+  /* Stacked: collection panel flexes and its grid scrolls internally so the
+     COLLECTION header and the whole side-deck column stay pinned. */
+  .deckwrap{flex-wrap:nowrap;flex-direction:column;align-items:stretch;overflow:visible}
+  .deckwrap .panel{flex:1 1 auto;min-height:0;max-width:none}
+  #collection{grid-template-columns:repeat(5,1fr);max-height:none}
+  .deckside{flex:0 0 auto;max-width:none;width:100%}
 }
-body{touch-action:auto}
+/* Narrow landscape: wrap to a top-anchored column instead of clipping. */
+@media (orientation:landscape) and (max-width:700px){
+  #scr-deck{justify-content:flex-start}
+  .deckwrap{flex-wrap:wrap;flex:0 0 auto;align-items:center}
+  .deckwrap .panel,.deckside{flex:1 1 100%;max-width:520px}
+  #collection{max-height:52dvh}
+}
+/* Short landscape (phones tilted, small windows): top-anchor so tall
+   content stays reachable by scroll instead of clipping above the fold. */
+@media (orientation:landscape) and (max-height:520px){
+  .screen{justify-content:flex-start}
+  .screen{gap:8px}
+  .logo{font-size:clamp(30px,7vh,44px)}
+  .match-controls{gap:8px}
+  .handcard{width:48px;height:65px}
+}
 </style>
 </head>
 <body>
@@ -140,13 +219,13 @@ body{touch-action:auto}
   <section id="scr-title" class="screen active">
     <div class="logo">PAZAAK</div>
     <div class="logo-sub">OUTER RIM CIRCUIT</div>
-    <div class="panel">
+    <nav class="kmenu" aria-label="Main menu">
       <button id="bt-continue" class="kbtn">CONTINUE CIRCUIT</button>
       <button id="bt-new" class="kbtn">NEW CIRCUIT</button>
       <button id="bt-how" class="kbtn">HOW TO PLAY</button>
       <button id="bt-options" class="kbtn">OPTIONS</button>
       <button id="bt-reset" class="kbtn danger">RESET PROGRESS</button>
-    </div>
+    </nav>
     <div class="foot">HOLO-TERMINAL BUILD &middot; ZERO ASSETS &middot; ALL CODE</div>
   </section>
   <section id="scr-circuit" class="screen">
@@ -157,7 +236,7 @@ body{touch-action:auto}
   <section id="scr-deck" class="screen">
     <div class="scrh">SIDE DECK BUILDER</div>
     <div class="deckwrap">
-      <div class="panel"><div style="font-size:13px;letter-spacing:3px;color:var(--cyan)">COLLECTION</div><div id="collection"></div></div>
+      <div class="panel"><div class="deckhead">COLLECTION</div><div id="collection"></div></div>
       <div class="panel deckside">
         <div id="deckcount">0 / 10</div>
         <div id="sidedeck"></div>
@@ -201,7 +280,7 @@ function shade(hex,amt){const n=parseInt(hex.slice(1),16);const r=clamp((n>>16)+
 function rr(g,x,y,w,h,r){g.beginPath();g.moveTo(x+r,y);g.arcTo(x+w,y,x+w,y+h,r);g.arcTo(x+w,y+h,x,y+h,r);g.arcTo(x,y+h,x,y,r);g.arcTo(x,y,x+w,y,r);g.closePath();}
 function rrPath(w,h,r){const p=new Path2D();p.moveTo(r,0);p.lineTo(w-r,0);p.quadraticCurveTo(w,0,w,r);p.lineTo(w,h-r);p.quadraticCurveTo(w,h,w-r,h);p.lineTo(r,h);p.quadraticCurveTo(0,h,0,h-r);p.lineTo(0,r);p.quadraticCurveTo(0,0,r,0);p.closePath();return p;}
 function tText(g,text,x,y,size,color,spacing=2,align='center',bold=true,condense=0.94){
-  g.save();g.font=(bold?'700 ':'400 ')+size+'px "Arial Narrow",Arial,sans-serif';g.fillStyle=color;g.textBaseline='middle';g.textAlign='left';
+  g.save();g.font=(bold?'700 ':'400 ')+size+'px Futura,"Century Gothic","Avenir Next","Arial Narrow",Arial,sans-serif';g.fillStyle=color;g.textBaseline='middle';g.textAlign='left';
   const chars=String(text).toUpperCase().split('');
   let tw=0;const ws=chars.map(ch=>{const cw=g.measureText(ch).width;tw+=cw+spacing;return cw;});
   tw-=spacing;tw*=condense;
@@ -329,44 +408,106 @@ function loadSave(){try{const s=JSON.parse(localStorage.getItem(SAVE_KEY));if(s&
 function persist(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(SAVE));}catch(e){}}
 let SAVE=loadSave();
 let W=1024,H=768,L={},PORTRAIT=false;
+// Adaptive layout: the logical canvas matches the measured board box, so the
+// table fills every viewport instead of letterboxing. All geometry derives
+// from W/H with the authentic KOTOR fractions (frame .17/.055/.66/.89).
 function computeLayout(){
   PORTRAIT=window.innerHeight>window.innerWidth;
+  let aw=+window.innerWidth||0, ah=+window.innerHeight||0;
+  try{
+    const b=document.querySelector('.match-board');
+    if(b&&b.clientWidth>10&&b.clientHeight>10){aw=b.clientWidth;ah=b.clientHeight;}
+  }catch(e){}
+  if(!(aw>0&&ah>0)){aw=PORTRAIT?720:1024;ah=PORTRAIT?1180:768;}
+  const aspect=aw/Math.max(1,ah);
   if(!PORTRAIT){
-    W=1024;H=768;
-    // Authentic KOTOR proportions from RefBoard 1080x607 (frame 187,33,710x539 => 0.173,0.054,0.657,0.888)
-    // Top black bars 262,58,229x27 (0.2426,0.0955,0.212,0.0445) and 589,58,229x27 (0.545,0.0955)
-    L={
-      frame:{x:177,y:42,w:673,h:682,r:28},
-      top:{x:248,y:73,w:541,h:34},
-      topP:{x:248,y:73,w:217,h:34}, topO:{x:558,y:73,w:217,h:34},
-      orbP:{x:204,y:90,r:14},orbO:{x:820,y:90,r:14},
-      nameP:{x:232,y:90},nameO:{x:792,y:90},
-      badges:[{x:456,y:74},{x:518,y:74}],bw:48,bh:28,
-      chanP:{x:196,y:128,w:20,h:184},chanO:{x:808,y:128,w:20,h:184},
-      gridP:{x:236,y:128},gridO:{x:518,y:128},sw:96,sh:108,gap:7,
-      labP:{x:196,y:468,w:368,h:22},labO:{x:518,y:468,w:368,h:22},
-      handO:{x:518,y:500,sw:86,sh:106,hgap:6},
-      proj:{x:512,y:118},
-      vent:{x:196,y:642,w:368,h:38}
-    };
+    H=768;
+    W=Math.round(H*Math.min(2.2,Math.max(1.05,aspect)));
+    layoutLandscape();
   }else{
-    W=720;H=1180;
-    // Vertical: stack player (bottom) / opponent (top), keep reactive, leave room for hand DOM at bottom
-    L={
-      frame:{x:20,y:20,w:680,h:820,r:28},
-      top:{x:40,y:36,w:640,h:28},
-      topP:{x:40,y:36,w:308,h:28}, topO:{x:372,y:36,w:308,h:28},
-      orbP:{x:58,y:50,r:12},orbO:{x:662,y:50,r:12},
-      nameP:{x:82,y:50},nameO:{x:638,y:50},
-      badges:[{x:320,y:50},{x:382,y:50}],bw:48,bh:26,
-      chanP:{x:28,y:620,w:14,h:180},chanO:{x:28,y:110,w:14,h:180},
-      gridP:{x:52,y:620},gridO:{x:52,y:110},sw:132,sh:152,gap:10,
-      labP:{x:52,y:596,w:416,h:22},labO:{x:52,y:86,w:416,h:22},
-      handO:null,
-      proj:{x:360,y:520},
-      vent:null
-    };
+    layoutPortrait(); // content-sized canvas; W/H set inside
   }
+}
+function layoutLandscape(){
+  const u=H/768, v=W/1024;
+  const fx=W*0.17, fy=H*0.055, fw=W*0.66, fh=H*0.89;
+  const cx=fx+fw/2;
+  const barH=34*u, barY=fy+31*u;
+  const barLX=fx+0.105*fw, barRX=cx+64*u;
+  const barRW=fx+0.895*fw-barRX, barLW=cx-64*u-barLX;
+  const orbR=14*u;
+  // Two halves for the 3x3 blocks; each half budgets channel + grid.
+  // Cells fit width AND height; block+channel combo is centred in its half.
+  const padX=0.02*fw, midGap=16*u, gap=7*u, chanW=20*u;
+  const halfW=(fw-2*padX-midGap)/2;
+  const labelH=22*u, handH=106*u, ventH=38*u;
+  const gridY=barY+barH+14*u;
+  const maxGridH=(fy+fh-16*u-ventH-10*u)-(gridY+labelH+8*u+handH+10*u+labelH+8*u)-labelH-8*u;
+  let sw=Math.min((halfW-chanW-10*u-2*gap)/3,(maxGridH-2*gap)/3/1.125);
+  sw=Math.max(40,sw);
+  const sh=sw*1.125, gridW=3*sw+2*gap, gridH=3*sh+2*gap;
+  const comboW=gridW+chanW+8*u;
+  const halfL0=fx+padX, halfR0=halfL0+halfW+midGap;
+  const gPX=halfL0+(halfW-comboW)/2+chanW+8*u;
+  const gOX=halfR0+(halfW-comboW)/2;
+  const labW=gridW+56*u;
+  const labY=gridY+gridH+8*u, handY=labY+labelH+10*u;
+  const sw2=Math.min(86*u,(halfW-3*6*u)/4), sh2=sw2*106/86;
+  L={
+    frame:{x:fx,y:fy,w:fw,h:fh,r:28*u},
+    top:{x:barLX,y:barY,w:cx-64*u-barLX+64*u+barRW,h:barH},
+    topP:{x:barLX,y:barY,w:barLW,h:barH}, topO:{x:barRX,y:barY,w:barRW,h:barH},
+    orbP:{x:barLX-30*u,y:barY+barH/2,r:orbR},orbO:{x:fx+0.895*fw+30*u,y:barY+barH/2,r:orbR},
+    nameP:{x:barLX-30*u+orbR+8*u,y:barY+barH/2},nameO:{x:fx+0.895*fw+30*u-orbR-8*u,y:barY+barH/2},
+    badges:[{x:cx-4*u-48*u,y:barY+3*u},{x:cx+4*u,y:barY+3*u}],bw:48*u,bh:28*u,
+    chanP:{x:gPX-chanW-8*u,y:gridY,w:chanW,h:gridH},chanO:{x:gOX+gridW+8*u,y:gridY,w:chanW,h:gridH},
+    gridP:{x:gPX,y:gridY},gridO:{x:gOX,y:gridY},sw,sh,gap,
+    labP:{x:gPX+gridW/2-labW/2,y:labY,w:labW,h:labelH},labO:{x:gOX+gridW/2-labW/2,y:labY,w:labW,h:labelH},
+    handO:{x:halfR0+halfW/2-(4*sw2+3*6*u)/2,y:handY,sw:sw2,sh:sh2,hgap:6*u},
+    proj:{x:cx,y:gridY-10*u},
+    vent:{x:fx+0.028*fw,y:fy+fh-16*u-ventH,w:0.547*fw,h:ventH},
+    deco:{vY:barY+9*u,cY:barY+21*u,cx},
+    toastY:(gridY+gridH/2)
+  };
+}
+function layoutPortrait(){
+  // Content-sized canvas: the frame hugs the grids (brushed surround is
+  // symmetric by construction). Fixed honest card size; the DOM letterboxes.
+  const sw=104, sh=sw*1.15, gap=10;
+  const gridW=3*sw+2*gap, gridH=3*sh+2*gap;
+  const pad=16, chanW=16;
+  const labelH=22, backH=72;
+  const barH=28;
+  const fw=gridW+2*(chanW+10)+2*pad;
+  const chromeH=barH+14+labelH+8+14+backH+14+labelH+8+24;
+  W=Math.round(fw+96); H=Math.round(40+chromeH+2*gridH+40);
+  const fx=(W-fw)/2, fy=20, fh=H-40;
+  const cx=fx+fw/2;
+  const barY=fy+16;
+  const barLX=fx+20, barRX=cx+32;
+  const barRW=fx+fw-20-barRX, barLW=cx-32-barLX;
+  const orbR=12;
+  const gX=fx+pad+chanW+10;
+  const labOY=barY+barH+14, gridOY=labOY+labelH+8;
+  const backY=gridOY+gridH+14;
+  const labPY=backY+backH+14, gridPY=labPY+labelH+8;
+  const bw2=Math.min(56,(gridW-3*8)/4), bh2=bw2*1.25;
+  L={
+    frame:{x:fx,y:fy,w:fw,h:fh,r:28},
+    top:{x:barLX,y:barY,w:barLW+64+barRW,h:barH},
+    topP:{x:barLX,y:barY,w:barLW,h:barH}, topO:{x:barRX,y:barY,w:barRW,h:barH},
+    orbP:{x:barLX-16,y:barY+barH/2,r:orbR},orbO:{x:fx+fw-20+16,y:barY+barH/2,r:orbR},
+    nameP:{x:barLX-16+orbR+8,y:barY+barH/2},nameO:{x:fx+fw-20+16-orbR-8,y:barY+barH/2},
+    badges:[{x:cx-4-48,y:barY+1},{x:cx+4,y:barY+1}],bw:48,bh:26,
+    chanP:{x:gX-chanW-10,y:gridPY,w:chanW,h:gridH},chanO:{x:gX-chanW-10,y:gridOY,w:chanW,h:gridH},
+    gridP:{x:gX,y:gridPY},gridO:{x:gX,y:gridOY},sw,sh,gap,
+    labP:{x:gX,y:labPY,w:gridW,h:labelH},labO:{x:gX,y:labOY,w:gridW,h:labelH},
+    handO:{x:cx-(4*bw2+3*8)/2,y:backY+(backH-bh2)/2,sw:bw2,sh:bh2,hgap:8,portrait:true},
+    proj:{x:cx,y:backY-8},
+    vent:null,
+    deco:null,
+    toastY:(gridOY+gridH/2)
+  };
 }
 function slotRect(grid,r,c){return {x:grid.x+c*(L.sw+L.gap),y:grid.y+r*(L.sh+L.gap),w:L.sw,h:L.sh};}
 const CARD_COLORS={green:{b:'#2fa040',l:'#5ac468',d:'#1a6e2a'},blue:{b:'#0a2ec0',l:'#4a5be8',d:'#082090'},red:{b:'#c71e1e',l:'#e84838',d:'#7a0f0f'},gold:{b:'#b89a1e',l:'#e0c854',d:'#7a5a0a'},silver:{b:'#a8a8ae',l:'#cacace',d:'#787880'},taupe:{b:'#9b8a6e',l:'#c2b49a',d:'#6e5d45'}};
@@ -492,7 +633,7 @@ function drawCard(g,x,y,w,h,card,o={}){
     g.restore();
     const lbl=cardLabel(card,orient);
     if(lbl){g.fillStyle='#fff';g.textAlign='center';g.textBaseline='middle';
-      g.font=`700 ${Math.round(h*0.22)}px "Arial Narrow",Arial,sans-serif`;g.fillText(lbl,w/2,h*0.5);}
+      g.font=`700 ${Math.round(h*0.22)}px Futura,"Century Gothic","Avenir Next","Arial Narrow",Arial,sans-serif`;g.fillText(lbl,w/2,h*0.5);}
   }else{
     const isMainCard=isMain;
     const isPlus=card.kind==='mod'&&card.sign>0;
@@ -522,7 +663,7 @@ function drawCard(g,x,y,w,h,card,o={}){
     const lbl=cardLabel(card,orient);
     g.fillStyle='#fff';g.textAlign='center';g.textBaseline='middle';
     const bh2=bp.h*h;
-    g.font=`700 ${Math.round(bh2*(lbl.length>3?0.52:0.70))}px "Arial Narrow",Arial,sans-serif`;
+    g.font=`700 ${Math.round(bh2*(lbl.length>3?0.52:0.70))}px Futura,"Century Gothic","Avenir Next","Arial Narrow",Arial,sans-serif`;
     g.fillText(lbl,(bp.x+bp.w/2)*w,(bp.y+bp.h/2)*h);
     const bs=GEOM.bottomStrip;
     const sy=bs.y*h,sh=bs.h*h;
@@ -539,7 +680,7 @@ function drawCard(g,x,y,w,h,card,o={}){
       // add subtle brushed overlay
       for(let i=0;i<b.h*h;i+=2){g.fillStyle='rgba(255,255,255,0.04)';g.fillRect(0,i, b.w*w,1);}
       g.restore();
-      g.fillStyle='#000';g.font=`700 ${Math.round(sh*0.55)}px "Arial Narrow",Arial,sans-serif`;
+      g.fillStyle='#000';g.font=`700 ${Math.round(sh*0.55)}px Futura,"Century Gothic","Avenir Next","Arial Narrow",Arial,sans-serif`;
       g.textAlign='center';g.textBaseline='middle';
       g.fillText('-',(b.x+b.w*0.25)*w,(b.y+b.h/2)*h+1);g.fillText('+',(b.x+b.w*0.75)*w,(b.y+b.h/2)*h+1);
     }else if(isMainCard){
@@ -558,7 +699,7 @@ function drawCard(g,x,y,w,h,card,o={}){
       g.clip(bp2);
       g.drawImage(TEX[bandKey],-b.x*w,-b.y*h,w,h);
       g.restore();
-      g.fillStyle='#000';g.font=`700 ${Math.round(b.h*h*0.55)}px "Arial Narrow",Arial,sans-serif`;
+      g.fillStyle='#000';g.font=`700 ${Math.round(b.h*h*0.55)}px Futura,"Century Gothic","Avenir Next","Arial Narrow",Arial,sans-serif`;
       g.textAlign='center';g.textBaseline='middle';
       g.fillText(isPlus?'+':isMinus?'-':orient>0?'+':'-',(b.x+b.w/2)*w,(b.y+b.h/2)*h+1);
     }
@@ -576,7 +717,7 @@ function drawCard(g,x,y,w,h,card,o={}){
       // very subtle depth: inner highlight
       g.fillStyle='rgba(255,255,255,0.13)';
       g.beginPath();g.arc(bx-br*0.28,by-br*0.32,br*0.22,0,Math.PI*2);g.fill();
-      g.fillStyle='#f0c040';g.font=`900 ${Math.round(br*1.45)}px "Arial Narrow",Arial,sans-serif`;
+      g.fillStyle='#f0c040';g.font=`900 ${Math.round(br*1.45)}px Futura,"Century Gothic","Avenir Next","Arial Narrow",Arial,sans-serif`;
       g.textAlign='center';g.textBaseline='middle';
       g.fillStyle='rgba(0,0,0,0.28)';g.fillText(isPlus?'+':isMinus?'-':orient>0?'+':'-',bx+0.5,by+1.5);
       g.fillStyle='#ffe55c';g.fillText(isPlus?'+':isMinus?'-':orient>0?'+':'-',bx,by+0.5);
@@ -662,10 +803,11 @@ function drawChannel(g,ch,lights,now){
   g.strokeStyle='rgba(0,0,0,0.5)';g.lineWidth=1;g.stroke();
   g.strokeStyle='rgba(255,255,255,0.06)';
   g.beginPath();g.moveTo(ch.x+2,ch.y+8);g.lineTo(ch.x+2,ch.y+ch.h-8);g.stroke();
+  const r=Math.min(7,Math.max(4,ch.w*0.32));
   for(let i=0;i<3;i++){
-    const cy=ch.y+34+i*58,cx=ch.x+ch.w/2,st=lights[i];
-    if(st==='off'){g.beginPath();g.arc(cx,cy,6,0,7);g.fillStyle='#141417';g.fill();g.strokeStyle='#3a3a42';g.lineWidth=1;g.stroke();}
-    else drawOrb(g,{x:cx,y:cy},6,st,now);
+    const cy=ch.y+ch.h*(0.2+0.3*i),cx=ch.x+ch.w/2,st=lights[i];
+    if(st==='off'){g.beginPath();g.arc(cx,cy,r,0,7);g.fillStyle='#141417';g.fill();g.strokeStyle='#3a3a42';g.lineWidth=1;g.stroke();}
+    else drawOrb(g,{x:cx,y:cy},r,st,now);
   }
 }
 function drawBadge(g,b,score,flashT,now){
@@ -680,7 +822,7 @@ function drawBadge(g,b,score,flashT,now){
   g.fillRect(b.x-13,b.y+L.bh/2-2,9,4);
   g.fillRect(b.x+L.bw+4,b.y+L.bh/2-2,9,4);
   g.restore();
-  g.fillStyle='#fff';g.font='700 17px "Arial Narrow",Arial,sans-serif';g.textAlign='center';g.textBaseline='middle';
+  g.fillStyle='#fff';g.font='700 '+Math.max(11,Math.round(L.bh*0.61))+'px Futura,"Century Gothic","Avenir Next","Arial Narrow",Arial,sans-serif';g.textAlign='center';g.textBaseline='middle';
   g.fillText(String(score),b.x+L.bw/2,b.y+L.bh/2+1);
 }
 let M=null,STATIC=null,DPR=1,curScreen='title',deckRung=0,deckSel=[];
@@ -872,8 +1014,8 @@ function leaveMatch(){if(M)M.token++;M=null;buildCircuit();showScreen('circuit')
 function startMatch(rung){
   const opp=SAVE.roster[rung];
   newMatch(opp,rung<SAVE.circuit?rung:null);
-  renderStatic();
   showScreen('match');
+  fit(); // measure the now-visible board box so the canvas aspect matches it
   showDialog('VS '+opp.name.toUpperCase(),'TIER '+opp.tier+': '+opp.title.toUpperCase()+' - FIRST TO 3 SETS',()=>{
     if(!SAVE.seenRules){
       SAVE.seenRules=true;persist();
@@ -910,11 +1052,12 @@ function renderStatic(){
     g.beginPath();g.moveTo(top.x+10,top.y+1.5);g.lineTo(top.x+top.w-10,top.y+1.5);g.stroke();
   }
   const on=M;
-  tText(g,'YOU',L.nameP.x,L.nameP.y,12,'#ecd883',2.5,'left');
-  tText(g,on?on.opp.name:'OPPONENT',L.nameO.x,L.nameO.y,12,'#ecd883',2.5,'right');
-  if(!PORTRAIT){
-    drawVentDecor(g,350,82);drawCircleDecor(g,[386,402,418],94,-1);
-    drawCircleDecor(g,[590,606,622],94,0);drawVentDecor(g,636,82);
+  tText(g,'YOU',L.nameP.x,L.nameP.y,12,'#ffe14d',2.5,'left');
+  tText(g,on?on.opp.name:'OPPONENT',L.nameO.x,L.nameO.y,12,'#ffe14d',2.5,'right');
+  if(L.deco){
+    const d=L.deco,u=H/768;
+    drawVentDecor(g,d.cx-162*u,d.vY);drawCircleDecor(g,[d.cx-126*u,d.cx-110*u,d.cx-94*u],d.cY,-1);
+    drawCircleDecor(g,[d.cx+78*u,d.cx+94*u,d.cx+110*u],d.cY,0);drawVentDecor(g,d.cx+124*u,d.vY);
   }
   for(const grid of [L.gridP,L.gridO]){
     rr(g,grid.x-10,grid.y-10,3*L.sw+2*L.gap+20,3*L.sh+2*L.gap+20,10);
@@ -933,7 +1076,8 @@ function renderStatic(){
     rr(g,L.vent.x,L.vent.y,L.vent.w,L.vent.h,6);
     g.fillStyle='#101014';g.fill();g.strokeStyle='#0a0a0c';g.lineWidth=1;g.stroke();
     g.fillStyle='rgba(255,255,255,0.05)';
-    for(let i=0;i<7;i++)g.fillRect(L.vent.x+18+i*52,L.vent.y+8,4,L.vent.h-16);
+    const n=Math.max(1,Math.floor((L.vent.w-36)/52));
+    for(let i=0;i<n;i++)g.fillRect(L.vent.x+18+i*52,L.vent.y+8,4,L.vent.h-16);
   }
 }
 function render(now){
@@ -948,6 +1092,14 @@ function render(now){
   drawOrb(ctx,L.orbO,L.orbO.r,orbState('o'),now);
   drawBadge(ctx,L.badges[0],M.p.score,M.flashBadge.p,now);
   drawBadge(ctx,L.badges[1],M.o.score,M.flashBadge.o,now);
+  // Opponent hand: card rears for unplayed cards so their remaining count reads
+  if(L.handO){
+    const h=L.handO;
+    for(let i=0;i<4;i++){
+      const rct={x:h.x+i*(h.sw+h.hgap),y:h.y,w:h.sw,h:h.sh};
+      if(M.o.hand[i])drawCard(ctx,rct.x,rct.y,rct.w,rct.h,null,{back:true});
+    }
+  }
   for(const who of ['p','o']){
     const S=sideOf(who),grid=who==='p'?L.gridP:L.gridO;
     for(let i=0;i<9;i++){
@@ -982,7 +1134,7 @@ function render(now){
   M.toasts.forEach((t,i)=>{
     const p=(now-t.t0)/1300;
     ctx.save();ctx.globalAlpha=p<0.15?p/0.15:1-Math.max(0,(p-0.6))/0.4;
-    tText(ctx,t.t,W/2,318-i*22,15,'#bfe8ff',3);
+    tText(ctx,t.t,W/2,(L.toastY||H*0.414)-i*Math.round(22*H/768),15,'#bfe8ff',3);
     ctx.restore();
   });
   updateHandDOM();
@@ -998,8 +1150,8 @@ function buildCircuit(){
     const div=document.createElement('div');
     div.className='rung '+st;
     div.innerHTML=`<span class="tier t${opp.tier}">${['I','II','III'][opp.tier-1]}</span>`+
-      `<span class="rname">${opp.name}</span>`+
-      `<span class="rtitle">${opp.title.toUpperCase()}</span>`+
+      `<span class="rtext"><span class="rname">${opp.name}</span>`+
+      `<span class="rtitle">${opp.title.toUpperCase()}</span></span>`+
       `<span class="rstat">${st==='done'?'REPLAY':st==='next'?'CHALLENGE':'LOCKED'}</span>`;
     if(st!=='locked')div.onclick=()=>{AUDIO.play('click');openDeckBuilder(i);};
     wrap.appendChild(div);
@@ -1099,15 +1251,9 @@ function refreshTitle(){
     bt.textContent=done?'CIRCUIT COMPLETE - REPLAY':'CONTINUE CIRCUIT';
   }else bt.style.display='none';
 }
-function metalURL(w,h,base){
-  const c=document.createElement('canvas');c.width=w;c.height=h;
-  brushed(c.getContext('2d'),0,0,w,h,base,true);
-  return c.toDataURL();
-}
 function loop(t){render(t);requestAnimationFrame(loop);}
 function init(){
   initTextures();
-  document.documentElement.style.setProperty('--metal',`url(${metalURL(256,256,'#3a3a40')})`);
   AUDIO.vol=SAVE.vol;AUDIO.muted=SAVE.muted;
   if(!SAVE.roster||!SAVE.roster.length){SAVE.roster=buildRoster();persist();}
   const table=$('#table');

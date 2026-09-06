@@ -1,0 +1,12 @@
+#app{position:relative;width:100vw;height:100vh;height:100dvh;z-index:1}
+/* Shell: every screen is a centred column that can scroll internally.
+   justify-content stays centered for tall viewports; min-height:0 + overflow
+   keep short/landscape viewports reachable instead of clipped. */
+.screen{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:clamp(10px,2.4vh,22px);overflow-y:auto;min-height:0;padding:clamp(10px,2.5vh,24px) env(safe-area-inset-right) clamp(10px,2.5vh,24px) env(safe-area-inset-left);padding-top:calc(clamp(10px,2.5vh,24px) + env(safe-area-inset-top));padding-bottom:calc(clamp(10px,2.5vh,24px) + env(safe-area-inset-bottom))}
+.screen.active{display:flex}
+/* Children never squash (that causes overlap, not scroll); designated wells
+   (.deckwrap, #rungs, .match-controls) re-enable shrink + internal scroll. */
+.screen > *{flex-shrink:0;min-width:0}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-track{background:#070b14}
+::-webkit-scrollbar-thumb{background:#274a70;border-radius:5px;border:2px solid #070b14}

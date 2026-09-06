@@ -53,8 +53,26 @@ Then open <http://localhost:8000> (or just double-click `index.html`).
 
 ## Development
 
-Pure Pazaak is a single self-contained `index.html` (HTML + CSS + ES-module script).
-There is no bundler or dependency tree — edit the file and reload.
+The shipped game is still a single self-contained `index.html` (inline CSS/JS,
+zero assets, no network) — but it is **built** from `src/`:
+
+```
+src/template_parts/  page shell (head/body markup)
+src/styles/           tokens, base, components, circuit, deck, match, responsive
+src/js/               util, audio, cards, ai, data, layout, textures, geom,
+                      draw, chrome, game, render, ui, main (concatenated in order,
+                      one shared classic-script scope — no modules/bundler)
+scripts/build.py      concatenates src/ -> index.html
+scripts/logic-test.js headless game-logic smoke test (node, no deps)
+```
+
+```bash
+bash scripts/check.sh            # rebuild + syntax + logic tests + freshness
+python3 -m http.server 8000      # play at http://localhost:8000
+```
+
+Always commit the rebuilt `index.html` — GitHub Pages serves the repo root, and
+CI fails if `index.html` is stale relative to `src/`.
 
 ## Links
 

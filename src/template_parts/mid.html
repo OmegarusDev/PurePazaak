@@ -1,0 +1,57 @@
+</style>
+</head>
+<body>
+<main id="app">
+  <section id="scr-title" class="screen active">
+    <div class="logo">PAZAAK</div>
+    <div class="logo-sub">OUTER RIM CIRCUIT</div>
+    <nav class="kmenu" aria-label="Main menu">
+      <button id="bt-continue" class="kbtn">CONTINUE CIRCUIT</button>
+      <button id="bt-new" class="kbtn">NEW CIRCUIT</button>
+      <button id="bt-how" class="kbtn">HOW TO PLAY</button>
+      <button id="bt-options" class="kbtn">OPTIONS</button>
+      <button id="bt-reset" class="kbtn danger">RESET PROGRESS</button>
+    </nav>
+    <div class="foot">HOLO-TERMINAL BUILD &middot; ZERO ASSETS &middot; ALL CODE</div>
+  </section>
+  <section id="scr-circuit" class="screen">
+    <div class="scrh">OUTER RIM CIRCUIT</div>
+    <div id="rungs"></div>
+    <button id="bt-cback" class="kbtn">&#9668; TITLE</button>
+  </section>
+  <section id="scr-deck" class="screen">
+    <div class="scrh">SIDE DECK BUILDER</div>
+    <div class="deckwrap">
+      <div class="panel"><div class="deckhead">COLLECTION</div><div id="collection"></div></div>
+      <div class="panel deckside">
+        <div id="deckcount">0 / 10</div>
+        <div id="sidedeck"></div>
+        <div class="deckbtns">
+          <button id="bt-autofill" class="kbtn">AUTO-FILL</button>
+          <button id="bt-cleardeck" class="kbtn">CLEAR</button>
+        </div>
+        <button id="bt-dback" class="kbtn">&#9668; BACK</button>
+        <button id="bt-begin" class="kbtn" disabled>BEGIN MATCH</button>
+      </div>
+    </div>
+  </section>
+  <section id="scr-match" class="screen">
+    <div class="match-wrap">
+      <div class="match-board"><canvas id="table"></canvas></div>
+      <div class="match-controls">
+        <div class="pinfo" id="pinfo"></div>
+        <div class="hand" id="hand"></div>
+        <div class="ctrl-btns">
+          <button id="bt-end" class="kbtn primary">END TURN</button>
+          <div class="ctrl-secondary">
+            <button id="bt-stand" class="kbtn sm">STAND</button>
+            <button id="bt-flip" class="kbtn sm">FLIP</button>
+            <button id="bt-forf" class="kbtn sm ghost">FORFEIT</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+<div id="modal" class="hidden"><div id="modalbox"></div></div>
+<script>
