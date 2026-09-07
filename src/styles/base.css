@@ -5,8 +5,11 @@
 .screen{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:clamp(10px,2.4vh,22px);overflow-y:auto;min-height:0;padding:clamp(10px,2.5vh,24px) env(safe-area-inset-right) clamp(10px,2.5vh,24px) env(safe-area-inset-left);padding-top:calc(clamp(10px,2.5vh,24px) + env(safe-area-inset-top));padding-bottom:calc(clamp(10px,2.5vh,24px) + env(safe-area-inset-bottom))}
 .screen.active{display:flex}
 /* Children never squash (that causes overlap, not scroll); designated wells
-   (.deckwrap, #rungs, .match-controls) re-enable shrink + internal scroll. */
+   (.deckwrap, #rungs) re-enable shrink + internal scroll. */
 .screen > *{flex-shrink:0;min-width:0}
+.screen > .deckwrap,
+.screen > #rungs,
+.screen > #stock{flex:1 1 auto;min-height:0}
 ::-webkit-scrollbar{width:10px;height:10px}
-::-webkit-scrollbar-track{background:#070b14}
-::-webkit-scrollbar-thumb{background:#274a70;border-radius:5px;border:2px solid #070b14}
+::-webkit-scrollbar-track{background:#141416}
+::-webkit-scrollbar-thumb{background:var(--gui-edge-dim);border-radius:5px;border:2px solid #141416}

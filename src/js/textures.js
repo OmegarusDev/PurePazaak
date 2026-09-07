@@ -1,4 +1,4 @@
-const CARD_COLORS={green:{b:'#2fa040',l:'#5ac468',d:'#1a6e2a'},blue:{b:'#0a2ec0',l:'#4a5be8',d:'#082090'},red:{b:'#c71e1e',l:'#e84838',d:'#7a0f0f'},gold:{b:'#b89a1e',l:'#e0c854',d:'#7a5a0a'},silver:{b:'#a8a8ae',l:'#cacace',d:'#787880'},taupe:{b:'#9b8a6e',l:'#c2b49a',d:'#6e5d45'}};
+const CARD_COLORS={green:{b:'#2fa040',l:'#5ac468',d:'#1a6e2a'},blue:{b:'#0014dc',l:'#3a40f0',d:'#000090'},red:{b:'#dd3125',l:'#e84838',d:'#7a0f0f'},gold:{b:'#b89a1e',l:'#e0c854',d:'#7a5a0a'},silver:{b:'#a8a8ae',l:'#cacace',d:'#787880'},taupe:{b:'#777a76',l:'#b0b2ae',d:'#5c5e5a'}};
 const TEX={};
 function makeTex(key,base,light,dark){
   const c=document.createElement('canvas');c.width=96;c.height=112;const g=c.getContext('2d');
@@ -15,12 +15,16 @@ function makeTex(key,base,light,dark){
     g.beginPath();
     if(horizontal){g.moveTo(0,i+0.5);g.lineTo(96,i+0.5);}else{g.moveTo(0.5+i%96,0);g.lineTo(0.5+i%96,112);}
     g.stroke();}}
-  const rg=g.createRadialGradient(48,48,18,48,56,92);
-  rg.addColorStop(0,'rgba(255,255,255,0.08)');rg.addColorStop(0.7,'rgba(0,0,0,0)');rg.addColorStop(1,'rgba(0,0,0,0.22)');
+  const rg=g.createRadialGradient(48,36,12,48,56,92);
+  rg.addColorStop(0,'rgba(255,255,255,0.12)');rg.addColorStop(0.55,'rgba(0,0,0,0)');rg.addColorStop(1,'rgba(0,0,0,0.26)');
   g.fillStyle=rg;g.fillRect(0,0,96,112);
   TEX[key]=c;
 }
 function initTextures(){for(const k in CARD_COLORS)makeTex(k,CARD_COLORS[k].b,CARD_COLORS[k].l,CARD_COLORS[k].d);}
 function cardPath(w,h){
-  return rrPath(w,h,Math.min(w,h)*0.045);
+  const ch=cardChamfer(Math.min(w,h),0.038);
+  const p=new Path2D();
+  p.moveTo(ch,0);p.lineTo(w-ch,0);p.lineTo(w,ch);p.lineTo(w,h-ch);
+  p.lineTo(w-ch,h);p.lineTo(ch,h);p.lineTo(0,h-ch);p.lineTo(0,ch);
+  p.closePath();return p;
 }

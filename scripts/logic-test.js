@@ -42,4 +42,36 @@ M.turn = 'p'; M.phase = 'pAction'; // deterministic: force player action
 M.p.score = 21;
 PZ.endPlayerTurn();
 t('bust-ends-set', PZ.getM().setsO === 1);
+t('chan-set-lights', PZ.chanState('o')[0]==='red' && PZ.chanState('p').every(s=>s==='off'));
+
+const box=PZ.fitCard(90,90);
+t('fitCard-aspect', Math.abs(box.w/box.h - PZ.CARD_ASPECT)<1e-6 && box.h<=90 && box.w<=90);
+
+const board=[
+  {card:{kind:'main',v:2},eff:2,isMain:true},
+  {card:{kind:'mod',sign:1,v:4,id:'+4'},eff:4,isMain:false},
+  {card:{kind:'mod',sign:-1,v:2,id:'-2'},eff:-2,isMain:false}
+];
+PZ.applyFlip(board,[2,4]);
+t('flip-plus-side-too', board[0].eff===-2 && board[1].eff===-4 && board[2].eff===-2);
+t('flex-card', !!PZ.CARD_DEFS['1\u00B12'] && PZ.CARD_DEFS['1\u00B12'].kind==='flex');
+t('playValue-flex', PZ.playValue(PZ.makeCard('1\u00B12'),-1,2)===-2);
+t('cardLabel-D', PZ.cardLabel({kind:'dbl'})==='D');
+t('cardLabel-tie', PZ.cardLabel({kind:'tie',v:1},-1)==='-1T');
+t('wager-tiers', PZ.matchWager(1)===50 && PZ.matchWager(2)===100 && PZ.matchWager(3)===200);
+{
+  const decks=Array.from({length:24},()=>PZ.genSideDeck(1));
+  const std=/^[+-][1-6]$/;
+  t('t1-standard-range', decks.every(d=>d.every(id=>std.test(id))));
+  t('t1-has-upgrade', decks.every(d=>d.some(id=>!PZ.isClutterId(id))));
+}
+t('store-plus4-open', PZ.storeMinCircuit('+4')===0 && PZ.storeMinCircuit('-4')===0);
+t('store-t0', PZ.storeStock().every(id=>PZ.storeMinCircuit(id)===0));
+const save=PZ.getSave();
+save.circuit=6;
+t('store-unlocks-flex', PZ.storeStock().indexOf('1\u00B12')>=0);
+save.circuit=0;
+t('add-card', PZ.addToCollection('+4') && save.unlocked['+4']>=1);
+t('clutter-plus1', PZ.isClutterId('+1') && !PZ.isClutterId('TIE'));
+
 process.exit(fail ? 1 : 0);

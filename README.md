@@ -43,13 +43,13 @@ side-deck cards as you win.
 
 ## Run locally
 
-No build needed — it's a single HTML file:
+Use a **Cursor/VS Code task or a terminal you leave open**. Agent background shells get killed with the chat, which is why `http://127.0.0.1:8765/` sometimes says connection refused.
 
 ```bash
-python3 -m http.server 8000
+python3 scripts/serve.py --open
 ```
 
-Then open <http://localhost:8000> (or just double-click `index.html`).
+That rebuilds from `src/`, serves at <http://127.0.0.1:8765/>, and rebuilds again when you edit `src/`. Leave the browser tab open and refresh after a rebuild. Cursor will also offer to start **Serve Pure Pazaak** when you open this folder (Tasks: Run Task).
 
 ## Development
 
@@ -63,12 +63,13 @@ src/js/               util, audio, cards, ai, data, layout, textures, geom,
                       draw, chrome, game, render, ui, main (concatenated in order,
                       one shared classic-script scope — no modules/bundler)
 scripts/build.py      concatenates src/ -> index.html
+scripts/serve.py      local server + src/ watch (http://127.0.0.1:8765/)
 scripts/logic-test.js headless game-logic smoke test (node, no deps)
 ```
 
 ```bash
 bash scripts/check.sh            # rebuild + syntax + logic tests + freshness
-python3 -m http.server 8000      # play at http://localhost:8000
+python3 scripts/serve.py --open  # play at http://127.0.0.1:8765/
 ```
 
 Always commit the rebuilt `index.html` — GitHub Pages serves the repo root, and

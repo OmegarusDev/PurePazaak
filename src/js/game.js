@@ -1,5 +1,5 @@
 let M=null,STATIC=null,DPR=1,curScreen='title',deckRung=0,deckSel=[];
-let cv=null,ctx=null,handEls=[];
+let cv=null,ctx=null;
 function sideOf(w){return w==='p'?M.p:M.o;}
 function other(w){return w==='p'?'o':'p';}
 function toast(t){M.toasts.push({t,t0:performance.now()});}
@@ -22,8 +22,8 @@ function newMatch(opp,replayRung){
     return S;};
   M={opp,replayRung,token:tk,phase:'idle',setNum:0,setsP:0,setsO:0,
      setStarter:Math.random()<0.5?'p':'o',turn:'p',
-     p:mkSide(),o:mkSide(),deck:[],sel:-1,orient:1,dialog:null,toasts:[],
-     anims:{deal:null,flash:null},flashBadge:{p:0,o:0},lastScores:{p:0,o:0}};
+     p:mkSide(),o:mkSide(),deck:[],sel:-1,orient:1,varV:1,dialog:null,toasts:[],
+     anims:{deal:null,flash:null},flashBadge:{p:0,o:0},lastScores:{p:0,o:0},wager:0};
   M.p.side=SAVE.lastDeck.map(id=>makeCard(id));
   M.o.side=genSideDeck(opp.tier).map(id=>makeCard(id));
   for(const w of ['p','o']){
@@ -35,7 +35,7 @@ function newMatch(opp,replayRung){
 function startSet(){
   M.setNum++;M.deck=buildMainDeck();
   for(const w of ['p','o']){const S=sideOf(w);S.board=Array(9).fill(null);S.score=0;S.stood=false;S.bust=false;S.tiebreak=false;}
-  M.sel=-1;M.phase='turn';M.anims.deal=null;
+  M.sel=-1;M.orient=1;M.varV=1;M.phase='turn';M.anims.deal=null;
   toast('SET '+M.setNum);
   beginTurn(M.setStarter);
 }
@@ -75,11 +75,19 @@ function playerStand(){
   M.p.stood=true;M.sel=-1;toast('YOU STAND');
   if(M.o.stood)resolveStandoff();else passToOpp();
 }
+function cycleFlex(){
+  if(M.orient>0&&M.varV===1)M.varV=2;
+  else if(M.orient>0&&M.varV===2){M.orient=-1;M.varV=1;}
+  else if(M.orient<0&&M.varV===1)M.varV=2;
+  else{M.orient=1;M.varV=1;}
+}
 function flipArmed(){
   if(M.phase!=='pAction'||M.sel<0)return;
   const card=M.p.hand[M.sel];
-  if(!card||(card.kind!=='dual'&&card.kind!=='tie'))return;
-  AUDIO.play('click');M.orient*=-1;
+  if(!canFlip(card))return;
+  AUDIO.play('click');
+  if(card.kind==='flex')cycleFlex();
+  else M.orient*=-1;
 }
 function confirmPlay(i){
   if(M.phase!=='pAction')return;
@@ -88,7 +96,7 @@ function confirmPlay(i){
   AUDIO.play('place');
   if(card.kind==='dbl')applyDouble(M.p.board);
   else if(card.kind==='flip'){const n=applyFlip(M.p.board,card.vals);toast('FLIPPED '+n+' CARD'+(n===1?'':'S'));}
-  else{const si=placeSide(M.p,card,M.orient);if(si>=0)M.anims.deal={who:'p',slot:si,t0:performance.now()};}
+  else{const si=placeSide(M.p,card,M.orient,M.varV);if(si>=0)M.anims.deal={who:'p',slot:si,t0:performance.now()};}
   if(card.kind==='tie')M.p.tiebreak=true;
   M.p.used[i]=true;M.p.hand[i]=null;M.sel=-1;
   M.p.score=boardScore(M.p.board);
@@ -112,7 +120,7 @@ async function aiTurn(tk){
     AUDIO.play('place');
     if(d.play.tag==='dbl')applyDouble(M.o.board);
     else if(d.play.tag==='flip')applyFlip(M.o.board,card.vals);
-    else{const si=placeSide(M.o,card,d.play.orient);if(si>=0)M.anims.deal={who:'o',slot:si,t0:performance.now()};}
+    else{const si=placeSide(M.o,card,d.play.orient,d.play.varV);if(si>=0)M.anims.deal={who:'o',slot:si,t0:performance.now()};}
     if(card.kind==='tie')M.o.tiebreak=true;
     M.o.hand[d.play.idx]=null;
     M.o.score=boardScore(M.o.board);
@@ -171,30 +179,33 @@ function matchEnd(winner){
   if(winner==='p'){
     AUDIO.play('win');
     if(M.replayRung!=null){
-      showDialog('YOU WIN THE REMATCH.','',()=>leaveMatch());
+      SAVE.credits+=(M.wager||0)*2;persist();
+      showSpoilsModal(M.wager||0,true);
     }else{
-      const rung=SAVE.circuit,unlocks=UNLOCK_TABLE[rung]||{};
-      for(const id in unlocks)SAVE.unlocked[id]=(SAVE.unlocked[id]||0)+unlocks[id];
-      SAVE.circuit=rung+1;persist();
-      showResultModal(unlocks);
+      SAVE.credits+=(M.wager||0)*2;
+      SAVE.circuit+=1;persist();
+      showSpoilsModal(M.wager||0,false);
     }
   }else{
     AUDIO.play('lose');
-    showDialog('DEFEAT.','THE CIRCUIT MOVES ON WITHOUT YOU',()=>leaveMatch());
+    persist();
+    showDialog('DEFEAT.','YOU LOSE THE WAGER  \u00B7  '+(M.wager||0)+' CR',()=>leaveMatch());
   }
 }
-function leaveMatch(){if(M)M.token++;M=null;buildCircuit();showScreen('circuit');}
+function leaveMatch(){if(M)M.token++;M=null;circuitSel=circuitDefaultSel();buildCircuit();showScreen('circuit');}
 function startMatch(rung){
   const opp=SAVE.roster[rung];
+  const wager=matchWager(opp.tier);
+  if(SAVE.credits<wager){
+    showDialog('NOT ENOUGH CREDITS','THIS TABLE WANTS '+wager+' CR',()=>{});
+    return;
+  }
+  SAVE.credits-=wager;persist();
   newMatch(opp,rung<SAVE.circuit?rung:null);
+  M.wager=wager;
   showScreen('match');
-  fit(); // measure the now-visible board box so the canvas aspect matches it
-  showDialog('VS '+opp.name.toUpperCase(),'TIER '+opp.tier+': '+opp.title.toUpperCase()+' - FIRST TO 3 SETS',()=>{
-    if(!SAVE.seenRules){
-      SAVE.seenRules=true;persist();
-      showDialog('RULES','DRAW 1 PER TURN - PLAY MAX 1 SIDE CARD - OVER 20 = BUST',()=>startSet(),{sub2:'EXACT 20 AUTO-STANDS - FILL 9 SLOTS = WIN - TIES REPLAY'});
-    }else startSet();
-  });
+  fit();
+  showDialog('VS '+opp.name.toUpperCase(),'WAGER '+wager+' CR  \u00B7  TIER '+opp.tier+'  \u00B7  FIRST TO 3 SETS',()=>startSet());
 }
 function dealProgress(who,slot,now){
   const a=M&&M.anims.deal;
@@ -210,5 +221,5 @@ function orbState(w){
 }
 function chanState(w){
   const sets=w==='p'?M.setsP:M.setsO;
-  return [sets>0?'green':'off',sets>1?'green':'off',sets>2?'green':'off'];
+  return [sets>0?'red':'off',sets>1?'red':'off',sets>2?'red':'off'];
 }

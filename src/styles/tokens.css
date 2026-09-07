@@ -1,33 +1,44 @@
 :root{
-  /* KOTOR palette — sampled from refs:
-     menu bars/menu-blue (user crop), charsheet navy/cyan/green/yellow (moddb),
-     table silver/orange/cyan (RefBoard), win overlay (RefBoard2) */
+  /* KOTOR 1 engine GUI — KotOR.js / PyKotor defaults:
+     text/rails RGB(0, 0.658824, 0.980392), highlight RGB(1,1,0).
+     In-game panels: teal-cyan 9-slice border, charcoal fill, rounded corners. */
   --abyss:#04050b;
   --navy:#0a0f1c;
   --navy-2:#060a14;
   --well:#020409;
   --bar:#0b1322;
-  --line:#274a70;
-  --line-hi:#6ea3d8;
-  --rail:#2a5a8a;
+  --line:#2a6a62;
+  --line-hi:#3cb8a8;
+  --rail:#00a8fa;
   --ink:#c9d4e4;
   --dim:#8b96ab;
   --faint:#5a6376;
-  --cyan:#3fb6ff;
-  --ice:#9fd4ff;
-  --pale:#cfe6ff;
+  --cyan:#00a8fa;
+  --ice:#00a8fa;
+  --pale:#7ad4ff;
   --gold:#e8c34a;
   --gold-hi:#ffe14d;
-  --select:#d7e05c;
+  --select:#ffff4a;
   --green:#46e06a;
   --orange:#e87020;
+  --k1:#00a8fa;
+  --k1-hi:#ffff4a;
+  --tan:#d4c89a;
+  --gui-fill:#222224;
+  --gui-fill-2:#2a2a2e;
+  --gui-edge:#3cb8a8;
+  --gui-edge-dim:#1a5c54;
+  --gui-edge-hi:#7ae0d4;
+  --gui-r:14px;
   /* legacy names (kept for compat) */
   --amber:#e8c34a;
   --red:#e05555;
-  /* type — system stacks only, zero-asset */
+  /* type — system stacks only, zero-asset.
+     Gold lockup: Trajan. Title-menu items ≈ Bank Gothic; Mac stand-in is
+     DIN Alternate (square gothic). HUD uses the same stack. */
   --serif:"Trajan Pro",Trajan,Cinzel,"Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
-  --sans:"Futura","Futura Medium","Century Gothic","Avenir Next","Trebuchet MS","Arial Narrow",Arial,sans-serif;
-  --r:3px;
+  --sans:"DIN Alternate","Bank Gothic","Eurostile","Microgramma","Avenir Next Condensed","Century Gothic","Futura","Trebuchet MS",sans-serif;
+  --r:14px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}

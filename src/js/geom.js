@@ -5,74 +5,162 @@
 // Symmetry: topPanel ↔ midPanel are vertical translations dy=0.5155 with V inverted (rotational 180° around centre 0.5,0.43); blackPanel centred (0.5,0.4287); badge circle rotationally symmetric
 const GEOM={
   outer:{x:0,y:0,w:1,h:0.996,r:0.045},
-  // Top/mid panels — SAME dimensions, inverted V, centred + diamond centred on blackPanel (0.4287)
-  // Unified: w0.7305 h0.1655 x0.1347 — top y0.0924, mid y0.5995 dy0.5071, V 0.40w/0.48h
-  // Badge slightly inset from corner by 2px (0.004w) to avoid optical illusion of being too far out
-  topPanel:{x:0.1347,y:0.0924,w:0.7305,h:0.1655, r:0.012, nw:0.40, nd:0.48, tip:{x:0.5,y:0.1785}},
-  // Mid panel — same w/h as top, V inverted (tip down) at 0.6789
-  midPanel:{x:0.1347,y:0.5995,w:0.7305,h:0.1655, r:0.012, nw:0.40, nd:0.48, tip:{x:0.5,y:0.6789}},
-  // Black panel — rounded rect, centred
-  blackPanel:{x:0.1678,y:0.3303,w:0.6678,h:0.1969,r:0.012},
-  // Bottom strip — same width as top/mid for perfect symmetry, centred
-  bottomStrip:{x:0.1347,y:0.8333,w:0.7305,h:0.1628,r:0.012},
-  // Badge — circle 6px inset from corner (0.8652,0.0924 -> 0.850,0.115) so centre is 0.015w left and 0.023h down, larger, blends, no outline
-  // RefPlus badge at 0.8269,0.1490 was 0.108 left, 0.089 down from corner 0.9353,0.0596, but low-res crop is off by ~0.02; ideal is 0.015/0.023 for optical centre on corner
-  badge:{cx:0.850,cy:0.115,r:0.055},
-  // Diamond — implicit gap between Vs, height 0.5004h (0.1785->0.6789), width 0.40w at mid, centred on blackPanel
-  diamond:{tipTop:{x:0.5,y:0.1785}, tipBot:{x:0.5,y:0.6789}, baseTop:0.2579, baseBot:0.5995}
+  // RefPlus 572x772 pixel scan: metal V first at y~0.210; well floor ~0.280; black y 0.334-0.520.
+  topPanel:{x:0.136,y:0.122,w:0.732,h:0.158,nw:0.307,nd:0.443,tip:{x:0.5,y:0.210}},
+  midPanel:{x:0.136,y:0.575,w:0.732,h:0.160,nw:0.307,nd:0.544,tip:{x:0.5,y:0.662}},
+  blackPanel:{x:0.171,y:0.335,w:0.661,h:0.187,r:0.010},
+  bottomStrip:{x:0.143,y:0.848,w:0.717,h:0.148},
+  // 45° clips, pixel-equal dx/dy. Wells ~18px @572w; bottom strip is a larger clip.
+  chamfer:0.032,stripChamfer:0.055,
+  // Circular tab of the top color well. Glyph sizes from RefPlus/RefMinus yellow pixels.
+  badge:{cx:0.826,cy:0.150,r:0.092,plusW:0.093,plusH:0.070,plusT:0.013,minusW:0.093,minusH:0.014}
 };
-function vNotchedTopPath(x,y,w,h,r,nw,nd){
+function vNotchedTopPath(x,y,w,h,ch,nw,nd){
   const p=new Path2D();
-  const rpx=Math.min(w,h)*r;
-  p.moveTo(x+rpx,y);
-  p.lineTo(x+w-rpx,y);
-  p.quadraticCurveTo(x+w,y,x+w,y+rpx);
+  p.moveTo(x+ch,y);
+  p.lineTo(x+w-ch,y);
+  p.lineTo(x+w,y+ch);
   p.lineTo(x+w,y+h);
   p.lineTo(x+w*0.5+nw*w/2, y+h);
   p.lineTo(x+w*0.5, y+h-nd*h);
   p.lineTo(x+w*0.5-nw*w/2, y+h);
   p.lineTo(x,y+h);
-  p.lineTo(x,y+rpx);
-  p.quadraticCurveTo(x,y,x+rpx,y);
+  p.lineTo(x,y+ch);
+  p.lineTo(x+ch,y);
   p.closePath();return p;
 }
-function vNotchedTopWithBadgePath(x,y,w,h,r,nw,nd,bx,by,br){
-  const p=vNotchedTopPath(x,y,w,h,r,nw,nd);
-  // Add badge circle as part of same shape so it shares brushed texture (no flat fill)
-  // Use even-odd to union: add circle path
-  const c=new Path2D();
-  c.arc(bx,by,br,0,Math.PI*2);
-  // Combine by adding to p (Path2D doesn't have union, so we will clip with both separately, but for texture we need to draw with combined clip)
-  // Instead return array of paths to be clipped together
-  return [p,c];
-}
-function vNotchedMidPath(x,y,w,h,r,nw,nd){
+function vNotchedMidPath(x,y,w,h,ch,nw,nd){
   const p=new Path2D();
-  const rpx=Math.min(w,h)*r;
   p.moveTo(x, y);
   p.lineTo(x+w*0.5-nw*w/2, y);
   p.lineTo(x+w*0.5, y+nd*h);
   p.lineTo(x+w*0.5+nw*w/2, y);
   p.lineTo(x+w, y);
-  p.lineTo(x+w, y+h-rpx);
-  p.quadraticCurveTo(x+w,y+h,x+w-rpx,y+h);
-  p.lineTo(x+rpx,y+h);
-  p.quadraticCurveTo(x,y+h,x,y+h-rpx);
-  p.lineTo(x,y);
+  p.lineTo(x+w, y+h-ch);
+  p.lineTo(x+w-ch, y+h);
+  p.lineTo(x+ch, y+h);
+  p.lineTo(x, y+h-ch);
+  p.lineTo(x, y);
   p.closePath();return p;
 }
-function tracePath(pts,w,h){const p=new Path2D();p.moveTo(pts[0][0]*w,pts[0][1]*h);for(let i=1;i<pts.length;i++)p.lineTo(pts[i][0]*w,pts[i][1]*h);p.closePath();return p;}
-const TRACE={black:[[0.1678,0.3303],[0.8356,0.3303],[0.8356,0.5272],[0.1678,0.5272]], bStripL:[[0.1347,0.8333],[0.5000,0.8333],[0.5000,0.9961],[0.1347,0.9961]], bStripR:[[0.5000,0.8333],[0.8652,0.8333],[0.8652,0.9961],[0.5000,0.9961]]};
+function stripPath(w,h,chTop){
+  const p=new Path2D();
+  p.moveTo(chTop,0);
+  p.lineTo(w-chTop,0);
+  p.lineTo(w,chTop);
+  p.lineTo(w,h);
+  p.lineTo(0,h);
+  p.lineTo(0,chTop);
+  p.lineTo(chTop,0);
+  p.closePath();return p;
+}
+function diamondPath(w,h){
+  const tp=GEOM.topPanel,mp=GEOM.midPanel,hw=tp.w*w*tp.nw/2,cx=w*0.5;
+  const p=new Path2D();
+  p.moveTo(tp.tip.x*w,tp.tip.y*h);
+  p.lineTo(cx+hw,(tp.y+tp.h)*h);
+  p.lineTo(cx+hw,mp.y*h);
+  p.lineTo(mp.tip.x*w,mp.tip.y*h);
+  p.lineTo(cx-hw,mp.y*h);
+  p.lineTo(cx-hw,(tp.y+tp.h)*h);
+  p.closePath();
+  return p;
+}
+function gemBevel(g,path,amt){
+  amt=Math.max(0.4,amt==null?0.8:amt);
+  g.save();g.translate(-amt,-amt);g.strokeStyle='rgba(255,255,255,0.28)';g.lineWidth=Math.max(0.6,amt);g.stroke(path);g.restore();
+  g.save();g.translate(amt,amt);g.strokeStyle='rgba(0,0,0,0.32)';g.lineWidth=Math.max(0.6,amt);g.stroke(path);g.restore();
+}
+function recessShade(g,path,x,y,pw,ph){
+  g.save();g.clip(path);
+  const v=g.createLinearGradient(x,y,x,y+ph);
+  v.addColorStop(0,'rgba(0,0,0,0.16)');v.addColorStop(0.2,'rgba(0,0,0,0.04)');
+  v.addColorStop(1,'rgba(255,255,255,0.04)');
+  g.fillStyle=v;g.fillRect(x-2,y-2,pw+4,ph+4);
+  g.restore();
+}
+function fillColorWell(g,path,tex,w,h,darken){
+  g.save();g.clip(path);g.drawImage(tex,0,0,w,h);
+  if(darken){g.fillStyle=`rgba(0,0,0,${darken})`;g.fillRect(0,0,w,h);}
+  const rg=g.createRadialGradient(w*0.5,h*0.22,w*0.05,w*0.5,h*0.36,w*0.5);
+  rg.addColorStop(0,'rgba(255,255,255,0.16)');rg.addColorStop(0.45,'rgba(0,0,0,0)');rg.addColorStop(1,'rgba(0,0,0,0.30)');
+  g.fillStyle=rg;g.fillRect(0,0,w,h);
+  g.restore();
+}
+function paintBody(g,path,tex,w,h){
+  g.save();g.clip(path);g.drawImage(tex,0,0,w,h);
+  const hi=g.createLinearGradient(0,0,0,h);
+  hi.addColorStop(0,'rgba(255,255,255,0.18)');hi.addColorStop(0.08,'rgba(255,255,255,0.05)');
+  hi.addColorStop(0.55,'rgba(0,0,0,0)');hi.addColorStop(1,'rgba(0,0,0,0.16)');
+  g.fillStyle=hi;g.fillRect(0,0,w,h);
+  g.restore();
+  gemBevel(g,path,Math.max(0.35,Math.min(w,h)*0.007));
+  g.strokeStyle='rgba(0,0,0,0.5)';g.lineWidth=Math.max(0.5,Math.min(w,h)*0.008);g.stroke(path);
+}
+function paintNumberPlate(g,x,y,ww,hh,r,fill){
+  rr(g,x,y,ww,hh,r);g.fillStyle=fill;g.fill();
+  g.strokeStyle='rgba(168,168,176,0.55)';g.lineWidth=Math.max(0.45,Math.min(ww,hh)*0.012);
+  rr(g,x,y,ww,hh,r);g.stroke();
+}
+function wellWithBadge(base,w,h){
+  const p=new Path2D(base);
+  const bd=GEOM.badge,c=new Path2D();
+  c.arc(bd.cx*w,bd.cy*h,bd.r*Math.min(w,h),0,Math.PI*2);
+  p.addPath(c);
+  return p;
+}
+function paintInnerMetal(g,w,h,tex){
+  const dia=diamondPath(w,h);
+  g.save();g.clip(dia);g.drawImage(tex,0,0,w,h);
+  const tp=GEOM.topPanel,mp=GEOM.midPanel;
+  const fg=g.createLinearGradient(w*0.5,tp.tip.y*h,w*0.5,mp.tip.y*h);
+  fg.addColorStop(0,'rgba(255,255,255,0.22)');fg.addColorStop(0.18,'rgba(255,255,255,0.08)');
+  fg.addColorStop(0.5,'rgba(255,255,255,0.03)');fg.addColorStop(0.82,'rgba(255,255,255,0.08)');
+  fg.addColorStop(1,'rgba(255,255,255,0.18)');
+  g.fillStyle=fg;g.fillRect(0,0,w,h);
+  g.restore();
+}
+function stripDarken(key){
+  if(key==='blue')return 0.70;
+  if(key==='red')return 0.38;
+  if(key==='green')return 0.48;
+  return 0.40;
+}
+function midDarken(key){
+  if(key==='blue')return 0.40;
+  if(key==='red')return 0.22;
+  if(key==='green')return 0.28;
+  return 0.22;
+}
+function paintBadgeMark(g,w,h,mark){
+  const bd=GEOM.badge,bx=bd.cx*w,by=bd.cy*h;
+  g.fillStyle='#edf456';
+  if(mark==='-'){
+    const rw=bd.minusW*w, rh=Math.max(0.7,bd.minusH*h);
+    g.fillRect(bx-rw/2,by-rh/2,rw,rh);
+    return;
+  }
+  const armW=bd.plusW*w, armH=bd.plusH*h, t=Math.max(0.7,bd.plusT*w);
+  g.fillRect(bx-t/2,by-armH/2,t,armH);
+  g.fillRect(bx-armW/2,by-t/2,armW,t);
+}
 function drawBack(g,w,h){
-  const p=rrPath(w,h,9);
-  g.save();g.shadowColor='rgba(0,0,0,0.5)';g.shadowBlur=6;g.fillStyle='#909098';g.fill(p);g.restore();
-  g.save();g.clip(p);g.drawImage(TEX.silver,0,0,w,h);g.restore();
-  g.strokeStyle='rgba(0,0,0,0.55)';g.lineWidth=1.5;g.stroke(p);
-  rr(g,4,4,w-8,h-8,6);g.strokeStyle='rgba(0,0,0,0.28)';g.lineWidth=1;g.stroke();
-  const d=Math.min(w,h)*0.42,cx=w/2,cy=h*0.52;
-  const dp=new Path2D();dp.moveTo(cx,cy-d/2);dp.lineTo(cx+d/2,cy);dp.lineTo(cx,cy+d/2);dp.lineTo(cx-d/2,cy);dp.closePath();
-  g.fillStyle='rgba(255,255,255,0.10)';g.fill(dp);
-  g.save();g.translate(-1,-1);g.strokeStyle='rgba(255,255,255,0.5)';g.lineWidth=1.5;g.stroke(dp);g.restore();
-  g.save();g.translate(1,1);g.strokeStyle='rgba(0,0,0,0.45)';g.lineWidth=1.5;g.stroke(dp);g.restore();
-  g.beginPath();g.arc(cx,cy-d/2-7,2.5,0,7);g.fillStyle='#c8c8ce';g.fill();g.strokeStyle='rgba(0,0,0,0.4)';g.lineWidth=1;g.stroke();
+  const p=cardPath(w,h);
+  g.save();g.shadowColor='rgba(0,0,0,0.45)';g.shadowBlur=5;g.fillStyle='#909098';g.fill(p);g.restore();
+  paintBody(g,p,TEX.silver,w,h);
+  const tp=GEOM.topPanel,mp=GEOM.midPanel,b=GEOM.bottomStrip,bp=GEOM.blackPanel;
+  const ch=cardChamfer(w,GEOM.chamfer),chS=cardChamfer(w,GEOM.stripChamfer);
+  const topPath=wellWithBadge(vNotchedTopPath(tp.x*w,tp.y*h,tp.w*w,tp.h*h,ch,tp.nw,tp.nd),w,h);
+  const botPath=vNotchedMidPath(mp.x*w,mp.y*h,mp.w*w,mp.h*h,ch,mp.nw,mp.nd);
+  paintInnerMetal(g,w,h,TEX.silver);
+  g.save();g.clip(p);
+  g.save();g.clip(topPath);g.drawImage(TEX.silver,0,0,w,h);g.fillStyle='rgba(0,0,0,0.26)';g.fillRect(0,0,w,h);g.restore();
+  recessShade(g,topPath,tp.x*w,tp.y*h,tp.w*w,tp.h*h);
+  g.save();g.clip(botPath);g.drawImage(TEX.silver,0,0,w,h);g.fillStyle='rgba(0,0,0,0.26)';g.fillRect(0,0,w,h);g.restore();
+  recessShade(g,botPath,mp.x*w,mp.y*h,mp.w*w,mp.h*h);
+  const strip=stripPath(b.w*w,b.h*h,chS);
+  g.save();g.translate(b.x*w,b.y*h);g.clip(strip);g.drawImage(TEX.silver,-b.x*w,-b.y*h,w,h);g.fillStyle='rgba(0,0,0,0.24)';g.fillRect(0,0,b.w*w,b.h*h);g.restore();
+  g.save();g.translate(b.x*w,b.y*h);recessShade(g,strip,0,0,b.w*w,b.h*h);g.restore();
+  g.restore();
+  paintNumberPlate(g,bp.x*w,bp.y*h,bp.w*w,bp.h*h,Math.min(w,h)*bp.r,'#7e7e84');
 }
