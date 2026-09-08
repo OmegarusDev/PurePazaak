@@ -4,11 +4,11 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-JS_ORDER="util.js audio.js cards.js ai.js data.js layout.js textures.js geom.js draw.js chrome.js game.js render.js ui.js main.js"
+JS_ORDER="util.js audio.js cards.js ai.js data.js layout.js textures.js geom.js draw.js chrome.js game.js render.js ui.js pwa.js main.js"
 
 python3 scripts/build.py
 
-TMP="$(mktemp /tmp/pz-bundle-XXXXXX.js)"
+TMP="$(pwd)/.pz-bundle-check.js"
 trap 'rm -f "$TMP"' EXIT
 : > "$TMP"
 for f in $JS_ORDER; do cat "src/js/$f" >> "$TMP"; done

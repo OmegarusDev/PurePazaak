@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
-"""Build single-file index.html from src/ (zero-asset bundle, no deps).
+"""Build single-file index.html from src/ (zero-asset game bundle, no deps).
 
 Author in src/, ship index.html:
     styles  -> src/styles/*.css   (concatenated in ORDER below)
     logic   -> src/js/*.js        (concatenated in ORDER below, same scope)
     shell   -> src/template_parts/{top,mid,bottom}.html
 
-Output must remain a fully self-contained file (inline CSS/JS, no network).
+Game CSS/JS stay inline in index.html (no runtime network for play).
+Install/PWA chrome lives beside it: manifest.webmanifest, sw.js, icons/.
 """
 import pathlib
 
@@ -40,6 +41,7 @@ JS_ORDER = [
     "game.js",
     "render.js",
     "ui.js",
+    "pwa.js",
     "main.js",
 ]
 

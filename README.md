@@ -12,8 +12,9 @@
 
 A tactical card duel inspired by the Pazaak minigame from *Knights of the Old Republic*.
 
-- **Zero assets** — fully self-contained `index.html` (inline CSS/JS, canvas-rendered).
-- **No runtime deps** — no build step, no libraries, no network calls.
+- **Zero assets** — game art is fully self-contained in `index.html` (inline CSS/JS, canvas-rendered).
+- **Installable PWA** — Add to Home Screen / install for a no-URL-bar app; updates on each open.
+- **No runtime deps** — no libraries; play works offline after the first visit.
 - **Works on desktop & mobile** — responsive layout; portrait and landscape aware.
 - **Strategic AI** — three opponent tiers with distinct decks and play styles.
 
@@ -60,18 +61,30 @@ That rebuilds from `src/`, serves at <http://127.0.0.1:8765/>, and rebuilds agai
 ## Development
 
 The shipped game is still a single self-contained `index.html` (inline CSS/JS,
-zero assets, no network) — but it is **built** from `src/`:
+procedural art, no game image assets) — but it is **built** from `src/`.
+Install chrome sits beside it (`manifest.webmanifest`, `sw.js`, `icons/`).
 
 ```
 src/template_parts/  page shell (head/body markup)
 src/styles/           tokens, base, components, circuit, deck, match, responsive
 src/js/               util, audio, cards, ai, data, layout, textures, geom,
-                      draw, chrome, game, render, ui, main (concatenated in order,
-                      one shared classic-script scope — no modules/bundler)
+                      draw, chrome, game, render, ui, pwa, main (concatenated
+                      in order, one shared classic-script scope — no modules)
+manifest.webmanifest  install metadata (standalone display)
+sw.js                 network-first shell; checks for updates on open only
+icons/                PWA / home-screen icons
 scripts/build.py      concatenates src/ -> index.html
 scripts/serve.py      local server + src/ watch (http://127.0.0.1:8765/)
 scripts/logic-test.js headless game-logic smoke test (node, no deps)
 ```
+
+### Install / auto-update
+
+On a supporting browser (Chrome/Edge/Android, or Add to Home Screen on iOS), open
+the live game and install it. The installed app opens without a URL bar
+(`display: standalone`). Each **cold open** asks the service worker for a fresh
+build and reloads once if GitHub Pages has a newer `index.html` — not on
+focus/visibility regain mid-session.
 
 ```bash
 bash scripts/check.sh            # rebuild + syntax + logic tests + freshness

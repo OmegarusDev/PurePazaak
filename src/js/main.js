@@ -1,4 +1,5 @@
 function init(){
+  registerPwa();
   initTextures();
   AUDIO.vol=SAVE.vol;AUDIO.muted=SAVE.muted;
   if(!SAVE.roster||!SAVE.roster.length){SAVE.roster=buildRoster();persist();}
