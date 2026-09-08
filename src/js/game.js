@@ -142,7 +142,11 @@ async function aiTurn(tk){
     if(res==='fill'||res==='bust')return;
     if(res==='stood'){if(M.p.stood)resolveStandoff();else beginTurn('p');return;}
     const after={...snap,score:M.o.score,board:M.o.board,hand:M.o.hand,bustRisk:bustRisk('o')};
-    if(shouldStand(M.o.score,after)){
+    // Plus/side plays that raise the total: stand (human play). Exception: still
+    // losing to a stood opponent — standing would concede, so keep going.
+    const raised=M.o.score>snap.score;
+    const losingToStood=M.p.stood&&M.o.score<M.p.score;
+    if((raised&&!losingToStood)||shouldStand(M.o.score,after)){
       M.o.stood=true;toast(M.opp.name.toUpperCase()+' STANDS');
       if(M.p.stood)resolveStandoff();else beginTurn('p');return;
     }

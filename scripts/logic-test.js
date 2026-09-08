@@ -105,10 +105,16 @@ t('clutter-plus1', PZ.isClutterId('+1') && !PZ.isClutterId('TIE'));
   t('ai-stand-beating-stood', PZ.shouldStand(20, {
     oppStood: true, oppScore: 19, tier: 1, bustRisk: 0.9, setsO: 0
   }) === true);
-  // After a plus that still loses, still must not stand.
+  // After a plus that still loses to a stood opponent, must not stand.
   t('ai-no-stand-after-plus-losing', PZ.shouldStand(17, {
     oppStood: true, oppScore: 19, tier: 3, bustRisk: 0.2, setsO: 2
   }) === false);
+  // Raised total vs unstood opp: stand-after-plus is correct human play.
+  t('ai-stand-after-plus-when-safe', (()=>{
+    const raised=18, prev=16, oppStood=false, oppScore=10;
+    const losingToStood=oppStood&&raised<oppScore;
+    return (raised>prev&&!losingToStood)===true;
+  })());
 }
 
 // Fill win only at ≤20; over-20 with 9 cards is a bust.
