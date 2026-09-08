@@ -2,6 +2,16 @@ function showScreen(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active',s.id==='scr-'+id));
   curScreen=id;
   refreshCredits();
+  if(id==='match')kickRender();
+}
+function bindMatchDialog(title,sub,opts){
+  const o=opts||{};
+  const html='<h2>'+title+'</h2>'+(sub?'<p>'+sub+'</p>':'')+(o.sub2?'<p>'+o.sub2+'</p>':'')+
+    '<div class="mrow">'+(o.cancelText?'<button id="dcancel" class="kbtn">'+o.cancelText+'</button>':'')+'<button id="dok" class="kbtn">OK</button></div>';
+  openModal(html);
+  $('#dok').onclick=dialogOK;
+  $('#dok').classList.add('sel');
+  if(o.cancelText)$('#dcancel').onclick=dialogCancel;
 }
 let circuitSel=0;
 function circuitDefaultSel(){return Math.min(SAVE.circuit,Math.max(0,SAVE.roster.length-1));}
@@ -217,4 +227,14 @@ function refreshTitle(){
   (hasSave()?load:$('#bt-new')).classList.add('sel');
   refreshCredits();
 }
-function loop(t){render(t);requestAnimationFrame(loop);}
+let rafOn=false;
+function kickRender(){
+  if(rafOn)return;
+  rafOn=true;
+  requestAnimationFrame(loop);
+}
+function loop(t){
+  render(t);
+  if(curScreen==='match'&&M)requestAnimationFrame(loop);
+  else rafOn=false;
+}

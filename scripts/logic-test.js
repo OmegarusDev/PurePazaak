@@ -157,4 +157,71 @@ t('clutter-plus1', PZ.isClutterId('+1') && !PZ.isClutterId('TIE'));
   t('fill-at-18-wins', resFill === 'fill' && PZ.getM().setsP === 1);
 }
 
+// Auto-stand at exactly 20.
+{
+  PZ.newMatchForTest(['+1','-1','+2','-2','+3','-3','+4','-4','+5','-5'],{name:'T',tier:1,title:'X'});
+  PZ.startSet();
+  M = PZ.getM();
+  M.turn = 'p'; M.phase = 'pAction';
+  M.p.board = [
+    {card:{kind:'main',v:10},eff:10,isMain:true},
+    {card:{kind:'main',v:10},eff:10,isMain:true},
+    null,null,null,null,null,null,null
+  ];
+  const res20 = PZ.resolveBoard('p');
+  t('auto-stand-at-20', res20 === 'stood' && M.p.stood === true && M.p.score === 20);
+}
+
+// Hand persists across sets (spent cards stay gone).
+{
+  PZ.newMatchForTest(['+1','-1','+2','-2','+3','-3','+4','-4','+5','-5'],{name:'T',tier:1,title:'X'});
+  PZ.startSet();
+  M = PZ.getM();
+  const before = M.p.hand.map(c => c && c.id);
+  M.p.hand[0] = null;
+  M.p.hand[2] = null;
+  const mid = M.p.hand.map(c => c && c.id);
+  // Simulate advancing to next set without remaking hands.
+  M.setNum++; M.deck = PZ.buildMainDeck();
+  for (const w of ['p', 'o']) {
+    const S = w === 'p' ? M.p : M.o;
+    S.board = Array(9).fill(null); S.score = 0; S.stood = false; S.bust = false; S.tiebreak = false;
+  }
+  t('hand-persists-across-sets', mid[0] === null && mid[2] === null && mid[1] === before[1] && mid[3] === before[3]
+    && M.p.hand[0] === null && M.p.hand[2] === null);
+}
+
+// Standoff: higher score wins; exclusive tiebreak wins ties; both/neither → no point.
+{
+  PZ.newMatchForTest(['+1','-1','+2','-2','+3','-3','+4','-4','+5','-5'],{name:'T',tier:1,title:'X'});
+  PZ.startSet();
+  M = PZ.getM();
+  M.p.score = 18; M.o.score = 17; M.p.stood = true; M.o.stood = true;
+  M.p.tiebreak = false; M.o.tiebreak = false;
+  const sp0 = M.setsP;
+  PZ.resolveStandoff();
+  t('standoff-higher-wins', M.setsP === sp0 + 1);
+
+  PZ.newMatchForTest(['+1','-1','+2','-2','+3','-3','+4','-4','+5','-5'],{name:'T',tier:1,title:'X'});
+  PZ.startSet();
+  M = PZ.getM();
+  M.p.score = 16; M.o.score = 16; M.p.stood = true; M.o.stood = true;
+  M.p.tiebreak = true; M.o.tiebreak = false;
+  const sp1 = M.setsP, so1 = M.setsO;
+  PZ.resolveStandoff();
+  t('standoff-tiebreak-wins', M.setsP === sp1 + 1 && M.setsO === so1);
+
+  PZ.newMatchForTest(['+1','-1','+2','-2','+3','-3','+4','-4','+5','-5'],{name:'T',tier:1,title:'X'});
+  PZ.startSet();
+  M = PZ.getM();
+  M.p.score = 15; M.o.score = 15; M.p.stood = true; M.o.stood = true;
+  M.p.tiebreak = true; M.o.tiebreak = true;
+  const sp2 = M.setsP, so2 = M.setsO, sn = M.setNum;
+  PZ.resolveStandoff();
+  t('standoff-both-tie-no-point', M.setsP === sp2 && M.setsO === so2 && M.phase === 'over');
+  // Continue tied set → next set, no score change.
+  PZ.dialogOK();
+  t('standoff-tie-replays', PZ.getM().setNum === sn + 1 && PZ.getM().setsP === sp2 && PZ.getM().setsO === so2);
+}
+
 process.exit(fail ? 1 : 0);

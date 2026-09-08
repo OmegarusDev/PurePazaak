@@ -155,21 +155,6 @@ function drawSlot(g,rct){
   g.restore();
   g.strokeStyle=sk.slotStroke;g.lineWidth=1;rr(g,x,y,w,h,rad);g.stroke();
 }
-function drawVentDecor(g,x,y){
-  const sk=tableSkin();
-  rr(g,x,y,22,24,4);g.fillStyle=sk.plate;g.fill();g.strokeStyle=sk.slotStroke;g.lineWidth=1;g.stroke();
-  g.save();g.shadowColor=sk.chrome?'#ffb060':'#ff8c30';g.shadowBlur=sk.chrome?6:4;g.fillStyle=sk.chrome?'#e07028':'#c85818';
-  for(let i=0;i<4;i++)g.fillRect(x+4+i*5,y+4,2.6,16);
-  g.restore();
-}
-function drawCircleDecor(g,cxs,cy,litIdx){
-  const sk=tableSkin();
-  cxs.forEach((cx,i)=>{
-    g.beginPath();g.arc(cx,cy,5.5,0,7);g.fillStyle=sk.slot0;g.fill();
-    g.strokeStyle=i===litIdx?'#c85818':sk.chrome?'#6a6a78':'#3e3e46';g.lineWidth=1.5;g.stroke();
-    if(i===litIdx){g.beginPath();g.arc(cx,cy,2.2,0,7);g.fillStyle='#ff9c40';g.fill();}
-  });
-}
 function drawOrb(g,c,r,state,now){
   const cols={green:['#c8ffc8','#3fae4a','#0c3a14'],amber:['#ffe8b0','#e8a41f','#4a3008'],red:['#ffc0c0','#d03030','#4a0c0c'],idle:['#a8a8b0','#42424a','#101014']};
   const cc=cols[state]||cols.idle,active=state!=='idle';

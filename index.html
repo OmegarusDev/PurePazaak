@@ -1812,21 +1812,6 @@ function drawSlot(g,rct){
   g.restore();
   g.strokeStyle=sk.slotStroke;g.lineWidth=1;rr(g,x,y,w,h,rad);g.stroke();
 }
-function drawVentDecor(g,x,y){
-  const sk=tableSkin();
-  rr(g,x,y,22,24,4);g.fillStyle=sk.plate;g.fill();g.strokeStyle=sk.slotStroke;g.lineWidth=1;g.stroke();
-  g.save();g.shadowColor=sk.chrome?'#ffb060':'#ff8c30';g.shadowBlur=sk.chrome?6:4;g.fillStyle=sk.chrome?'#e07028':'#c85818';
-  for(let i=0;i<4;i++)g.fillRect(x+4+i*5,y+4,2.6,16);
-  g.restore();
-}
-function drawCircleDecor(g,cxs,cy,litIdx){
-  const sk=tableSkin();
-  cxs.forEach((cx,i)=>{
-    g.beginPath();g.arc(cx,cy,5.5,0,7);g.fillStyle=sk.slot0;g.fill();
-    g.strokeStyle=i===litIdx?'#c85818':sk.chrome?'#6a6a78':'#3e3e46';g.lineWidth=1.5;g.stroke();
-    if(i===litIdx){g.beginPath();g.arc(cx,cy,2.2,0,7);g.fillStyle='#ff9c40';g.fill();}
-  });
-}
 function drawOrb(g,c,r,state,now){
   const cols={green:['#c8ffc8','#3fae4a','#0c3a14'],amber:['#ffe8b0','#e8a41f','#4a3008'],red:['#ffc0c0','#d03030','#4a0c0c'],idle:['#a8a8b0','#42424a','#101014']};
   const cc=cols[state]||cols.idle,active=state!=='idle';
@@ -1897,37 +1882,32 @@ function drawTableButton(g,r,label,opts){
 }
 let M=null,STATIC=null,DPR=1,curScreen='title',deckRung=0,deckSel=[];
 let cv=null,ctx=null;
+/** View hooks — ui/main bind these so game.js never touches the DOM. */
+const gameHooks={dialog:null,spoils:null,onEnterMatch:null,onLeaveMatch:null};
 function sideOf(w){return w==='p'?M.p:M.o;}
 function other(w){return w==='p'?'o':'p';}
 function toast(t){M.toasts.push({t,t0:performance.now()});}
 let matchDlg=null;
-function showDialog(title,sub,onOK,opts){
+function presentDialog(title,sub,onOK,opts){
   const o=opts||{};
   matchDlg={onOK:onOK,onCancel:o.onCancel||null};
-  const html='<h2>'+title+'</h2>'+(sub?'<p>'+sub+'</p>':'')+(o.sub2?'<p>'+o.sub2+'</p>':'')+
-    '<div class="mrow">'+(o.cancelText?'<button id="dcancel" class="kbtn">'+o.cancelText+'</button>':'')+'<button id="dok" class="kbtn">OK</button></div>';
-  openModal(html);
-  $('#dok').onclick=dialogOK;
-  $('#dok').classList.add('sel');
-  if(o.cancelText)$('#dcancel').onclick=dialogCancel;
+  if(gameHooks.dialog)gameHooks.dialog(title,sub,o);
 }
-function dialogOK(){AUDIO.play('click');const d=matchDlg;closeModal();matchDlg=null;if(d&&d.onOK)d.onOK();}
-function dialogCancel(){AUDIO.play('click');const d=matchDlg;closeModal();matchDlg=null;if(d&&d.onCancel)d.onCancel();}
+function dialogOK(){AUDIO.play('click');const d=matchDlg;matchDlg=null;if(gameHooks.closeModal)gameHooks.closeModal();if(d&&d.onOK)d.onOK();}
+function dialogCancel(){AUDIO.play('click');const d=matchDlg;matchDlg=null;if(gameHooks.closeModal)gameHooks.closeModal();if(d&&d.onCancel)d.onCancel();}
 function newMatch(opp,replayRung){
   const tk=M?M.token+1:1;
-  const mkSide=w=>{
-    const S={board:Array(9).fill(null),hand:[null,null,null,null],used:[false,false,false,false],score:0,stood:false,bust:false,tiebreak:false,side:[],handIdx:[]};
-    return S;};
+  const mkSide=()=>({board:Array(9).fill(null),hand:[null,null,null,null],score:0,stood:false,bust:false,tiebreak:false,side:[]});
   M={opp,replayRung,token:tk,phase:'idle',setNum:0,setsP:0,setsO:0,
      setStarter:Math.random()<0.5?'p':'o',turn:'p',
-     p:mkSide(),o:mkSide(),deck:[],sel:-1,orient:1,varV:1,sidePlayed:false,dialog:null,toasts:[],
+     p:mkSide(),o:mkSide(),deck:[],sel:-1,orient:1,varV:1,sidePlayed:false,toasts:[],
      anims:{deal:null,flash:null},flashBadge:{p:0,o:0},lastScores:{p:0,o:0},wager:0};
   M.p.side=SAVE.lastDeck.map(id=>makeCard(id));
   M.o.side=genSideDeck(opp.tier).map(id=>makeCard(id));
   for(const w of ['p','o']){
     const S=sideOf(w);
-    S.handIdx=shuffle([...Array(10).keys()]).slice(0,4).sort((a,b)=>a-b);
-    S.hand=S.handIdx.map(i=>makeCard(S.side[i].id));
+    const idxs=shuffle([...Array(10).keys()]).slice(0,4).sort((a,b)=>a-b);
+    S.hand=idxs.map(i=>makeCard(S.side[i].id));
   }
 }
 function startSet(){
@@ -2010,7 +1990,7 @@ function confirmPlay(i){
   else if(card.kind==='flip'){const n=applyFlip(M.p.board,card.vals);toast('FLIPPED '+n+' CARD'+(n===1?'':'S'));}
   else{const si=placeSide(M.p,card,M.orient,M.varV);if(si>=0)M.anims.deal={who:'p',slot:si,t0:performance.now()};}
   if(card.kind==='tie')M.p.tiebreak=true;
-  M.p.used[i]=true;M.p.hand[i]=null;M.sel=-1;M.sidePlayed=true;
+  M.p.hand[i]=null;M.sel=-1;M.sidePlayed=true;
   const res=resolveBoard('p');
   if(res==='fill'||res==='bust')return;
   if(res==='stood'){if(M.o.stood)resolveStandoff();else passToOpp();}
@@ -2063,14 +2043,14 @@ function resolveStandoff(){
   else if(M.o.tiebreak&&!M.p.tiebreak)winner='o';
   if(winner){endSet(winner,'score');return;}
   M.phase='over';
-  showDialog('THE SET IS TIED.','NO POINT AWARDED',()=>{M.setStarter=other(M.setStarter);startSet();});
+  presentDialog('THE SET IS TIED.','NO POINT AWARDED',()=>{M.setStarter=other(M.setStarter);startSet();});
 }
 function endSet(winner,reason){
   M.phase='over';M.sel=-1;
   if(winner==='p'){M.setsP++;AUDIO.play('win');}
   else{M.setsO++;AUDIO.play(reason==='bust'?'bust':'lose');}
   const lines=setEndText(winner,reason);
-  showDialog(lines[0],lines[1],()=>{
+  presentDialog(lines[0],lines[1],()=>{
     if(M.setsP>=3){matchEnd('p');return;}
     if(M.setsO>=3){matchEnd('o');return;}
     M.setStarter=winner;startSet();
@@ -2090,34 +2070,33 @@ function matchEnd(winner){
   M.phase='done';
   if(winner==='p'){
     AUDIO.play('win');
-    if(M.replayRung!=null){
-      SAVE.credits+=(M.wager||0)*2;persist();
-      showSpoilsModal(M.wager||0,true);
-    }else{
-      SAVE.credits+=(M.wager||0)*2;
-      SAVE.circuit+=1;persist();
-      showSpoilsModal(M.wager||0,false);
-    }
+    const rematch=M.replayRung!=null,wager=M.wager||0;
+    SAVE.credits+=wager*2;
+    if(!rematch)SAVE.circuit+=1;
+    persist();
+    if(gameHooks.spoils)gameHooks.spoils(wager,rematch);
   }else{
     AUDIO.play('lose');
     persist();
-    showDialog('DEFEAT.','YOU LOSE THE WAGER  \u00B7  '+(M.wager||0)+' CR',()=>leaveMatch());
+    presentDialog('DEFEAT.','YOU LOSE THE WAGER  \u00B7  '+(M.wager||0)+' CR',()=>leaveMatch());
   }
 }
-function leaveMatch(){if(M)M.token++;M=null;circuitSel=circuitDefaultSel();buildCircuit();showScreen('circuit');}
+function leaveMatch(){
+  if(M)M.token++;M=null;
+  if(gameHooks.onLeaveMatch)gameHooks.onLeaveMatch();
+}
 function startMatch(rung){
   const opp=SAVE.roster[rung];
   const wager=matchWager(opp.tier);
   if(SAVE.credits<wager){
-    showDialog('NOT ENOUGH CREDITS','THIS TABLE WANTS '+wager+' CR',()=>{});
+    presentDialog('NOT ENOUGH CREDITS','THIS TABLE WANTS '+wager+' CR',()=>{});
     return;
   }
   SAVE.credits-=wager;persist();
   newMatch(opp,rung<SAVE.circuit?rung:null);
   M.wager=wager;
-  showScreen('match');
-  fit();
-  showDialog('VS '+opp.name.toUpperCase(),'WAGER '+wager+' CR  \u00B7  TIER '+opp.tier+'  \u00B7  FIRST TO 3 SETS',()=>startSet());
+  if(gameHooks.onEnterMatch)gameHooks.onEnterMatch();
+  presentDialog('VS '+opp.name.toUpperCase(),'WAGER '+wager+' CR  \u00B7  TIER '+opp.tier+'  \u00B7  FIRST TO 3 SETS',()=>startSet());
 }
 function dealProgress(who,slot,now){
   const a=M&&M.anims.deal;
@@ -2250,6 +2229,16 @@ function showScreen(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active',s.id==='scr-'+id));
   curScreen=id;
   refreshCredits();
+  if(id==='match')kickRender();
+}
+function bindMatchDialog(title,sub,opts){
+  const o=opts||{};
+  const html='<h2>'+title+'</h2>'+(sub?'<p>'+sub+'</p>':'')+(o.sub2?'<p>'+o.sub2+'</p>':'')+
+    '<div class="mrow">'+(o.cancelText?'<button id="dcancel" class="kbtn">'+o.cancelText+'</button>':'')+'<button id="dok" class="kbtn">OK</button></div>';
+  openModal(html);
+  $('#dok').onclick=dialogOK;
+  $('#dok').classList.add('sel');
+  if(o.cancelText)$('#dcancel').onclick=dialogCancel;
 }
 let circuitSel=0;
 function circuitDefaultSel(){return Math.min(SAVE.circuit,Math.max(0,SAVE.roster.length-1));}
@@ -2465,7 +2454,17 @@ function refreshTitle(){
   (hasSave()?load:$('#bt-new')).classList.add('sel');
   refreshCredits();
 }
-function loop(t){render(t);requestAnimationFrame(loop);}
+let rafOn=false;
+function kickRender(){
+  if(rafOn)return;
+  rafOn=true;
+  requestAnimationFrame(loop);
+}
+function loop(t){
+  render(t);
+  if(curScreen==='match'&&M)requestAnimationFrame(loop);
+  else rafOn=false;
+}
 /**
  * Register the service worker and pull updates when the app is opened.
  * When a new SW activates, reload once so players land on the latest build.
@@ -2503,6 +2502,11 @@ function registerPwa(){
 }
 function init(){
   registerPwa();
+  gameHooks.dialog=bindMatchDialog;
+  gameHooks.closeModal=closeModal;
+  gameHooks.spoils=showSpoilsModal;
+  gameHooks.onEnterMatch=()=>{showScreen('match');fit();kickRender();};
+  gameHooks.onLeaveMatch=()=>{circuitSel=circuitDefaultSel();buildCircuit();showScreen('circuit');};
   initTextures();
   AUDIO.vol=SAVE.vol;AUDIO.muted=SAVE.muted;
   if(!SAVE.roster||!SAVE.roster.length){SAVE.roster=buildRoster();persist();}
@@ -2562,13 +2566,12 @@ function init(){
   window.addEventListener('resize',fit);
   renderStatic();
   refreshTitle();
-  requestAnimationFrame(loop);
 }
 function fit(){
   DPR=Math.min(2,window.devicePixelRatio||1);
   computeLayout();
   if(cv){cv.width=W*DPR;cv.height=H*DPR;}
-  if(M&&ctx){renderStatic();render(performance.now());}
+  if(M&&ctx){renderStatic();render(performance.now());kickRender();}
 }
 function canvasPoint(e){
   const r=cv.getBoundingClientRect();
@@ -2576,7 +2579,7 @@ function canvasPoint(e){
 }
 function askForfeit(){
   AUDIO.play('click');
-  showDialog('FORFEIT THE MATCH?','THE WAGER WILL BE LOST',()=>{AUDIO.play('lose');leaveMatch();},{cancelText:'NO',onCancel(){}});
+  presentDialog('FORFEIT THE MATCH?','THE WAGER WILL BE LOST',()=>{AUDIO.play('lose');leaveMatch();},{cancelText:'NO',onCancel(){}});
 }
 function hitTable(p){
   if(!M||matchDlg)return null;
@@ -2623,7 +2626,7 @@ function onTableContext(e){
   flipArmed();
 }
 globalThis.PZ={shuffle,buildMainDeck,boardScore,placeMain,placeSide,applyDouble,applyFlip,aiDecide,shouldStand,genSideDeck,generateOpponent,cardLabel,CARD_DEFS,buildRoster,makeCard,faceVal,canFlip,playValue,
-  startSet,beginTurn,endPlayerTurn,playerStand,confirmPlay,endSet,resolveBoard,boardCount,
+  startSet,beginTurn,endPlayerTurn,playerStand,confirmPlay,endSet,resolveBoard,resolveStandoff,boardCount,dialogOK,
   newMatchForTest:(deckIds,opp)=>{SAVE.lastDeck=deckIds;newMatch(opp,null);},
   getM:()=>M,setSleepScale:v=>{SLEEP_SCALE=v;},chanState,fitCard,CARD_ASPECT,
   matchWager,storeStock,storeMinCircuit,addToCollection,isClutterId,CARD_PRICE,getSave:()=>SAVE};

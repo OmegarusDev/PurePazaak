@@ -1,5 +1,10 @@
 function init(){
   registerPwa();
+  gameHooks.dialog=bindMatchDialog;
+  gameHooks.closeModal=closeModal;
+  gameHooks.spoils=showSpoilsModal;
+  gameHooks.onEnterMatch=()=>{showScreen('match');fit();kickRender();};
+  gameHooks.onLeaveMatch=()=>{circuitSel=circuitDefaultSel();buildCircuit();showScreen('circuit');};
   initTextures();
   AUDIO.vol=SAVE.vol;AUDIO.muted=SAVE.muted;
   if(!SAVE.roster||!SAVE.roster.length){SAVE.roster=buildRoster();persist();}
@@ -59,13 +64,12 @@ function init(){
   window.addEventListener('resize',fit);
   renderStatic();
   refreshTitle();
-  requestAnimationFrame(loop);
 }
 function fit(){
   DPR=Math.min(2,window.devicePixelRatio||1);
   computeLayout();
   if(cv){cv.width=W*DPR;cv.height=H*DPR;}
-  if(M&&ctx){renderStatic();render(performance.now());}
+  if(M&&ctx){renderStatic();render(performance.now());kickRender();}
 }
 function canvasPoint(e){
   const r=cv.getBoundingClientRect();
@@ -73,7 +77,7 @@ function canvasPoint(e){
 }
 function askForfeit(){
   AUDIO.play('click');
-  showDialog('FORFEIT THE MATCH?','THE WAGER WILL BE LOST',()=>{AUDIO.play('lose');leaveMatch();},{cancelText:'NO',onCancel(){}});
+  presentDialog('FORFEIT THE MATCH?','THE WAGER WILL BE LOST',()=>{AUDIO.play('lose');leaveMatch();},{cancelText:'NO',onCancel(){}});
 }
 function hitTable(p){
   if(!M||matchDlg)return null;
@@ -120,7 +124,7 @@ function onTableContext(e){
   flipArmed();
 }
 globalThis.PZ={shuffle,buildMainDeck,boardScore,placeMain,placeSide,applyDouble,applyFlip,aiDecide,shouldStand,genSideDeck,generateOpponent,cardLabel,CARD_DEFS,buildRoster,makeCard,faceVal,canFlip,playValue,
-  startSet,beginTurn,endPlayerTurn,playerStand,confirmPlay,endSet,resolveBoard,boardCount,
+  startSet,beginTurn,endPlayerTurn,playerStand,confirmPlay,endSet,resolveBoard,resolveStandoff,boardCount,dialogOK,
   newMatchForTest:(deckIds,opp)=>{SAVE.lastDeck=deckIds;newMatch(opp,null);},
   getM:()=>M,setSleepScale:v=>{SLEEP_SCALE=v;},chanState,fitCard,CARD_ASPECT,
   matchWager,storeStock,storeMinCircuit,addToCollection,isClutterId,CARD_PRICE,getSave:()=>SAVE};
