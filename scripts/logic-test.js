@@ -68,12 +68,22 @@ t('wager-tiers', PZ.matchWager(1)===50 && PZ.matchWager(2)===100 && PZ.matchWage
 t('store-plus4-open', PZ.storeMinCircuit('+4')===0 && PZ.storeMinCircuit('-4')===0);
 t('store-t0', PZ.storeStock().every(id=>PZ.storeMinCircuit(id)===0));
 const save=PZ.getSave();
-save.circuit=6;
+save.circuit=9;
 t('store-unlocks-flex', PZ.storeStock().indexOf('1\u00B12')>=0);
 save.circuit=0;
 t('add-card', PZ.addToCollection('+4') && save.unlocked['+4']>=1);
 t('clutter-plus1', PZ.isClutterId('+1') && !PZ.isClutterId('TIE'));
 
+{
+  const roster=PZ.buildRoster();
+  t('roster-nine', roster.length===9);
+  t('roster-tiers', roster.filter(o=>o.tier===1).length===3 && roster.filter(o=>o.tier===2).length===3 && roster.filter(o=>o.tier===3).length===3);
+  t('roster-unique-names', new Set(roster.map(o=>o.name)).size===9);
+  const samples=Array.from({length:80},()=>PZ.generateOpponent(2));
+  t('names-mostly-full', samples.filter(o=>/^\S+\s+\S+/.test(o.name)).length>=60);
+  const many=Array.from({length:200},()=>PZ.generateOpponent(3));
+  t('names-hyphen-or-apostrophe', many.some(o=>/-/.test(o.name)) && many.some(o=>/'/.test(o.name)));
+}
 {
   PZ.newMatchForTest(['+1','-1','+2','-2','+3','-3','+4','-4','+5','-5'],{name:'T',tier:1,title:'X'});
   PZ.startSet();

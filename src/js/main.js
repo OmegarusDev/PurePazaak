@@ -7,7 +7,8 @@ function init(){
   gameHooks.onLeaveMatch=()=>{circuitSel=circuitDefaultSel();buildCircuit();showScreen('circuit');};
   initTextures();
   AUDIO.vol=SAVE.vol;AUDIO.muted=SAVE.muted;
-  if(!SAVE.roster||!SAVE.roster.length){SAVE.roster=buildRoster();persist();}
+  if(!SAVE.roster||SAVE.roster.length!==CIRCUIT_LEN){SAVE.roster=buildRoster();persist();}
+  else normalizeRoster(SAVE);
   const table=$('#table');
   cv=table;ctx=table.getContext('2d');
   fit();

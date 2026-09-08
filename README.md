@@ -37,7 +37,7 @@ You may then play **at most one** side-deck card from your 4-card hand, then END
 - **Exactly 20 auto-stands.** Fill all 9 slots without busting for an instant win.
 - First to win **3 sets** takes the match. Tied sets replay.
 
-Climb the Outer Rim circuit through six opponents across three tiers, unlocking stronger
+Climb the Outer Rim circuit through nine opponents across three tiers, unlocking stronger
 side-deck cards as you win.
 
 ## Ideas

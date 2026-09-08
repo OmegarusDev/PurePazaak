@@ -28,8 +28,9 @@ function buildCircuit(){
     div.className='rung '+st+(i===circuitSel?' pick':'');
     const label=st==='done'?'WON':st==='next'?'NEXT':'LOCKED';
     div.innerHTML=`<div class="ricon"><span class="tier t${opp.tier}">${['I','II','III'][opp.tier-1]}</span></div>`+
-      `<div class="rbody"><span class="rname">${opp.name}</span>`+
+      `<div class="rbody"><span class="rname"></span>`+
       `<span class="rstat">(${label})</span></div>`;
+    div.querySelector('.rname').textContent=opp.name;
     if(st!=='locked')div.onclick=()=>{AUDIO.play('click');circuitSel=i;buildCircuit();};
     wrap.appendChild(div);
   });
@@ -161,7 +162,7 @@ function buildStoreUI(){
     wrap.appendChild(cell);
   });
   const note=$('#store-note');
-  if(note)note.textContent=SAVE.circuit>=6?'FULL CANTINA STOCK.':'STOCK IMPROVES AS YOU CLIMB THE CIRCUIT.';
+  if(note)note.textContent=SAVE.circuit>=CIRCUIT_LEN?'FULL CANTINA STOCK.':'STOCK IMPROVES AS YOU CLIMB THE CIRCUIT.';
 }
 function openStore(){
   buildStoreUI();
