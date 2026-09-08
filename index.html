@@ -254,176 +254,6 @@ button.mcard:hover,button.mcard:focus-visible{border-color:var(--select);box-sha
 .mcard canvas{width:68px;height:auto;aspect-ratio:572/772}
 .mcard span{font-size:11px;color:var(--k1);letter-spacing:.12em}
 .credits{font-size:clamp(10px,1.7vmin,13px);letter-spacing:.28em;color:var(--gold);text-align:center;text-indent:.28em}
-/* Shared K1 blue-steel console + cyan menu plates.
-   Title barrel stays separate. Match table metal stays canvas. */
-:root{
-  --steel-hi:#c4ccd6;
-  --steel-mid:#8a96a4;
-  --steel-lo:#5a6572;
-  --steel-deep:#3a4450;
-  --eq-cyan:#4580c4;
-  --eq-cyan-hi:#5eb0dc;
-  --eq-cyan-text:#7ec8e8;
-  --eq-gold:#ced049;
-  --eq-gold-hi:#ffe14d;
-  --eq-fill:#0c101c;
-}
-
-.steel-console{
-  display:flex;
-  flex-direction:column;
-  gap:clamp(8px,1.4vh,12px);
-  width:min(980px,96vw);
-  min-height:0;
-  padding:clamp(10px,1.8vh,16px);
-  border-radius:18px;
-  box-sizing:border-box;
-  position:relative;
-  background:
-    repeating-linear-gradient(
-      180deg,
-      rgba(255,255,255,.035) 0px,
-      rgba(255,255,255,.01) 1px,
-      rgba(0,0,0,.04) 2px,
-      transparent 3px
-    ),
-    linear-gradient(145deg,rgba(160,200,255,.1),transparent 42%),
-    linear-gradient(180deg,#a8b4c2 0%,#7a8796 28%,#5c6876 62%,#3e4854 100%);
-  box-shadow:
-    inset 0 2px 0 rgba(255,255,255,.48),
-    inset 0 -3px 0 rgba(0,0,0,.4),
-    inset 2px 0 0 rgba(255,255,255,.22),
-    inset -3px 0 0 rgba(0,0,0,.28),
-    0 0 0 1px #1a222c,
-    0 16px 40px rgba(0,0,0,.55);
-}
-.steel-console::after{
-  content:"";
-  position:absolute;
-  inset:6px;
-  border-radius:14px;
-  border:1px solid rgba(0,0,0,.35);
-  box-shadow:inset 0 0 0 1px rgba(255,255,255,.12);
-  pointer-events:none;
-  z-index:0;
-}
-.steel-console > *{position:relative;z-index:1}
-
-.steel-headers{
-  display:grid;
-  grid-template-columns:minmax(96px,0.9fr) minmax(0,2.2fr) minmax(110px,1fr);
-  gap:clamp(6px,1vw,10px);
-  flex:0 0 auto;
-}
-.steel-headers.steel-headers-2{
-  grid-template-columns:minmax(110px,1fr) minmax(0,2.4fr);
-}
-.steel-hbadge{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:8px;
-  min-height:clamp(28px,4.2vh,36px);
-  padding:4px 10px;
-  background:linear-gradient(180deg,#12151a,#06070a);
-  border:1px solid var(--steel-hi);
-  box-shadow:inset 0 2px 4px rgba(0,0,0,.75),0 1px 0 rgba(255,255,255,.18);
-  color:#e8eef6;
-  font-family:var(--sans);
-  font-size:clamp(10px,1.7vh,13px);
-  font-weight:700;
-  letter-spacing:.16em;
-  text-indent:.08em;
-  text-transform:uppercase;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-
-.steel-well{
-  flex:1 1 auto;
-  min-height:0;
-  display:flex;
-  flex-direction:column;
-  background:linear-gradient(180deg,#0c1016,#06080c);
-  border-radius:10px;
-  box-shadow:
-    inset 0 3px 10px rgba(0,0,0,.75),
-    inset 0 -1px 0 rgba(255,255,255,.06),
-    0 0 0 1px rgba(0,0,0,.5);
-  overflow:hidden;
-}
-
-.steel-foot{
-  display:flex;
-  align-items:stretch;
-  justify-content:stretch;
-  gap:10px;
-  flex:0 0 auto;
-  padding:2px 0 0;
-}
-.steel-foot > .kplate{flex:1;min-width:0}
-
-/* Cyan Use Item / Close plates — shared menu language */
-.kplate{
-  appearance:none;
-  -webkit-appearance:none;
-  display:block;
-  position:relative;
-  min-width:0;
-  min-height:44px;
-  padding:clamp(11px,1.8vh,15px) 12px;
-  background:#1b1e25;
-  border:1px solid var(--eq-cyan);
-  border-radius:4px;
-  color:var(--eq-cyan-hi);
-  font-family:var(--sans);
-  font-size:clamp(12px,2vh,14px);
-  font-weight:700;
-  letter-spacing:.12em;
-  text-indent:.06em;
-  text-transform:uppercase;
-  text-align:center;
-  cursor:pointer;
-  touch-action:manipulation;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-  text-shadow:none;
-  box-shadow:
-    inset 1px 1px 0 rgba(120,180,230,.28),
-    inset -1px -1px 0 rgba(0,0,0,.55),
-    inset 0 0 0 1px rgba(20,28,40,.6);
-}
-.kplate:hover,
-.kplate:focus-visible{
-  outline:none;
-  color:#9ad4f0;
-  border-color:#6aa0d0;
-  background:#22262f;
-}
-.kplate.sel,
-.kplate:hover.sel{
-  color:var(--eq-gold-hi);
-  border-color:#a09840;
-  background:#222018;
-  box-shadow:
-    inset 1px 1px 0 rgba(255,220,100,.28),
-    inset -1px -1px 0 rgba(0,0,0,.55),
-    0 0 10px rgba(255,225,77,.18);
-  text-shadow:0 0 8px rgba(255,225,77,.35);
-}
-.kplate:disabled{
-  opacity:.34;
-  cursor:default;
-  color:var(--eq-cyan-hi);
-  border-color:var(--eq-cyan);
-  text-shadow:none;
-  box-shadow:
-    inset 1px 1px 0 rgba(120,180,230,.18),
-    inset -1px -1px 0 rgba(0,0,0,.55);
-}
-.kplate:active:not(:disabled){transform:translateY(1px)}
 /* Outer Rim Circuit — equip-list roster inside shared steel console */
 #scr-circuit{
   justify-content:center;
@@ -1076,10 +906,12 @@ function shouldStand(score,snap){
   const {oppStood,tier,setsO,bustRisk,oppScore}=snap;
   // Never lock in a losing total vs a stood opponent — keep drawing/playing.
   if(oppStood&&score<oppScore)return false;
-  // Beating a stood opponent: take the set.
+  // Already beating a stood opponent: standing wins the set; drawing can only bust.
   if(oppStood&&score>oppScore)return true;
-  // Exact tie vs stood: only lock it when the next draw is dangerous or you're already high.
-  if(oppStood&&score===oppScore)return score>=19||bustRisk>=0.45;
+  // Exact tie vs stood: a drawn set (no point) is often better than risking a bust
+  // that hands them the set. From 16 up, lock the draw; below that there is still
+  // useful room to press for the win.
+  if(oppStood&&score===oppScore)return score>=16;
   if(tier===1)return score>=18;
   if(tier===2)return score>=17||(score>=16&&bustRisk<0.3);
   return score>=16||(setsO>=2&&score>=15);
@@ -2546,41 +2378,6 @@ function loop(t){
   render(t);
   if(curScreen==='match'&&M)requestAnimationFrame(loop);
   else rafOn=false;
-}
-/**
- * Register the service worker and pull updates when the app is opened.
- * When a new SW activates, reload once so players land on the latest build.
- * Checks on open only — not on focus/visibility regain.
- */
-function registerPwa(){
-  if(!('serviceWorker' in navigator))return;
-
-  window.addEventListener('load',async()=>{
-    try{
-      const reg=await navigator.serviceWorker.register('./sw.js',{scope:'./'});
-      try{reg.update();}catch(_){/* ignore */}
-
-      if(reg.waiting)reg.waiting.postMessage({type:'SKIP_WAITING'});
-      reg.addEventListener('updatefound',()=>{
-        const sw=reg.installing;
-        if(!sw)return;
-        sw.addEventListener('statechange',()=>{
-          if(sw.state==='installed'&&navigator.serviceWorker.controller){
-            sw.postMessage({type:'SKIP_WAITING'});
-          }
-        });
-      });
-    }catch(err){
-      console.warn('PWA register failed:',err);
-    }
-  });
-
-  let refreshing=false;
-  navigator.serviceWorker.addEventListener('controllerchange',()=>{
-    if(refreshing)return;
-    refreshing=true;
-    location.reload();
-  });
 }
 function init(){
   registerPwa();

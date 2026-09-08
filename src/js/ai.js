@@ -4,10 +4,12 @@ function shouldStand(score,snap){
   const {oppStood,tier,setsO,bustRisk,oppScore}=snap;
   // Never lock in a losing total vs a stood opponent — keep drawing/playing.
   if(oppStood&&score<oppScore)return false;
-  // Beating a stood opponent: take the set.
+  // Already beating a stood opponent: standing wins the set; drawing can only bust.
   if(oppStood&&score>oppScore)return true;
-  // Exact tie vs stood: only lock it when the next draw is dangerous or you're already high.
-  if(oppStood&&score===oppScore)return score>=19||bustRisk>=0.45;
+  // Exact tie vs stood: a drawn set (no point) is often better than risking a bust
+  // that hands them the set. From 16 up, lock the draw; below that there is still
+  // useful room to press for the win.
+  if(oppStood&&score===oppScore)return score>=16;
   if(tier===1)return score>=18;
   if(tier===2)return score>=17||(score>=16&&bustRisk<0.3);
   return score>=16||(setsO>=2&&score>=15);

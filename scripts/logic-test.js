@@ -277,13 +277,16 @@ t('clutter-plus1', PZ.isClutterId('+1') && !PZ.isClutterId('TIE'));
   t('flip-zero-keeps-card', M.p.hand[0] && M.p.hand[0].id === '2&4' && M.p.hand.filter(Boolean).length === n0 && M.sidePlayed === false);
 }
 
-// Soft tie vs stood opponent: don't auto-stand on a low equal when the deck is safe.
+// Tie vs stood opponent: lock the draw from 16 up; press only when still low.
 {
-  t('ai-no-force-tie-stand-low', PZ.shouldStand(15, {
-    oppStood: true, oppScore: 15, tier: 2, bustRisk: 0.1, setsO: 0
+  t('ai-tie-stand-at-16', PZ.shouldStand(16, {
+    oppStood: true, oppScore: 16, tier: 2, bustRisk: 0.1, setsO: 0
+  }) === true);
+  t('ai-tie-press-when-low', PZ.shouldStand(14, {
+    oppStood: true, oppScore: 14, tier: 2, bustRisk: 0.1, setsO: 0
   }) === false);
-  t('ai-force-tie-stand-high', PZ.shouldStand(19, {
-    oppStood: true, oppScore: 19, tier: 2, bustRisk: 0.1, setsO: 0
+  t('ai-always-stand-when-beating', PZ.shouldStand(17, {
+    oppStood: true, oppScore: 16, tier: 1, bustRisk: 0.9, setsO: 0
   }) === true);
 }
 
