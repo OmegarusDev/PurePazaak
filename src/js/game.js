@@ -11,8 +11,19 @@ function presentDialog(title,sub,onOK,opts){
   matchDlg={onOK:onOK,onCancel:o.onCancel||null};
   if(gameHooks.dialog)gameHooks.dialog(title,sub,o);
 }
-function dialogOK(){AUDIO.play('click');const d=matchDlg;matchDlg=null;if(gameHooks.closeModal)gameHooks.closeModal();if(d&&d.onOK)d.onOK();}
-function dialogCancel(){AUDIO.play('click');const d=matchDlg;matchDlg=null;if(gameHooks.closeModal)gameHooks.closeModal();if(d&&d.onCancel)d.onCancel();}
+function dialogOK(){
+  AUDIO.play('click');
+  const d=matchDlg;matchDlg=null;
+  if(gameHooks.closeModal)gameHooks.closeModal();
+  // Defer under a real UI so the same click cannot hit the next modal's button.
+  if(d&&d.onOK){if(gameHooks.dialog)setTimeout(()=>d.onOK(),0);else d.onOK();}
+}
+function dialogCancel(){
+  AUDIO.play('click');
+  const d=matchDlg;matchDlg=null;
+  if(gameHooks.closeModal)gameHooks.closeModal();
+  if(d&&d.onCancel){if(gameHooks.dialog)setTimeout(()=>d.onCancel(),0);else d.onCancel();}
+}
 function newMatch(opp,replayRung){
   const tk=M?M.token+1:1;
   const mkSide=()=>({board:Array(9).fill(null),hand:[null,null,null,null],score:0,stood:false,bust:false,tiebreak:false,side:[]});
@@ -20,12 +31,14 @@ function newMatch(opp,replayRung){
      setStarter:Math.random()<0.5?'p':'o',turn:'p',
      p:mkSide(),o:mkSide(),deck:[],sel:-1,orient:1,varV:1,sidePlayed:false,toasts:[],
      anims:{deal:null,flash:null},flashBadge:{p:0,o:0},lastScores:{p:0,o:0},wager:0};
-  M.p.side=SAVE.lastDeck.map(id=>makeCard(id));
-  M.o.side=genSideDeck(opp.tier).map(id=>makeCard(id));
+  M.p.side=SAVE.lastDeck.map(id=>makeCard(id)).filter(Boolean);
+  M.o.side=genSideDeck(opp.tier).map(id=>makeCard(id)).filter(Boolean);
   for(const w of ['p','o']){
     const S=sideOf(w);
-    const idxs=shuffle([...Array(10).keys()]).slice(0,4).sort((a,b)=>a-b);
-    S.hand=idxs.map(i=>makeCard(S.side[i].id));
+    const n=S.side.length;
+    const idxs=shuffle([...Array(n).keys()]).slice(0,Math.min(4,n)).sort((a,b)=>a-b);
+    S.hand=[null,null,null,null];
+    idxs.forEach((si,hi)=>{S.hand[hi]=makeCard(S.side[si].id);});
   }
 }
 function startSet(){
@@ -103,10 +116,16 @@ function confirmPlay(i){
   if(M.phase!=='pAction'||M.sidePlayed)return;
   const card=M.p.hand[i];if(!card)return;
   if(card.kind==='dbl'&&!lastSlot(M.p.board)){toast('NOTHING TO DOUBLE');return;}
-  AUDIO.play('place');
-  if(card.kind==='dbl')applyDouble(M.p.board);
-  else if(card.kind==='flip'){const n=applyFlip(M.p.board,card.vals);toast('FLIPPED '+n+' CARD'+(n===1?'':'S'));}
-  else{const si=placeSide(M.p,card,M.orient,M.varV);if(si>=0)M.anims.deal={who:'p',slot:si,t0:performance.now()};}
+  if(card.kind==='flip'){
+    const n=applyFlip(M.p.board,card.vals);
+    if(!n){toast('NOTHING TO FLIP');return;}
+    AUDIO.play('place');
+    toast('FLIPPED '+n+' CARD'+(n===1?'':'S'));
+  }else{
+    AUDIO.play('place');
+    if(card.kind==='dbl')applyDouble(M.p.board);
+    else{const si=placeSide(M.p,card,M.orient,M.varV);if(si>=0)M.anims.deal={who:'p',slot:si,t0:performance.now()};}
+  }
   if(card.kind==='tie')M.p.tiebreak=true;
   M.p.hand[i]=null;M.sel=-1;M.sidePlayed=true;
   const res=resolveBoard('p');

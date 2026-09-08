@@ -55,9 +55,25 @@ function defaultSave(){return {circuit:0,roster:null,unlocked:Object.assign({},S
 function loadSave(){
   try{
     const s=JSON.parse(localStorage.getItem(SAVE_KEY));
-    if(s&&s.unlocked){
+    if(s&&s.unlocked&&typeof s.unlocked==='object'){
       const out=Object.assign(defaultSave(),s);
-      if(out.credits==null||out.credits!==out.credits)out.credits=START_CREDITS;
+      out.unlocked=Object.assign({},STARTER_COLLECTION,s.unlocked);
+      for(const id of Object.keys(out.unlocked)){
+        if(!CARD_DEFS[id]){delete out.unlocked[id];continue;}
+        const n=Number(out.unlocked[id]);
+        out.unlocked[id]=Number.isFinite(n)&&n>0?Math.min(99,Math.floor(n)):0;
+        if(!out.unlocked[id])delete out.unlocked[id];
+      }
+      out.credits=Number(out.credits);
+      if(!Number.isFinite(out.credits)||out.credits<0)out.credits=START_CREDITS;
+      out.credits=Math.floor(out.credits);
+      out.circuit=Number(out.circuit);
+      if(!Number.isFinite(out.circuit)||out.circuit<0)out.circuit=0;
+      out.circuit=Math.min(6,Math.floor(out.circuit));
+      if(!Array.isArray(out.lastDeck))out.lastDeck=[];
+      out.lastDeck=out.lastDeck.filter(id=>CARD_DEFS[id]&&(out.unlocked[id]||0)>0).slice(0,10);
+      if(typeof out.vol!=='number'||out.vol!==out.vol)out.vol=0.6;
+      out.muted=!!out.muted;
       return out;
     }
   }catch(e){}

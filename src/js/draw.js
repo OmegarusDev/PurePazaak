@@ -1,4 +1,5 @@
 function drawCard(g,x,y,w,h,card,o={}){
+  ensureTextures();
   const orient=o.orient==null?1:o.orient;
   const varV=o.varV==null?1:o.varV;
   const box=fitCard(w,h);

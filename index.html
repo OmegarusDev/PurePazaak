@@ -1025,7 +1025,7 @@ CARD_DEFS['DBL']={id:'DBL',kind:'dbl'};
 CARD_DEFS['2&4']={id:'2&4',kind:'flip',vals:[2,4]};
 CARD_DEFS['3&6']={id:'3&6',kind:'flip',vals:[3,6]};
 CARD_DEFS['1\u00B12']={id:'1\u00B12',kind:'flex',vals:[1,2]};
-function makeCard(id){return Object.assign({},CARD_DEFS[id]);}
+function makeCard(id){const d=CARD_DEFS[id];return d?Object.assign({},d):null;}
 function mainCard(v){return {id:'m'+v,kind:'main',v};}
 function buildMainDeck(){const d=[];for(let v=1;v<=10;v++)for(let c=0;c<4;c++)d.push(mainCard(v));return shuffle(d);}
 function isSpecialKind(kind){return kind==='tie'||kind==='dbl'||kind==='flip'||kind==='flex';}
@@ -1076,7 +1076,10 @@ function shouldStand(score,snap){
   const {oppStood,tier,setsO,bustRisk,oppScore}=snap;
   // Never lock in a losing total vs a stood opponent — keep drawing/playing.
   if(oppStood&&score<oppScore)return false;
-  if(oppStood&&score>=oppScore)return true;
+  // Beating a stood opponent: take the set.
+  if(oppStood&&score>oppScore)return true;
+  // Exact tie vs stood: only lock it when the next draw is dangerous or you're already high.
+  if(oppStood&&score===oppScore)return score>=19||bustRisk>=0.45;
   if(tier===1)return score>=18;
   if(tier===2)return score>=17||(score>=16&&bustRisk<0.3);
   return score>=16||(setsO>=2&&score>=15);
@@ -1085,7 +1088,9 @@ function plusFloor(tier){return tier===1?16:15;}
 function aiDecide(snap){
   const {score,hand,board,oppScore,oppStood,tier,bustRisk,setsO}=snap;
   const chasing=oppStood&&score<oppScore;
+  const busted=score>20;
   const evalS=s2=>{
+    if(s2>20)return -1e9;
     if(s2===20)return 100;
     let v=s2+(s2>=17?3:s2>=15?1:0);
     if(oppStood){
@@ -1100,17 +1105,17 @@ function aiDecide(snap){
   hand.forEach((card,idx)=>{
     if(!card)return;
     const tryAdd=(orient,val,tag)=>{const s2=score+val;if(s2>20)return;
-      if(val>0&&s2<pf&&!chasing)return;
+      if(val>0&&s2<pf&&!chasing&&!busted)return;
       const v=evalS(s2);if(!best||v>best.v)best={idx,orient,v,tag};};
     if(card.kind==='mod')tryAdd(card.sign,card.sign*card.v,'mod');
     else if(card.kind==='dual'||card.kind==='tie'){tryAdd(1,card.v,'mod');tryAdd(-1,-card.v,'mod');}
-    else if(card.kind==='flex'){for(const o of [1,-1])for(const vv of [1,2]){const s2=score+o*vv;if(s2>20)continue;if(o>0&&s2<pf&&!chasing)continue;const v=evalS(s2);if(!best||v>best.v)best={idx,orient:o,varV:vv,v,tag:'flex'};}}
-    else if(card.kind==='dbl'){const ls=lastSlot(board);if(ls){const s2=score+ls.eff;if(s2<=20&&!(ls.eff>0&&s2<pf&&!chasing)){const v=evalS(s2)+(s2===20?5:0);if(!best||v>best.v)best={idx,orient:1,v,tag:'dbl'};}}}
+    else if(card.kind==='flex'){for(const o of [1,-1])for(const vv of [1,2]){const s2=score+o*vv;if(s2>20)continue;if(o>0&&s2<pf&&!chasing&&!busted)continue;const v=evalS(s2);if(!best||v>best.v)best={idx,orient:o,varV:vv,v,tag:'flex'};}}
+    else if(card.kind==='dbl'){const ls=lastSlot(board);if(ls){const s2=score+ls.eff;if(s2<=20&&!(ls.eff>0&&s2<pf&&!chasing&&!busted)){const v=evalS(s2)+(s2===20?5:0);if(!best||v>best.v)best={idx,orient:1,v,tag:'dbl'};}}}
     else if(card.kind==='flip'){let s2=score;for(const sl of board){const fv=faceVal(sl);if(fv!=null&&card.vals.includes(fv)&&sl.eff>0)s2-=2*sl.eff;}
       if(s2!==score&&s2<=20){const v=evalS(s2)+(s2>=14&&s2<=17?2:0);if(!best||v>best.v)best={idx,orient:1,v,tag:'flip'};}}
   });
-  // When behind a stood opponent, take any improving play; otherwise keep the usual threshold.
-  const thr=chasing?0:(tier===1?3:tier===2?3:2);
+  // Rescue a bust or chase a stood opponent with any improving play.
+  const thr=(busted||chasing)?0:(tier===1?3:tier===2?3:2);
   const play=best&&best.v>base+thr?best:null;
   const stand=shouldStand(score,snap);
   return {play,stand};
@@ -1172,9 +1177,25 @@ function defaultSave(){return {circuit:0,roster:null,unlocked:Object.assign({},S
 function loadSave(){
   try{
     const s=JSON.parse(localStorage.getItem(SAVE_KEY));
-    if(s&&s.unlocked){
+    if(s&&s.unlocked&&typeof s.unlocked==='object'){
       const out=Object.assign(defaultSave(),s);
-      if(out.credits==null||out.credits!==out.credits)out.credits=START_CREDITS;
+      out.unlocked=Object.assign({},STARTER_COLLECTION,s.unlocked);
+      for(const id of Object.keys(out.unlocked)){
+        if(!CARD_DEFS[id]){delete out.unlocked[id];continue;}
+        const n=Number(out.unlocked[id]);
+        out.unlocked[id]=Number.isFinite(n)&&n>0?Math.min(99,Math.floor(n)):0;
+        if(!out.unlocked[id])delete out.unlocked[id];
+      }
+      out.credits=Number(out.credits);
+      if(!Number.isFinite(out.credits)||out.credits<0)out.credits=START_CREDITS;
+      out.credits=Math.floor(out.credits);
+      out.circuit=Number(out.circuit);
+      if(!Number.isFinite(out.circuit)||out.circuit<0)out.circuit=0;
+      out.circuit=Math.min(6,Math.floor(out.circuit));
+      if(!Array.isArray(out.lastDeck))out.lastDeck=[];
+      out.lastDeck=out.lastDeck.filter(id=>CARD_DEFS[id]&&(out.unlocked[id]||0)>0).slice(0,10);
+      if(typeof out.vol!=='number'||out.vol!==out.vol)out.vol=0.6;
+      out.muted=!!out.muted;
       return out;
     }
   }catch(e){}
@@ -1412,6 +1433,7 @@ function makeTex(key,base,light,dark){
   TEX[key]=c;
 }
 function initTextures(){for(const k in CARD_COLORS)makeTex(k,CARD_COLORS[k].b,CARD_COLORS[k].l,CARD_COLORS[k].d);}
+function ensureTextures(){if(!TEX.taupe)initTextures();}
 function cardPath(w,h){
   const ch=cardChamfer(Math.min(w,h),0.038);
   const p=new Path2D();
@@ -1586,6 +1608,7 @@ function drawBack(g,w,h){
   paintNumberPlate(g,bp.x*w,bp.y*h,bp.w*w,bp.h*h,Math.min(w,h)*bp.r,'#7e7e84');
 }
 function drawCard(g,x,y,w,h,card,o={}){
+  ensureTextures();
   const orient=o.orient==null?1:o.orient;
   const varV=o.varV==null?1:o.varV;
   const box=fitCard(w,h);
@@ -1893,8 +1916,19 @@ function presentDialog(title,sub,onOK,opts){
   matchDlg={onOK:onOK,onCancel:o.onCancel||null};
   if(gameHooks.dialog)gameHooks.dialog(title,sub,o);
 }
-function dialogOK(){AUDIO.play('click');const d=matchDlg;matchDlg=null;if(gameHooks.closeModal)gameHooks.closeModal();if(d&&d.onOK)d.onOK();}
-function dialogCancel(){AUDIO.play('click');const d=matchDlg;matchDlg=null;if(gameHooks.closeModal)gameHooks.closeModal();if(d&&d.onCancel)d.onCancel();}
+function dialogOK(){
+  AUDIO.play('click');
+  const d=matchDlg;matchDlg=null;
+  if(gameHooks.closeModal)gameHooks.closeModal();
+  // Defer under a real UI so the same click cannot hit the next modal's button.
+  if(d&&d.onOK){if(gameHooks.dialog)setTimeout(()=>d.onOK(),0);else d.onOK();}
+}
+function dialogCancel(){
+  AUDIO.play('click');
+  const d=matchDlg;matchDlg=null;
+  if(gameHooks.closeModal)gameHooks.closeModal();
+  if(d&&d.onCancel){if(gameHooks.dialog)setTimeout(()=>d.onCancel(),0);else d.onCancel();}
+}
 function newMatch(opp,replayRung){
   const tk=M?M.token+1:1;
   const mkSide=()=>({board:Array(9).fill(null),hand:[null,null,null,null],score:0,stood:false,bust:false,tiebreak:false,side:[]});
@@ -1902,12 +1936,14 @@ function newMatch(opp,replayRung){
      setStarter:Math.random()<0.5?'p':'o',turn:'p',
      p:mkSide(),o:mkSide(),deck:[],sel:-1,orient:1,varV:1,sidePlayed:false,toasts:[],
      anims:{deal:null,flash:null},flashBadge:{p:0,o:0},lastScores:{p:0,o:0},wager:0};
-  M.p.side=SAVE.lastDeck.map(id=>makeCard(id));
-  M.o.side=genSideDeck(opp.tier).map(id=>makeCard(id));
+  M.p.side=SAVE.lastDeck.map(id=>makeCard(id)).filter(Boolean);
+  M.o.side=genSideDeck(opp.tier).map(id=>makeCard(id)).filter(Boolean);
   for(const w of ['p','o']){
     const S=sideOf(w);
-    const idxs=shuffle([...Array(10).keys()]).slice(0,4).sort((a,b)=>a-b);
-    S.hand=idxs.map(i=>makeCard(S.side[i].id));
+    const n=S.side.length;
+    const idxs=shuffle([...Array(n).keys()]).slice(0,Math.min(4,n)).sort((a,b)=>a-b);
+    S.hand=[null,null,null,null];
+    idxs.forEach((si,hi)=>{S.hand[hi]=makeCard(S.side[si].id);});
   }
 }
 function startSet(){
@@ -1985,10 +2021,16 @@ function confirmPlay(i){
   if(M.phase!=='pAction'||M.sidePlayed)return;
   const card=M.p.hand[i];if(!card)return;
   if(card.kind==='dbl'&&!lastSlot(M.p.board)){toast('NOTHING TO DOUBLE');return;}
-  AUDIO.play('place');
-  if(card.kind==='dbl')applyDouble(M.p.board);
-  else if(card.kind==='flip'){const n=applyFlip(M.p.board,card.vals);toast('FLIPPED '+n+' CARD'+(n===1?'':'S'));}
-  else{const si=placeSide(M.p,card,M.orient,M.varV);if(si>=0)M.anims.deal={who:'p',slot:si,t0:performance.now()};}
+  if(card.kind==='flip'){
+    const n=applyFlip(M.p.board,card.vals);
+    if(!n){toast('NOTHING TO FLIP');return;}
+    AUDIO.play('place');
+    toast('FLIPPED '+n+' CARD'+(n===1?'':'S'));
+  }else{
+    AUDIO.play('place');
+    if(card.kind==='dbl')applyDouble(M.p.board);
+    else{const si=placeSide(M.p,card,M.orient,M.varV);if(si>=0)M.anims.deal={who:'p',slot:si,t0:performance.now()};}
+  }
   if(card.kind==='tie')M.p.tiebreak=true;
   M.p.hand[i]=null;M.sel=-1;M.sidePlayed=true;
   const res=resolveBoard('p');
@@ -2207,7 +2249,7 @@ function render(now){
   drawTableButton(ctx,L.btnFlip,'FLIP',{dim:!ui.flipOk,lit:ui.flipOk});
   drawTableButton(ctx,L.btnEnd,'END TURN',{dim:!ui.act,lit:ui.act,hint:'space'});
   drawTableButton(ctx,L.btnStand,'STAND',{dim:!ui.act,hint:'return'});
-  drawTableButton(ctx,L.btnForf,'FORFEIT',{ghost:true});
+  drawTableButton(ctx,L.btnForf,'FORFEIT',{ghost:true,dim:!ui.act});
   if(M.anims.flash){
     const p=(now-M.anims.flash.t0)/500;
     if(p<1){
@@ -2553,7 +2595,7 @@ function init(){
     if(curScreen!=='match'||!M)return;
     const k=e.key.toLowerCase();
     if(matchDlg){
-      if(k==='enter'||k===' '){e.preventDefault();dialogOK();}
+      if(k==='enter'){e.preventDefault();dialogOK();}
       else if(k==='escape'&&matchDlg.onCancel){e.preventDefault();dialogCancel();}
       return;
     }
@@ -2592,7 +2634,7 @@ function hitTable(p){
   if(inRect(p,L.btnEnd)&&ui.act)return {kind:'end'};
   if(inRect(p,L.btnStand)&&ui.act)return {kind:'stand'};
   if(inRect(p,L.btnFlip)&&ui.flipOk)return {kind:'flip'};
-  if(inRect(p,L.btnForf)&&M.phase!=='done')return {kind:'forfeit'};
+  if(inRect(p,L.btnForf)&&M.phase==='pAction')return {kind:'forfeit'};
   return null;
 }
 function onTableHover(e){

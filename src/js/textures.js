@@ -21,6 +21,7 @@ function makeTex(key,base,light,dark){
   TEX[key]=c;
 }
 function initTextures(){for(const k in CARD_COLORS)makeTex(k,CARD_COLORS[k].b,CARD_COLORS[k].l,CARD_COLORS[k].d);}
+function ensureTextures(){if(!TEX.taupe)initTextures();}
 function cardPath(w,h){
   const ch=cardChamfer(Math.min(w,h),0.038);
   const p=new Path2D();

@@ -224,4 +224,62 @@ t('clutter-plus1', PZ.isClutterId('+1') && !PZ.isClutterId('TIE'));
   t('standoff-tie-replays', PZ.getM().setNum === sn + 1 && PZ.getM().setsP === sp2 && PZ.getM().setsO === so2);
 }
 
+// AI must rescue a bust with minus / flip instead of giving up.
+{
+  const rescue = PZ.aiDecide({
+    score: 22,
+    board: [
+      {card:{kind:'main',v:10},eff:10,isMain:true},
+      {card:{kind:'main',v:8},eff:8,isMain:true},
+      {card:{kind:'main',v:4},eff:4,isMain:true},
+      null,null,null,null,null,null
+    ],
+    hand: [{id:'-3',kind:'mod',sign:-1,v:3}, null, null, null],
+    oppScore: 18, oppStood: true, tier: 2, bustRisk: 0.5, setsO: 0
+  });
+  t('ai-rescue-bust-minus', !!rescue.play && rescue.play.tag === 'mod' && rescue.stand === false);
+
+  const boardFlip = [
+    {card:{kind:'main',v:4},eff:4,isMain:true},
+    {card:{kind:'main',v:10},eff:10,isMain:true},
+    {card:{kind:'main',v:10},eff:10,isMain:true},
+    null,null,null,null,null,null
+  ];
+  const flipRescue = PZ.aiDecide({
+    score: 24, board: boardFlip,
+    hand: [{id:'2&4',kind:'flip',vals:[2,4]}, null, null, null],
+    oppScore: 12, oppStood: false, tier: 3, bustRisk: 0.8, setsO: 1
+  });
+  t('ai-rescue-bust-flip', !!flipRescue.play && flipRescue.play.tag === 'flip');
+}
+
+// Zero-target flip does not consume the card.
+{
+  PZ.newMatchForTest(['2&4','-1','+2','-2','+3','-3','+4','-4','+5','-5'],{name:'T',tier:1,title:'X'});
+  PZ.startSet();
+  M = PZ.getM();
+  M.turn = 'p'; M.phase = 'pAction'; M.sidePlayed = false;
+  M.p.board = [{card:{kind:'main',v:5},eff:5,isMain:true},null,null,null,null,null,null,null,null];
+  M.p.score = 5;
+  M.p.hand = [PZ.makeCard('2&4'), PZ.makeCard('-1'), null, null];
+  const n0 = M.p.hand.filter(Boolean).length;
+  PZ.confirmPlay(0);
+  t('flip-zero-keeps-card', M.p.hand[0] && M.p.hand[0].id === '2&4' && M.p.hand.filter(Boolean).length === n0 && M.sidePlayed === false);
+}
+
+// Soft tie vs stood opponent: don't auto-stand on a low equal when the deck is safe.
+{
+  t('ai-no-force-tie-stand-low', PZ.shouldStand(15, {
+    oppStood: true, oppScore: 15, tier: 2, bustRisk: 0.1, setsO: 0
+  }) === false);
+  t('ai-force-tie-stand-high', PZ.shouldStand(19, {
+    oppStood: true, oppScore: 19, tier: 2, bustRisk: 0.1, setsO: 0
+  }) === true);
+}
+
+// makeCard rejects unknown ids; loadSave merges starters.
+{
+  t('makeCard-unknown-null', PZ.makeCard('NOPE') === null);
+}
+
 process.exit(fail ? 1 : 0);

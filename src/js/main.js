@@ -51,7 +51,7 @@ function init(){
     if(curScreen!=='match'||!M)return;
     const k=e.key.toLowerCase();
     if(matchDlg){
-      if(k==='enter'||k===' '){e.preventDefault();dialogOK();}
+      if(k==='enter'){e.preventDefault();dialogOK();}
       else if(k==='escape'&&matchDlg.onCancel){e.preventDefault();dialogCancel();}
       return;
     }
@@ -90,7 +90,7 @@ function hitTable(p){
   if(inRect(p,L.btnEnd)&&ui.act)return {kind:'end'};
   if(inRect(p,L.btnStand)&&ui.act)return {kind:'stand'};
   if(inRect(p,L.btnFlip)&&ui.flipOk)return {kind:'flip'};
-  if(inRect(p,L.btnForf)&&M.phase!=='done')return {kind:'forfeit'};
+  if(inRect(p,L.btnForf)&&M.phase==='pAction')return {kind:'forfeit'};
   return null;
 }
 function onTableHover(e){

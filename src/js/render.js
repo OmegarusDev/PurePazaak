@@ -91,7 +91,7 @@ function render(now){
   drawTableButton(ctx,L.btnFlip,'FLIP',{dim:!ui.flipOk,lit:ui.flipOk});
   drawTableButton(ctx,L.btnEnd,'END TURN',{dim:!ui.act,lit:ui.act,hint:'space'});
   drawTableButton(ctx,L.btnStand,'STAND',{dim:!ui.act,hint:'return'});
-  drawTableButton(ctx,L.btnForf,'FORFEIT',{ghost:true});
+  drawTableButton(ctx,L.btnForf,'FORFEIT',{ghost:true,dim:!ui.act});
   if(M.anims.flash){
     const p=(now-M.anims.flash.t0)/500;
     if(p<1){

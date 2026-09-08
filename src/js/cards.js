@@ -6,7 +6,7 @@ CARD_DEFS['DBL']={id:'DBL',kind:'dbl'};
 CARD_DEFS['2&4']={id:'2&4',kind:'flip',vals:[2,4]};
 CARD_DEFS['3&6']={id:'3&6',kind:'flip',vals:[3,6]};
 CARD_DEFS['1\u00B12']={id:'1\u00B12',kind:'flex',vals:[1,2]};
-function makeCard(id){return Object.assign({},CARD_DEFS[id]);}
+function makeCard(id){const d=CARD_DEFS[id];return d?Object.assign({},d):null;}
 function mainCard(v){return {id:'m'+v,kind:'main',v};}
 function buildMainDeck(){const d=[];for(let v=1;v<=10;v++)for(let c=0;c<4;c++)d.push(mainCard(v));return shuffle(d);}
 function isSpecialKind(kind){return kind==='tie'||kind==='dbl'||kind==='flip'||kind==='flex';}
