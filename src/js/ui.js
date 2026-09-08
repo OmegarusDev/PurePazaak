@@ -16,10 +16,10 @@ function buildCircuit(){
     const st=i<SAVE.circuit?'done':i===SAVE.circuit?'next':'locked';
     const div=document.createElement('div');
     div.className='rung '+st+(i===circuitSel?' pick':'');
-    div.innerHTML=`<span class="tier t${opp.tier}">${['I','II','III'][opp.tier-1]}</span>`+
-      `<span class="rtext"><span class="rname">${opp.name}</span>`+
-      `<span class="rtitle">${opp.title.toUpperCase()}</span></span>`+
-      `<span class="rstat">${st==='done'?'WON':st==='next'?'NEXT':'LOCKED'}</span>`;
+    const label=st==='done'?'WON':st==='next'?'NEXT':'LOCKED';
+    div.innerHTML=`<div class="ricon"><span class="tier t${opp.tier}">${['I','II','III'][opp.tier-1]}</span></div>`+
+      `<div class="rbody"><span class="rname">${opp.name}</span>`+
+      `<span class="rstat">(${label})</span></div>`;
     if(st!=='locked')div.onclick=()=>{AUDIO.play('click');circuitSel=i;buildCircuit();};
     wrap.appendChild(div);
   });
@@ -72,14 +72,15 @@ function buildDeckUI(){
     sd.appendChild(slot);
   }
   const dc=$('#deckcount');
-  dc.textContent=deckSel.length+' / 10';
+  dc.textContent=deckSel.length+'/10';
   dc.classList.toggle('full',deckSel.length===10);
   const begin=$('#bt-begin');
   const opp=SAVE.roster[deckRung], wager=opp?matchWager(opp.tier):50;
   const ready=deckSel.length===10, broke=SAVE.credits<wager;
   begin.disabled=!ready||broke;
-  begin.textContent=!ready?'BEGIN MATCH':broke?'NEED '+wager+' CR':'BEGIN  \u00B7  '+wager+' CR';
+  begin.textContent=!ready?'PLAY':broke?'NEED '+wager+' CR':'PLAY';
   begin.classList.toggle('sel',ready&&!broke);
+  begin.title=ready&&!broke?('WAGER '+wager+' CR'):'';
 }
 function validateDeck(deck){
   const out=[],counts={};
@@ -118,7 +119,7 @@ function showSpoilsModal(wager,rematch){
     '<h2>'+(rematch?'REMATCH WON':'MATCH WON')+'</h2>'+
     '<p>+'+wager+' CR. '+(clutter?'THEIR DECK IS MOSTLY CLUTTER \u2014 TAKE ONE, OR SKIP.':'TAKE ONE CARD FROM THEIR SIDE DECK.')+'</p>'+
     '<div class="mcards">'+(cells||'<p>NO CARDS TO TAKE</p>')+'</div>'+
-    '<div class="mrow"><button id="mskip" class="kbtn">SKIP</button></div>');
+    '<div class="mrow"><button id="mskip" class="kbtn sel">SKIP</button></div>');
   document.querySelectorAll('.mcard.spoil canvas').forEach((cvs,i)=>drawMini(cvs,list[i].id,68));
   document.querySelectorAll('.mcard.spoil').forEach((btn,i)=>{
     btn.onclick=()=>{
@@ -174,7 +175,7 @@ function startNewGame(){
   if(!hasSave()){wipeKeepAudio();enterCircuit();return;}
   openModal(
     '<h2>NEW GAME</h2><p>THIS WIPES YOUR CIRCUIT, CARD COLLECTION, AND CREDITS.</p>'+
-    '<div class="mrow"><button id="myes" class="kbtn">START</button><button id="mno" class="kbtn">CANCEL</button></div>');
+    '<div class="mrow"><button id="mno" class="kbtn">CANCEL</button><button id="myes" class="kbtn sel">START</button></div>');
   $('#myes').onclick=()=>{AUDIO.play('click');closeModal();wipeKeepAudio();enterCircuit();};
   $('#mno').onclick=()=>{AUDIO.play('click');closeModal();};
 }
@@ -182,7 +183,7 @@ function confirmReset(){
   AUDIO.play('click');
   openModal(
     '<h2>RESET PROGRESS</h2><p>THIS WIPES YOUR CIRCUIT, CARD COLLECTION, AND CREDITS.</p>'+
-    '<div class="mrow"><button id="myes" class="kbtn danger">WIPE IT</button><button id="mno" class="kbtn">KEEP IT</button></div>');
+    '<div class="mrow"><button id="mno" class="kbtn">KEEP IT</button><button id="myes" class="kbtn danger sel">WIPE IT</button></div>');
   $('#myes').onclick=()=>{try{localStorage.removeItem(SAVE_KEY);}catch(e){}location.reload();};
   $('#mno').onclick=()=>{AUDIO.play('click');closeModal();};
 }
@@ -190,7 +191,7 @@ function openOptions(){
   openModal(
     '<h2>OPTIONS</h2>'+
     '<div class="volrow"><span>VOLUME</span><input id="vol" type="range" min="0" max="100" value="'+Math.round(AUDIO.vol*100)+'"><button id="bt-mute" class="kbtn sm">MUTE</button></div>'+
-    '<div class="mrow"><button id="bt-reset" class="kbtn danger">RESET PROGRESS</button><button id="oclose" class="kbtn">CLOSE</button></div>');
+    '<div class="mrow"><button id="bt-reset" class="kbtn danger">RESET PROGRESS</button><button id="oclose" class="kbtn sel">CLOSE</button></div>');
   $('#vol').oninput=e=>{AUDIO.setVol(e.target.value/100);SAVE.vol=AUDIO.vol;persist();};
   $('#bt-mute').textContent=AUDIO.muted?'UNMUTE':'MUTE';
   $('#bt-mute').onclick=()=>{AUDIO.setMuted(!AUDIO.muted);SAVE.muted=AUDIO.muted;persist();$('#bt-mute').textContent=AUDIO.muted?'UNMUTE':'MUTE';};
@@ -201,7 +202,7 @@ function askQuit(){
   AUDIO.play('click');
   openModal(
     '<h2>QUIT</h2><p>LEAVE THE TABLE?</p>'+
-    '<div class="mrow"><button id="myes" class="kbtn">YES</button><button id="mno" class="kbtn">NO</button></div>');
+    '<div class="mrow"><button id="mno" class="kbtn">NO</button><button id="myes" class="kbtn sel">YES</button></div>');
   $('#myes').onclick=()=>{
     AUDIO.play('click');
     try{window.close();}catch(e){}

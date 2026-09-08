@@ -18,6 +18,7 @@ CSS_ORDER = [
     "tokens.css",
     "base.css",
     "components.css",
+    "steel.css",
     "circuit.css",
     "deck.css",
     "match.css",

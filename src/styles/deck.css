@@ -1,30 +1,189 @@
-/* Deck builder: viewport-filling layout, no dead void, headers never clip.
-   Landscape: side-by-side stretched panels, collection grid takes spare height.
-   Portrait: stacked; collection panel flexes, its grid scrolls internally. */
-#scr-deck{container-type:size;container-name:deck;justify-content:flex-start}
-.deckwrap{display:flex;gap:16px;align-items:stretch;justify-content:center;width:min(980px,96vw);flex:1 1 auto;min-height:0;min-width:0;flex-wrap:nowrap}
-/* Collection panel is a flex column: fixed header + growing scroll well */
-.deckwrap .panel{flex:1 1 320px;min-width:min(320px,100%);min-height:0;max-width:560px;width:auto;display:flex;flex-direction:column}
-.deckhead{flex:0 0 auto;font-size:clamp(10px,1.6cqh,12px);letter-spacing:.18em;text-indent:.18em;color:var(--k1)}
-#collection{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(88px,100%),1fr));gap:clamp(6px,1.2cqh,10px);width:100%;flex:1 1 auto;min-height:0;overflow-y:auto;padding:6px;align-content:start;align-items:start}
-.cell{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 4px;background:linear-gradient(180deg,#2a2a2e,#1a1a1e);border:1px solid var(--gui-edge-dim);border-radius:8px;cursor:pointer;min-width:0;min-height:0;box-shadow:inset 0 0 0 1px rgba(138,244,240,.12)}
-.cell:hover{border-color:var(--select);box-shadow:0 0 10px rgba(255,255,74,.25),inset 0 0 0 1px rgba(255,255,74,.2)}
-.cell.maxed{opacity:.45;cursor:default}
-.cell.maxed:hover{border-color:var(--gui-edge-dim);box-shadow:inset 0 0 0 1px rgba(138,244,240,.12)}
-/* Cards scale with viewport height but never exceed column width */
-.cell canvas{width:min(100%,14cqh);max-width:76px;height:auto;aspect-ratio:572/772;min-height:0}
-.cell .cnt{font-size:clamp(8px,1.4cqh,10px);letter-spacing:.08em;color:var(--dim);white-space:nowrap}
-/* Side deck column: fixed content, vertically centred in stretched panel */
-.deckside{display:flex;flex-direction:column;gap:clamp(8px,1.6cqh,12px);align-items:center;justify-content:center;flex:0 1 320px;min-width:min(300px,100%);min-height:0;width:100%;max-width:340px}
-#deckcount{font-size:clamp(15px,2.6cqh,19px);font-weight:600;letter-spacing:.3em;text-indent:.3em;color:var(--gold)}
-#deckcount.full{color:var(--green);text-shadow:0 0 10px rgba(70,224,106,.5)}
-#sidedeck{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;width:100%}
-.sslot{width:100%;aspect-ratio:572/772;max-height:17cqh;border:1px dashed var(--gui-edge-dim);border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;background:linear-gradient(180deg,#1a1a1e,#101014);min-width:0;min-height:0;margin:auto;box-shadow:inset 0 0 10px rgba(0,0,0,.55)}
-.sslot:hover{border-color:var(--gui-edge);border-style:solid}
-.sslot canvas{width:100%;height:100%;object-fit:contain;min-height:0}
-.deckbtns{display:flex;gap:8px;width:100%}
-.deckbtns .kbtn{flex:1;min-width:0;width:auto;font-size:11px}
-.deckside > .scene-actions{width:100%}
-@media (max-width:600px){
-  .deckbtns .kbtn{font-size:10px;letter-spacing:.14em;text-indent:.14em}
+/* Side-deck builder — K2 layout inside shared .steel-console */
+#scr-deck{
+  container-type:size;
+  container-name:deck;
+  justify-content:center;
+  align-items:center;
+  gap:0;
+  padding:clamp(8px,1.6vh,16px) clamp(8px,2vw,18px);
+  background:#04060c;
+}
+.deck-console{
+  width:min(980px,96vw);
+  height:min(100%,920px);
+  max-height:100%;
+}
+.deck-headers{/* uses .steel-headers from steel.css */}
+.deck-hbadge-wide{justify-content:center}
+#deckcount{letter-spacing:.12em;color:#c8d4e0}
+#deckcount.full{color:#9dffb0;text-shadow:0 0 8px rgba(70,224,106,.45)}
+
+.deck-body{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 10px minmax(140px,0.34fr);
+  gap:0;
+  flex:1 1 auto;
+  min-height:0;
+  overflow:hidden;
+}
+.deck-rail{
+  width:10px;
+  background:
+    linear-gradient(90deg,rgba(0,0,0,.55),rgba(255,255,255,.14) 45%,rgba(0,0,0,.5)),
+    linear-gradient(180deg,var(--steel-mid),var(--steel-lo));
+  box-shadow:inset 0 0 0 1px rgba(0,0,0,.35);
+}
+.deck-collection,
+.deck-side{
+  min-width:0;
+  min-height:0;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+}
+.deck-collection{padding:clamp(8px,1.4cqh,12px)}
+.deck-side{padding:clamp(8px,1.4cqh,12px) clamp(8px,1.2cqw,12px)}
+
+#collection{
+  display:grid;
+  grid-template-columns:repeat(6,minmax(0,1fr));
+  gap:clamp(4px,0.9cqh,8px);
+  width:100%;
+  flex:1 1 auto;
+  min-height:0;
+  overflow-y:auto;
+  align-content:start;
+  padding:2px;
+}
+.cell{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:2px;
+  padding:4px 3px;
+  background:linear-gradient(180deg,#14181e,#080a0e);
+  border:1px solid #1a1e24;
+  border-radius:4px;
+  cursor:pointer;
+  min-width:0;
+  min-height:0;
+  box-shadow:inset 0 2px 5px rgba(0,0,0,.7);
+}
+.cell:hover{
+  border-color:#7ec8e8;
+  box-shadow:inset 0 2px 5px rgba(0,0,0,.7),0 0 10px rgba(80,170,230,.28);
+}
+.cell.maxed{opacity:.4;cursor:default}
+.cell.maxed:hover{border-color:#1a1e24;box-shadow:inset 0 2px 5px rgba(0,0,0,.7)}
+.cell canvas{
+  width:min(100%,15cqh);
+  max-width:72px;
+  height:auto;
+  aspect-ratio:572/772;
+  min-height:0;
+}
+.cell .cnt{
+  font-size:clamp(7px,1.2cqh,9px);
+  letter-spacing:.06em;
+  color:#8a96a8;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  max-width:100%;
+}
+
+#sidedeck{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  grid-auto-rows:minmax(0,1fr);
+  gap:clamp(4px,1cqh,8px);
+  width:100%;
+  height:100%;
+  min-height:0;
+  flex:1 1 auto;
+  align-content:stretch;
+}
+.sslot{
+  width:100%;
+  height:100%;
+  min-width:0;
+  min-height:0;
+  aspect-ratio:572/772;
+  max-height:none;
+  border:1px solid #10141a;
+  border-radius:4px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  background:linear-gradient(180deg,#101418,#06080c);
+  box-shadow:inset 0 3px 8px rgba(0,0,0,.8),inset 0 -1px 0 rgba(255,255,255,.04);
+  margin:0;
+  overflow:hidden;
+}
+.sslot:hover{border-color:#6aa0c8;box-shadow:inset 0 3px 8px rgba(0,0,0,.8),0 0 8px rgba(70,150,210,.25)}
+.sslot canvas{
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  min-height:0;
+}
+
+.deck-foot{
+  display:flex;
+  align-items:stretch;
+  justify-content:space-between;
+  gap:10px;
+  flex:0 0 auto;
+  padding:2px 0 0;
+}
+.deck-foot-left,
+.deck-foot-right{
+  display:flex;
+  gap:10px;
+  align-items:stretch;
+}
+.deck-foot-right{margin-left:auto}
+.deck-foot .kplate{flex:1}
+#bt-begin{min-width:clamp(120px,22cqw,180px)}
+
+/* Store — same steel language */
+#scr-store{
+  justify-content:center;
+  align-items:center;
+  background:#05060c;
+  gap:0;
+  padding:clamp(8px,1.6vh,16px) clamp(8px,2vw,18px);
+}
+.store-console{
+  width:min(760px,96vw);
+  height:min(100%,920px);
+  max-height:100%;
+}
+.store-note{
+  flex:0 0 auto;
+  font-size:clamp(10px,1.5vmin,12px);
+  letter-spacing:.1em;
+  color:#9ad4f0;
+  text-align:center;
+  width:100%;
+  margin:0;
+  padding:0 4px;
+}
+.store-well{padding:8px}
+#stock{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(min(88px,100%),1fr));
+  gap:10px;
+  width:100%;
+  flex:1 1 auto;
+  min-height:0;
+  overflow-y:auto;
+  padding:6px;
+  align-content:start;
+  background:transparent;
+  border:0;
+  border-radius:0;
+  box-shadow:none;
 }

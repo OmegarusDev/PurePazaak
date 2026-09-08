@@ -41,6 +41,12 @@ You may then play **at most one** side-deck card from your 4-card hand, then END
 Climb the Outer Rim circuit through six opponents across three tiers, unlocking stronger
 side-deck cards as you win.
 
+## Ideas
+
+After the player plays a side-deck card from hand, a dialogue could ask whether they
+want to **stand** or **keep playing** (end the turn and draw next round). Right now that
+choice stays on the table buttons.
+
 ## Run locally
 
 Use a **Cursor/VS Code task or a terminal you leave open**. Agent background shells get killed with the chat, which is why `http://127.0.0.1:8765/` sometimes says connection refused.

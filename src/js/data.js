@@ -65,6 +65,10 @@ function loadSave(){
 }
 function persist(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(SAVE));}catch(e){}refreshCredits();}
 function refreshCredits(){
-  try{document.querySelectorAll('[data-credits]').forEach(el=>{el.textContent='CREDITS  '+SAVE.credits;});}catch(e){}
+  try{
+    document.querySelectorAll('[data-credits]').forEach(el=>{
+      el.textContent=el.hasAttribute('data-credits-after')?(SAVE.credits+' CREDITS'):('CREDITS  '+SAVE.credits);
+    });
+  }catch(e){}
 }
 let SAVE=loadSave();

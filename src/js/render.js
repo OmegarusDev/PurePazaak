@@ -39,12 +39,6 @@ function renderStatic(){
     for(let i=0;i<4;i++)drawSlot(g,handSlot(h,i));
   }
 }
-function projectedScore(card){
-  if(!M||!card)return null;
-  if(card.kind==='dbl'){const ls=lastSlot(M.p.board);return ls?M.p.score+ls.eff:M.p.score;}
-  if(card.kind==='flip')return null;
-  return M.p.score+playValue(card,M.orient,M.varV);
-}
 function tableUI(){
   const act=!!(M&&M.phase==='pAction');
   const armed=act&&M.sel>=0?M.p.hand[M.sel]:null;
@@ -106,11 +100,6 @@ function render(now){
       const gx=L.gapX!=null?L.gapX:L.gap, gy=L.gapY!=null?L.gapY:L.gap;
       rr(ctx,grid.x-10,grid.y-10,3*L.sw+2*gx+20,3*L.sh+2*gy+20,10);ctx.fill();ctx.restore();
     }else M.anims.flash=null;
-  }
-  if(ui.armed){
-    const proj=projectedScore(ui.armed);
-    const txt=ui.armed.kind==='flip'?'FLIP SIGN':proj>20?'BUST!':'PROJECTED: '+proj;
-    tText(ctx,txt,L.proj.x,L.proj.y,L.fsProj||12,proj!==null&&proj>20?'#ff6060':'#7fd4ff',2);
   }
   M.toasts=M.toasts.filter(t=>now-t.t0<1300);
   M.toasts.forEach((t,i)=>{

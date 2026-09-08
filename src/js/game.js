@@ -8,9 +8,10 @@ function showDialog(title,sub,onOK,opts){
   const o=opts||{};
   matchDlg={onOK:onOK,onCancel:o.onCancel||null};
   const html='<h2>'+title+'</h2>'+(sub?'<p>'+sub+'</p>':'')+(o.sub2?'<p>'+o.sub2+'</p>':'')+
-    '<div class="mrow"><button id="dok" class="kbtn">OK</button>'+(o.cancelText?'<button id="dcancel" class="kbtn">'+o.cancelText+'</button>':'')+'</div>';
+    '<div class="mrow">'+(o.cancelText?'<button id="dcancel" class="kbtn">'+o.cancelText+'</button>':'')+'<button id="dok" class="kbtn">OK</button></div>';
   openModal(html);
   $('#dok').onclick=dialogOK;
+  $('#dok').classList.add('sel');
   if(o.cancelText)$('#dcancel').onclick=dialogCancel;
 }
 function dialogOK(){AUDIO.play('click');const d=matchDlg;closeModal();matchDlg=null;if(d&&d.onOK)d.onOK();}
@@ -22,7 +23,7 @@ function newMatch(opp,replayRung){
     return S;};
   M={opp,replayRung,token:tk,phase:'idle',setNum:0,setsP:0,setsO:0,
      setStarter:Math.random()<0.5?'p':'o',turn:'p',
-     p:mkSide(),o:mkSide(),deck:[],sel:-1,orient:1,varV:1,dialog:null,toasts:[],
+     p:mkSide(),o:mkSide(),deck:[],sel:-1,orient:1,varV:1,sidePlayed:false,dialog:null,toasts:[],
      anims:{deal:null,flash:null},flashBadge:{p:0,o:0},lastScores:{p:0,o:0},wager:0};
   M.p.side=SAVE.lastDeck.map(id=>makeCard(id));
   M.o.side=genSideDeck(opp.tier).map(id=>makeCard(id));
@@ -65,7 +66,7 @@ function beginTurn(w){
     beginTurn(other(w));
     return;
   }
-  if(w==='p')M.phase='pAction';else{M.phase='oTurn';aiTurn(M.token);}
+  if(w==='p'){M.sidePlayed=false;M.phase='pAction';}else{M.phase='oTurn';aiTurn(M.token);}
 }
 function passToOpp(){beginTurn('o');}
 function endPlayerTurn(){if(M.phase!=='pAction')return;AUDIO.play('click');M.sel=-1;if(M.p.score>20){M.p.bust=true;M.anims.flash={who:'p',t0:performance.now()};AUDIO.play('bust');endSet('o','bust');return;}passToOpp();}
@@ -90,7 +91,7 @@ function flipArmed(){
   else M.orient*=-1;
 }
 function confirmPlay(i){
-  if(M.phase!=='pAction')return;
+  if(M.phase!=='pAction'||M.sidePlayed)return;
   const card=M.p.hand[i];if(!card)return;
   if(card.kind==='dbl'&&!lastSlot(M.p.board)){toast('NOTHING TO DOUBLE');return;}
   AUDIO.play('place');
@@ -98,7 +99,7 @@ function confirmPlay(i){
   else if(card.kind==='flip'){const n=applyFlip(M.p.board,card.vals);toast('FLIPPED '+n+' CARD'+(n===1?'':'S'));}
   else{const si=placeSide(M.p,card,M.orient,M.varV);if(si>=0)M.anims.deal={who:'p',slot:si,t0:performance.now()};}
   if(card.kind==='tie')M.p.tiebreak=true;
-  M.p.used[i]=true;M.p.hand[i]=null;M.sel=-1;
+  M.p.used[i]=true;M.p.hand[i]=null;M.sel=-1;M.sidePlayed=true;
   M.p.score=boardScore(M.p.board);
   if(boardCount(M.p.board)===9){endSet('p','fill');return;}
   if(M.p.score===20){M.p.stood=true;toast('TWENTY!');

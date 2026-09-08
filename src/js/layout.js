@@ -103,12 +103,10 @@ function layoutLandscape(){
     btnFlip:{x:gPX+forfW+btnGap,y:btnY,w:flipW,h:btnH},
     btnEnd:{x:gOX,y:btnY,w:actW,h:btnH},
     btnStand:{x:gOX+actW+btnGap,y:btnY,w:actW,h:btnH},
-    proj:{x:cx,y:gridY-Math.max(8,Math.round(10*u))},
     vent:null,deco:null,
     toastY:gridY+gridH/2,
     fsName:Math.max(11,Math.round(barH*0.42)),
-    fsLab:Math.max(10,Math.round(labelH*0.62)),
-    fsProj:Math.max(10,Math.round(12*u))
+    fsLab:Math.max(10,Math.round(labelH*0.62))
   };
 }
 function layoutPortrait(){
@@ -190,12 +188,10 @@ function layoutPortrait(){
     btnFlip:{x:restL,y:btnY,w:flipW,h:btnH},
     btnEnd:{x:restL+flipW+btnGap,y:btnY,w:btnW,h:btnH},
     btnStand:{x:restL+flipW+btnGap+btnW+btnGap,y:btnY,w:btnW,h:btnH},
-    proj:{x:cx,y:handPY-Math.round(8*u)},
     vent:null,deco:null,
     toastY:(gridOY+gridH/2),
     fsName:Math.max(9,Math.round(barH*0.42)),
-    fsLab:Math.max(9,Math.round(labelH*0.58)),
-    fsProj:Math.max(10,Math.round(11*u))
+    fsLab:Math.max(9,Math.round(labelH*0.58))
   };
 }
 function gapXY(){return {x:L.gapX!=null?L.gapX:L.gap, y:L.gapY!=null?L.gapY:L.gap};}

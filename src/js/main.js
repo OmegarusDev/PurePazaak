@@ -23,7 +23,7 @@ function init(){
     '<li>Keys: Space end turn, Enter stand, F or right-click flip, Esc cancel. Click a hand card twice to play it.</li>'+
     '<li>Matches are played for a credits wager. Win and you may take one card from their side deck, or skip if it is clutter.</li>'+
     '<li>The cantina store sells side-deck cards. Better stock unlocks as you climb the circuit.</li>'+
-    '</ul><div class="mrow"><button id="mclose" class="kbtn">CLOSE</button></div>');
+    '</ul><div class="mrow"><button id="mclose" class="kbtn sel">CLOSE</button></div>');
     $('#mclose').onclick=()=>{AUDIO.play('click');closeModal();};
   };
   $('#bt-store').onclick=()=>{AUDIO.play('click');openStore();};
@@ -31,7 +31,6 @@ function init(){
   $('#bt-options').onclick=()=>{AUDIO.play('click');openOptions();};
   $('#bt-quit').onclick=askQuit;
   $('#bt-autofill').onclick=autoFill;
-  $('#bt-cleardeck').onclick=()=>{AUDIO.play('click');deckSel=[];buildDeckUI();};
   $('#bt-dback').onclick=()=>{AUDIO.play('click');buildCircuit();showScreen('circuit');};
   $('#bt-begin').onclick=()=>{
     if(deckSel.length!==10)return;
@@ -77,7 +76,7 @@ function askForfeit(){
 }
 function hitTable(p){
   if(!M||matchDlg)return null;
-  if(L.handP){
+  if(L.handP&&!M.sidePlayed){
     for(let i=0;i<4;i++){
       if(inRect(p,handSlot(L.handP,i))&&M.p.hand[i])return {kind:'hand',i};
     }

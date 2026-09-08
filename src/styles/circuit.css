@@ -1,29 +1,121 @@
-#rungs{display:flex;flex-direction:column;gap:6px;width:min(760px,92vw);overflow-y:auto;min-height:0;padding:10px}
-#scr-circuit{justify-content:flex-start;align-items:center}
-#scr-circuit > .scene-actions{width:min(760px,94vw)}
-/* Listbox protoitem: charcoal row, teal rim, cyan type, yellow when picked */
-.rung{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;width:100%;padding:10px 14px;background:linear-gradient(180deg,#26262a,#1a1a1e);border:1px solid var(--gui-edge-dim);border-radius:8px;min-width:0}
+/* Outer Rim Circuit — equip-list roster inside shared steel console */
+#scr-circuit{
+  justify-content:center;
+  align-items:center;
+  background:#05060c;
+  gap:0;
+  padding:clamp(8px,1.6vh,16px) clamp(8px,2vw,18px);
+}
+.circuit-console{
+  width:min(560px,96vw);
+  height:min(100%,920px);
+  max-height:100%;
+}
+.circuit-well{
+  padding:8px;
+}
+#rungs{
+  display:flex;
+  flex-direction:column;
+  gap:5px;
+  width:100%;
+  overflow-y:auto;
+  min-height:0;
+  flex:1 1 auto;
+  padding:6px 5px;
+  background:transparent;
+  border:1px solid var(--eq-cyan);
+  border-radius:20px;
+  box-shadow:inset 0 0 0 1px rgba(69,128,196,.35),0 0 0 1px rgba(8,16,32,.9);
+}
+
+.rung{
+  --row:var(--eq-cyan);
+  display:grid;
+  grid-template-columns:clamp(48px,12vw,58px) 1fr;
+  gap:5px;
+  align-items:stretch;
+  width:100%;
+  padding:0;
+  background:transparent;
+  border:0;
+  min-width:0;
+  box-shadow:none;
+}
 .rung.next,.rung.done{cursor:pointer}
-.rung.next{border-color:var(--gui-edge)}
-.rung.next:hover,.rung.done:hover{border-color:var(--select);box-shadow:0 0 12px rgba(255,255,74,.22)}
-.rung.pick{border-color:var(--select);box-shadow:0 0 14px rgba(255,255,74,.28),inset 0 0 12px rgba(255,255,74,.06)}
-.rung.locked{opacity:.38;cursor:default}
-.tier{width:34px;height:34px;flex:0 0 auto;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;letter-spacing:.05em;color:#0c0c10;border:1px solid #000}
-.tier.t1{background:linear-gradient(180deg,#9a9aa4,#54545e)}
-.tier.t2{background:linear-gradient(180deg,#5a70f0,#22348e);color:#dfe6ff}
-.tier.t3{background:linear-gradient(180deg,#e05050,#7a1414);color:#ffe0e0}
-.rtext{display:flex;flex-direction:column;gap:2px;min-width:0;text-align:left}
-.rname{font-size:15px;font-weight:600;letter-spacing:.08em;color:var(--k1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.rung.pick .rname{color:var(--select)}
-.rtitle{font-size:10px;letter-spacing:.18em;color:var(--dim)}
-.rstat{font-size:10px;letter-spacing:.16em;text-align:right;white-space:nowrap;color:var(--k1)}
-.rung.next .rstat{color:var(--select)}
-.rung.done{opacity:.9}
-.rung.done .rstat{color:var(--green)}
-.rung.done:not(.pick):hover{border-color:var(--green)}
-.rung.locked .rstat{color:var(--faint)}
+.rung.locked{opacity:.55;cursor:default}
+.rung.pick{--row:var(--eq-gold)}
+.rung.next:hover:not(.pick),
+.rung.done:hover:not(.pick){--row:#6aa0d8}
+
+.ricon,.rbody{
+  background:var(--eq-fill);
+  border:2px solid var(--row);
+  box-shadow:inset 0 0 0 1px #060814,inset 0 0 0 2.5px var(--row);
+  color:var(--row);
+  min-width:0;
+}
+.ricon{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  aspect-ratio:1;
+  border-radius:22px 5px 5px 22px;
+}
+.rbody{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:1px;
+  padding:6px 16px;
+  text-align:center;
+  border-radius:5px 22px 22px 5px;
+}
+
+.tier{
+  width:auto;height:auto;
+  border:0;border-radius:0;
+  background:none !important;
+  color:inherit;
+  font-weight:700;
+  font-size:clamp(13px,2.4vw,16px);
+  letter-spacing:.06em;
+  text-shadow:none;
+  display:flex;align-items:center;justify-content:center;
+}
+.rname{
+  font-family:var(--sans);
+  font-size:clamp(12px,2.4vw,15px);
+  font-weight:700;
+  letter-spacing:.14em;
+  text-indent:.08em;
+  color:inherit;
+  text-transform:uppercase;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  max-width:100%;
+  line-height:1.15;
+}
+.rstat{
+  font-family:var(--sans);
+  font-size:clamp(9px,1.8vw,11px);
+  font-weight:600;
+  letter-spacing:.16em;
+  text-indent:.1em;
+  color:inherit;
+  text-transform:uppercase;
+  white-space:nowrap;
+  line-height:1.15;
+  opacity:.92;
+}
+
+#scr-circuit .circuit-actions #bt-challenge{flex:1.35}
+
 @media (max-height:520px){
-  .rung{padding:6px 12px;gap:8px}
-  .tier{width:26px;height:26px;font-size:11px}
-  .rname{font-size:13px}
+  #rungs{gap:4px;padding:4px}
+  .rbody{padding:4px 10px}
+  .rname{font-size:12px}
+  .rstat{font-size:9px}
 }

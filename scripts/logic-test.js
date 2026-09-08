@@ -74,4 +74,22 @@ save.circuit=0;
 t('add-card', PZ.addToCollection('+4') && save.unlocked['+4']>=1);
 t('clutter-plus1', PZ.isClutterId('+1') && !PZ.isClutterId('TIE'));
 
+{
+  PZ.newMatchForTest(['+1','-1','+2','-2','+3','-3','+4','-4','+5','-5'],{name:'T',tier:1,title:'X'});
+  PZ.startSet();
+  M=PZ.getM();
+  M.turn='p';M.phase='pAction';M.sidePlayed=false;M.sel=-1;
+  M.p.stood=false;M.p.bust=false;
+  M.p.board=[{card:{kind:'main',v:4},eff:4,isMain:true},null,null,null,null,null,null,null,null];
+  M.p.score=4;
+  const i0=M.p.hand.findIndex(c=>c&&c.kind==='mod');
+  const n0=M.p.hand.filter(Boolean).length;
+  PZ.confirmPlay(i0);
+  const n1=M.p.hand.filter(Boolean).length;
+  const i1=M.p.hand.findIndex(c=>c&&c.kind==='mod');
+  if(i1>=0)PZ.confirmPlay(i1);
+  const sides=M.p.board.filter(s=>s&&!s.isMain).length;
+  t('one-side-card-per-turn', n1===n0-1 && M.p.hand.filter(Boolean).length===n1 && sides===1 && M.sidePlayed===true && M.phase==='pAction');
+}
+
 process.exit(fail ? 1 : 0);
