@@ -23,9 +23,7 @@ A tactical card duel inspired by the Pazaak minigame from *Knights of the Old Re
 | Key / Button | Action |
 | --- | --- |
 | `E` / `Space` / **END TURN** | End your turn (deals a card to the opponent) |
-| `S` / **STAND** | Lock in your total and pass |
-| `F` / **FLIP** | Flip a selected dual card between + and − |
-| `Enter` | Play / confirm the selected hand card |
+| `Enter` / `S` / **STAND** | Lock in your total and pass |
 | `Esc` | Cancel hand-card selection |
 | Click / tap | Select a hand card, click again to play |
 

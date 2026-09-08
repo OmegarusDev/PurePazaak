@@ -92,4 +92,63 @@ t('clutter-plus1', PZ.isClutterId('+1') && !PZ.isClutterId('TIE'));
   t('one-side-card-per-turn', n1===n0-1 && M.p.hand.filter(Boolean).length===n1 && sides===1 && M.sidePlayed===true && M.phase==='pAction');
 }
 
+// AI must not stand below a stood opponent (e.g. 16 vs stood 19).
+{
+  const losing = PZ.aiDecide({
+    score: 16, board: Array(9).fill(null),
+    hand: [{ id: '+1', kind: 'mod', sign: 1, v: 1 }],
+    oppScore: 19, oppStood: true, tier: 2, bustRisk: 0.1, setsO: 0
+  });
+  t('ai-no-stand-losing', losing.stand === false && PZ.shouldStand(16, {
+    oppStood: true, oppScore: 19, tier: 2, bustRisk: 0.1, setsO: 0
+  }) === false);
+  t('ai-stand-beating-stood', PZ.shouldStand(20, {
+    oppStood: true, oppScore: 19, tier: 1, bustRisk: 0.9, setsO: 0
+  }) === true);
+  // After a plus that still loses, still must not stand.
+  t('ai-no-stand-after-plus-losing', PZ.shouldStand(17, {
+    oppStood: true, oppScore: 19, tier: 3, bustRisk: 0.2, setsO: 2
+  }) === false);
+}
+
+// Fill win only at ≤20; over-20 with 9 cards is a bust.
+{
+  PZ.newMatchForTest(['+1','-1','+2','-2','+3','-3','+4','-4','+5','-5'],{name:'T',tier:1,title:'X'});
+  PZ.startSet();
+  M = PZ.getM();
+  M.turn = 'p'; M.phase = 'pAction';
+  M.p.board = [
+    {card:{kind:'main',v:4},eff:4,isMain:true},
+    {card:{kind:'main',v:4},eff:4,isMain:true},
+    {card:{kind:'main',v:4},eff:4,isMain:true},
+    {card:{kind:'main',v:4},eff:4,isMain:true},
+    {card:{kind:'main',v:4},eff:4,isMain:true},
+    {card:{kind:'main',v:1},eff:1,isMain:true},
+    {card:{kind:'main',v:1},eff:1,isMain:true},
+    {card:{kind:'main',v:1},eff:1,isMain:true},
+    {card:{kind:'main',v:5},eff:5,isMain:true}
+  ];
+  // 4*5+1*3+5 = 28
+  const resOver = PZ.resolveBoard('p');
+  t('fill-over-20-busts', resOver === 'bust' && PZ.getM().setsO === 1 && PZ.getM().p.bust === true);
+
+  PZ.newMatchForTest(['+1','-1','+2','-2','+3','-3','+4','-4','+5','-5'],{name:'T',tier:1,title:'X'});
+  PZ.startSet();
+  M = PZ.getM();
+  M.turn = 'p'; M.phase = 'pAction';
+  M.p.board = [
+    {card:{kind:'main',v:2},eff:2,isMain:true},
+    {card:{kind:'main',v:2},eff:2,isMain:true},
+    {card:{kind:'main',v:2},eff:2,isMain:true},
+    {card:{kind:'main',v:2},eff:2,isMain:true},
+    {card:{kind:'main',v:2},eff:2,isMain:true},
+    {card:{kind:'main',v:2},eff:2,isMain:true},
+    {card:{kind:'main',v:2},eff:2,isMain:true},
+    {card:{kind:'main',v:2},eff:2,isMain:true},
+    {card:{kind:'main',v:2},eff:2,isMain:true}
+  ];
+  const resFill = PZ.resolveBoard('p');
+  t('fill-at-18-wins', resFill === 'fill' && PZ.getM().setsP === 1);
+}
+
 process.exit(fail ? 1 : 0);

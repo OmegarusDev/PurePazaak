@@ -45,12 +45,22 @@ function drawTo(w){
   AUDIO.play('draw');
   M.anims.deal={who:w,slot:i,t0:performance.now()};
 }
-function resolveAfterDraw(w){
+function bustFlash(w){
+  sideOf(w).bust=true;
+  M.anims.flash={who:w,t0:performance.now()};
+  AUDIO.play('bust');
+}
+/** Shared post-draw / post-play checks. Fill wins only at ≤20. */
+function resolveBoard(w){
   const S=sideOf(w);S.score=boardScore(S.board);
-  if(boardCount(S.board)===9){endSet(w,'fill');return 'end';}
+  if(boardCount(S.board)===9){
+    if(S.score>20){bustFlash(w);endSet(other(w),'bust');return 'bust';}
+    endSet(w,'fill');return 'fill';
+  }
   if(S.score===20){S.stood=true;toast('TWENTY!');return 'stood';}
   return 'ok';
 }
+function resolveAfterDraw(w){return resolveBoard(w);}
 function beginTurn(w){
   M.turn=w;
   if(sideOf(w).stood){
@@ -60,7 +70,7 @@ function beginTurn(w){
   }
   drawTo(w);
   const res=resolveAfterDraw(w);
-  if(res==='end')return;
+  if(res==='fill'||res==='bust')return;
   if(res==='stood'){
     if(sideOf(other(w)).stood){resolveStandoff();return;}
     beginTurn(other(w));
@@ -69,10 +79,14 @@ function beginTurn(w){
   if(w==='p'){M.sidePlayed=false;M.phase='pAction';}else{M.phase='oTurn';aiTurn(M.token);}
 }
 function passToOpp(){beginTurn('o');}
-function endPlayerTurn(){if(M.phase!=='pAction')return;AUDIO.play('click');M.sel=-1;if(M.p.score>20){M.p.bust=true;M.anims.flash={who:'p',t0:performance.now()};AUDIO.play('bust');endSet('o','bust');return;}passToOpp();}
+function endPlayerTurn(){
+  if(M.phase!=='pAction')return;AUDIO.play('click');M.sel=-1;
+  if(M.p.score>20){bustFlash('p');endSet('o','bust');return;}
+  passToOpp();
+}
 function playerStand(){
   if(M.phase!=='pAction')return;AUDIO.play('click');
-  if(M.p.score>20){M.p.bust=true;M.anims.flash={who:'p',t0:performance.now()};AUDIO.play('bust');endSet('o','bust');return;}
+  if(M.p.score>20){bustFlash('p');endSet('o','bust');return;}
   M.p.stood=true;M.sel=-1;toast('YOU STAND');
   if(M.o.stood)resolveStandoff();else passToOpp();
 }
@@ -100,10 +114,9 @@ function confirmPlay(i){
   else{const si=placeSide(M.p,card,M.orient,M.varV);if(si>=0)M.anims.deal={who:'p',slot:si,t0:performance.now()};}
   if(card.kind==='tie')M.p.tiebreak=true;
   M.p.used[i]=true;M.p.hand[i]=null;M.sel=-1;M.sidePlayed=true;
-  M.p.score=boardScore(M.p.board);
-  if(boardCount(M.p.board)===9){endSet('p','fill');return;}
-  if(M.p.score===20){M.p.stood=true;toast('TWENTY!');
-    if(M.o.stood)resolveStandoff();else passToOpp();return;}
+  const res=resolveBoard('p');
+  if(res==='fill'||res==='bust')return;
+  if(res==='stood'){if(M.o.stood)resolveStandoff();else passToOpp();}
 }
 function bustRisk(w){
   const S=sideOf(w),rem=M.deck.length;
@@ -124,24 +137,21 @@ async function aiTurn(tk){
     else{const si=placeSide(M.o,card,d.play.orient,d.play.varV);if(si>=0)M.anims.deal={who:'o',slot:si,t0:performance.now()};}
     if(card.kind==='tie')M.o.tiebreak=true;
     M.o.hand[d.play.idx]=null;
-    M.o.score=boardScore(M.o.board);
     await sleep(430);if(!M||tk!==M.token||M.phase!=='oTurn')return;
-    if(M.o.score>20){M.o.bust=true;M.anims.flash={who:'o',t0:performance.now()};AUDIO.play('bust');endSet('p','bust');return;}
-    if(boardCount(M.o.board)===9){endSet('o','fill');return;}
-    if(M.o.score===20){M.o.stood=true;toast('TWENTY!');
-      if(M.p.stood)resolveStandoff();else beginTurn('p');return;}
-    if(M.o.score>snap.score||shouldStand(M.o.score,snap)){
-      if(M.o.score>20){M.o.bust=true;M.anims.flash={who:'o',t0:performance.now()};AUDIO.play('bust');endSet('p','bust');return;}
+    const res=resolveBoard('o');
+    if(res==='fill'||res==='bust')return;
+    if(res==='stood'){if(M.p.stood)resolveStandoff();else beginTurn('p');return;}
+    const after={...snap,score:M.o.score,board:M.o.board,hand:M.o.hand,bustRisk:bustRisk('o')};
+    if(shouldStand(M.o.score,after)){
       M.o.stood=true;toast(M.opp.name.toUpperCase()+' STANDS');
       if(M.p.stood)resolveStandoff();else beginTurn('p');return;
     }
-  }
-  if(d.stand){
+  }else if(d.stand){
     M.o.stood=true;toast(M.opp.name.toUpperCase()+' STANDS');
     if(M.p.stood)resolveStandoff();else beginTurn('p');
     return;
   }
-  if(M.o.score>20){M.o.bust=true;M.anims.flash={who:'o',t0:performance.now()};AUDIO.play('bust');endSet('p','bust');return;}
+  if(M.o.score>20){bustFlash('o');endSet('p','bust');return;}
   beginTurn('p');
 }
 function resolveStandoff(){
