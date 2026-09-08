@@ -115,7 +115,7 @@ function flipArmed(){
 function confirmPlay(i){
   if(M.phase!=='pAction'||M.sidePlayed)return;
   const card=M.p.hand[i];if(!card)return;
-  if(card.kind==='dbl'&&!lastSlot(M.p.board)){toast('NOTHING TO DOUBLE');return;}
+  if(card.kind==='dbl'&&!lastMain(M.p.board)){toast('NOTHING TO DOUBLE');return;}
   if(card.kind==='flip'){
     const n=applyFlip(M.p.board,card.vals);
     if(!n){toast('NOTHING TO FLIP');return;}
@@ -148,7 +148,7 @@ async function aiTurn(tk){
     AUDIO.play('place');
     if(d.play.tag==='dbl')applyDouble(M.o.board);
     else if(d.play.tag==='flip')applyFlip(M.o.board,card.vals);
-    else{const si=placeSide(M.o,card,d.play.orient,d.play.varV);if(si>=0)M.anims.deal={who:'o',slot:si,t0:performance.now()};}
+    else{const si=placeSide(M.o,card,d.play.orient,d.play.varV||1);if(si>=0)M.anims.deal={who:'o',slot:si,t0:performance.now()};}
     if(card.kind==='tie')M.o.tiebreak=true;
     M.o.hand[d.play.idx]=null;
     await sleep(430);if(!M||tk!==M.token||M.phase!=='oTurn')return;

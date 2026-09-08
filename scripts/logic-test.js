@@ -295,4 +295,135 @@ t('clutter-plus1', PZ.isClutterId('+1') && !PZ.isClutterId('TIE'));
   t('makeCard-unknown-null', PZ.makeCard('NOPE') === null);
 }
 
+// Full KOTOR2 side-deck roster present in defs, prices, and unlock table.
+{
+  t('roster-23', PZ.SIDE_CARD_IDS.length === 23);
+  t('roster-all-defined', PZ.SIDE_CARD_IDS.every(id => PZ.CARD_DEFS[id] && PZ.makeCard(id)));
+  t('roster-all-priced', PZ.SIDE_CARD_IDS.every(id => PZ.CARD_PRICE[id] > 0));
+  t('roster-all-unlockable', PZ.SIDE_CARD_IDS.every(id => PZ.storeMinCircuit(id) <= 9));
+}
+
+function prepPlay(deck, handIds) {
+  PZ.newMatchForTest(deck, { name: 'T', tier: 3, title: 'X' });
+  PZ.startSet();
+  M = PZ.getM();
+  M.turn = 'p'; M.phase = 'pAction'; M.sidePlayed = false; M.sel = -1;
+  M.p.stood = false; M.p.bust = false; M.p.tiebreak = false;
+  M.p.hand = [null, null, null, null];
+  handIds.forEach((id, i) => { M.p.hand[i] = PZ.makeCard(id); });
+  return M;
+}
+
+// Fixed +/- mods.
+{
+  prepPlay(['+1','-1','+2','-2','+3','-3','+4','-4','+5','-5'], ['+3']);
+  M.p.board = [{ card: { kind: 'main', v: 10 }, eff: 10, isMain: true }, null, null, null, null, null, null, null, null];
+  M.p.score = 10;
+  PZ.confirmPlay(0);
+  t('play-plus3', M.p.score === 13 && M.p.board[1] && M.p.board[1].eff === 3 && !M.p.board[1].isMain);
+
+  prepPlay(['+1','-1','+2','-2','+3','-3','+4','-4','+5','-5'], ['-4']);
+  M.p.board = [{ card: { kind: 'main', v: 10 }, eff: 10, isMain: true }, { card: { kind: 'main', v: 8 }, eff: 8, isMain: true }, null, null, null, null, null, null, null];
+  M.p.score = 18;
+  PZ.confirmPlay(0);
+  t('play-minus4', M.p.score === 14 && M.p.board[2].eff === -4);
+}
+
+// Dual ± card with polarity.
+{
+  prepPlay(['+1','-1','+2','-2','+3','-3','+4','-4','+5','-5'], ['\u00B12']);
+  M.p.board = [{ card: { kind: 'main', v: 10 }, eff: 10, isMain: true }, null, null, null, null, null, null, null, null];
+  M.p.score = 10; M.orient = -1;
+  PZ.confirmPlay(0);
+  t('play-dual-minus', M.p.score === 8 && M.p.board[1].eff === -2 && M.p.board[1].card.kind === 'dual');
+}
+
+// Tiebreaker: ±1 and exclusive standoff win.
+{
+  prepPlay(['+1','-1','+2','-2','+3','-3','+4','-4','+5','-5'], ['TIE']);
+  M.p.board = [{ card: { kind: 'main', v: 10 }, eff: 10, isMain: true }, { card: { kind: 'main', v: 8 }, eff: 8, isMain: true }, null, null, null, null, null, null, null];
+  M.p.score = 18; M.orient = 1;
+  PZ.confirmPlay(0);
+  t('play-tie-plus', M.p.score === 19 && M.p.tiebreak === true && M.p.board[2].eff === 1);
+
+  prepPlay(['+1','-1','+2','-2','+3','-3','+4','-4','+5','-5'], ['TIE']);
+  M.p.board = [{ card: { kind: 'main', v: 10 }, eff: 10, isMain: true }, { card: { kind: 'main', v: 9 }, eff: 9, isMain: true }, null, null, null, null, null, null, null];
+  M.p.score = 19; M.orient = -1;
+  PZ.confirmPlay(0);
+  t('play-tie-minus-to-18', M.p.score === 18 && M.p.tiebreak === true);
+
+  // Exclusive TIE wins equal standoff (already covered) — AI prefers TIE to lock a stood tie.
+  const tieAi = PZ.aiDecide({
+    score: 18,
+    board: Array(9).fill(null),
+    hand: [{ id: 'TIE', kind: 'tie', v: 1 }, { id: '+1', kind: 'mod', sign: 1, v: 1 }, null, null],
+    oppScore: 19, oppStood: true, tier: 3, bustRisk: 0.4, setsO: 0
+  });
+  t('ai-tie-locks-win', !!tieAi.play && tieAi.play.tag === 'tie' && tieAi.play.orient === 1);
+}
+
+// Double: last dealt MAIN only.
+{
+  prepPlay(['+1','-1','+2','-2','+3','-3','+4','-4','+5','-5'], ['DBL']);
+  M.p.board = [
+    { card: { kind: 'main', v: 6 }, eff: 6, isMain: true },
+    { card: { kind: 'mod', sign: 1, v: 4, id: '+4' }, eff: 4, isMain: false },
+    { card: { kind: 'main', v: 5 }, eff: 5, isMain: true },
+    null, null, null, null, null, null
+  ];
+  M.p.score = 15;
+  PZ.confirmPlay(0);
+  t('play-dbl-last-main', M.p.score === 20 && M.p.board[2].eff === 10 && M.p.board[1].eff === 4);
+
+  prepPlay(['+1','-1','+2','-2','+3','-3','+4','-4','+5','-5'], ['DBL']);
+  M.p.board = [{ card: { kind: 'mod', sign: 1, v: 4, id: '+4' }, eff: 4, isMain: false }, null, null, null, null, null, null, null, null];
+  M.p.score = 4;
+  const kept = M.p.hand[0];
+  PZ.confirmPlay(0);
+  t('dbl-no-main-keeps-card', M.p.hand[0] === kept && M.sidePlayed === false && M.p.score === 4);
+}
+
+// Flip 2&4 / 3&6: positives only; after DBL face still matches.
+{
+  prepPlay(['+1','-1','+2','-2','+3','-3','+4','-4','+5','-5'], ['2&4']);
+  M.p.board = [
+    { card: { kind: 'main', v: 2 }, eff: 2, isMain: true },
+    { card: { kind: 'main', v: 4 }, eff: 4, isMain: true },
+    { card: { kind: 'mod', sign: -1, v: 2, id: '-2' }, eff: -2, isMain: false },
+    { card: { kind: 'dual', v: 4, id: '\u00B14' }, eff: 4, isMain: false },
+    null, null, null, null, null
+  ];
+  M.p.score = 8;
+  PZ.confirmPlay(0);
+  t('play-flip-2and4', M.p.score === -12 && M.p.board[0].eff === -2 && M.p.board[1].eff === -4 && M.p.board[2].eff === -2 && M.p.board[3].eff === -4);
+
+  prepPlay(['+1','-1','+2','-2','+3','-3','+4','-4','+5','-5'], ['3&6']);
+  M.p.board = [
+    { card: { kind: 'main', v: 3 }, eff: 3, isMain: true },
+    { card: { kind: 'main', v: 6 }, eff: 12, isMain: true }, // doubled face-6
+    null, null, null, null, null, null, null
+  ];
+  M.p.score = 15;
+  PZ.confirmPlay(0);
+  t('flip-after-dbl-face', M.p.score === -15 && M.p.board[0].eff === -3 && M.p.board[1].eff === -12);
+}
+
+// Flex 1±2: all four orientations via confirmPlay.
+{
+  const orients = [[1, 1, 11], [1, 2, 12], [-1, 1, 9], [-1, 2, 8]];
+  let flexOk = true;
+  for (const [o, vv, expect] of orients) {
+    prepPlay(['+1','-1','+2','-2','+3','-3','+4','-4','+5','-5'], ['1\u00B12']);
+    M.p.board = [{ card: { kind: 'main', v: 10 }, eff: 10, isMain: true }, null, null, null, null, null, null, null, null];
+    M.p.score = 10; M.orient = o; M.varV = vv;
+    PZ.confirmPlay(0);
+    if (M.p.score !== expect || !M.p.board[1] || M.p.board[1].eff !== o * vv) flexOk = false;
+  }
+  t('play-flex-all-orients', flexOk);
+  t('flex-face-for-flip', (() => {
+    const sl = { card: PZ.makeCard('1\u00B12'), eff: 2, isMain: false };
+    return PZ.faceVal(sl) === 2;
+  })());
+}
+
 process.exit(fail ? 1 : 0);

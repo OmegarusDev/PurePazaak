@@ -43,7 +43,7 @@ function buildCircuit(){
   bt.classList.toggle('sel',st!=='locked');
   refreshCredits();
 }
-const DECK_ORDER=['+1','+2','+3','+4','+5','+6','-1','-2','-3','-4','-5','-6','\u00B11','\u00B12','\u00B13','\u00B14','\u00B15','\u00B16','TIE','DBL','2&4','3&6','1\u00B12'];
+const DECK_ORDER=SIDE_CARD_IDS.slice();
 function ownedIds(){return DECK_ORDER.filter(id=>(SAVE.unlocked[id]||0)>0);}
 function inDeckCount(id){return deckSel.filter(x=>x===id).length;}
 function drawMini(cvs,id,w=64,h){

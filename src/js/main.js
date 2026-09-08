@@ -124,7 +124,7 @@ function onTableContext(e){
   if(M.sel!==hit.i){M.sel=hit.i;M.orient=1;M.varV=1;}
   flipArmed();
 }
-globalThis.PZ={shuffle,buildMainDeck,boardScore,placeMain,placeSide,applyDouble,applyFlip,aiDecide,shouldStand,genSideDeck,generateOpponent,cardLabel,CARD_DEFS,buildRoster,makeCard,faceVal,canFlip,playValue,
+globalThis.PZ={shuffle,buildMainDeck,boardScore,placeMain,placeSide,applyDouble,applyFlip,aiDecide,shouldStand,genSideDeck,generateOpponent,cardLabel,CARD_DEFS,SIDE_CARD_IDS,buildRoster,makeCard,faceVal,canFlip,playValue,lastMain,lastSlot,
   startSet,beginTurn,endPlayerTurn,playerStand,confirmPlay,endSet,resolveBoard,resolveStandoff,boardCount,dialogOK,
   newMatchForTest:(deckIds,opp)=>{SAVE.lastDeck=deckIds;newMatch(opp,null);},
   getM:()=>M,setSleepScale:v=>{SLEEP_SCALE=v;},chanState,fitCard,CARD_ASPECT,
