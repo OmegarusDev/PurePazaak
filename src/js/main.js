@@ -1,4 +1,4 @@
-function init(){
+async function init(){
   registerPwa();
   gameHooks.dialog=bindMatchDialog;
   gameHooks.closeModal=closeModal;
@@ -63,6 +63,9 @@ function init(){
     else if(k==='escape'){e.preventDefault();M.sel=-1;}
   });
   window.addEventListener('resize',fit);
+  if(document.fonts&&document.fonts.load){
+    try{await document.fonts.load('700 32px "Orbitron"');}catch(_){/* use the local fallback stack */}
+  }
   renderStatic();
   refreshTitle();
 }

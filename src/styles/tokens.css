@@ -1,3 +1,10 @@
+@font-face{
+  font-family:"Orbitron";
+  font-style:normal;
+  font-weight:400 900;
+  font-display:swap;
+  src:url("fonts/Orbitron-latin.woff2") format("woff2");
+}
 :root{
   /* KOTOR 1 engine GUI — KotOR.js / PyKotor defaults:
      text/rails RGB(0, 0.658824, 0.980392), highlight RGB(1,1,0).
@@ -33,11 +40,12 @@
   /* legacy names (kept for compat) */
   --amber:#e8c34a;
   --red:#e05555;
-  /* type — system stacks only, zero-asset.
+  /* type — bundled Orbitron for the match HUD; system stacks elsewhere.
      Gold lockup: Trajan. Title-menu items ≈ Bank Gothic; Mac stand-in is
-     DIN Alternate (square gothic). HUD uses the same stack. */
+     DIN Alternate (square gothic). */
   --serif:"Trajan Pro",Trajan,Cinzel,"Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
   --sans:"DIN Alternate","Bank Gothic","Eurostile","Microgramma","Avenir Next Condensed","Century Gothic","Futura","Trebuchet MS",sans-serif;
+  --orbitron:"Orbitron","DIN Alternate","Bank Gothic","Eurostile","Microgramma","Avenir Next Condensed","Century Gothic","Futura","Trebuchet MS",sans-serif;
   --r:14px;
 }
 *{box-sizing:border-box;margin:0;padding:0}

@@ -32,8 +32,8 @@ function renderStatic(){
     rr(g,lab.x,lab.y,lab.w,lab.h,5);g.fillStyle=sk.plate;g.fill();
     g.strokeStyle='#000';g.stroke();
   }
-  tText(g,'PLAYER HAND',L.labP.x+L.labP.w/2,L.labP.y+L.labP.h/2+1,L.fsLab||13,sk.lab,1.2);
-  tText(g,'OPPONENT HAND',L.labO.x+L.labO.w/2,L.labO.y+L.labO.h/2+1,L.fsLab||13,sk.lab,1.2);
+  tText(g,'Player Hand',L.labP.x+L.labP.w/2,L.labP.y+L.labP.h/2+1,L.fsLab||13,sk.lab,1.2,'center',true,1,true);
+  tText(g,'Opponent Hand',L.labO.x+L.labO.w/2,L.labO.y+L.labO.h/2+1,L.fsLab||13,sk.lab,1.2,'center',true,1,true);
   for(const h of [L.handP,L.handO]){
     if(!h)continue;
     for(let i=0;i<4;i++)drawSlot(g,handSlot(h,i));

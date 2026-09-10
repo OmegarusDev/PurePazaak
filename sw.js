@@ -2,7 +2,7 @@
  * Pure Pazaak service worker — network-first, update on every open.
  * Online: always prefer the live site. Offline: last successful response if any.
  */
-const CACHE = "pure-pazaak-shell-v1";
+const CACHE = "pure-pazaak-shell-v2";
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -13,6 +13,7 @@ self.addEventListener("install", (event) => {
           "./",
           "./index.html",
           "./manifest.webmanifest",
+          "./fonts/Orbitron-latin.woff2",
           "./icons/icon-192.png",
           "./icons/icon-512.png",
           "./icons/apple-touch-icon.png",

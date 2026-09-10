@@ -168,8 +168,12 @@ function openStore(){
   buildStoreUI();
   showScreen('store');
 }
-function openModal(html){$('#modalbox').innerHTML=html;$('#modal').classList.remove('hidden');}
-function closeModal(){$('#modal').classList.add('hidden');}
+function openModal(html){
+  const modal=$('#modal');
+  modal.classList.toggle('match-modal',curScreen==='match');
+  $('#modalbox').innerHTML=html;modal.classList.remove('hidden');
+}
+function closeModal(){const modal=$('#modal');modal.classList.add('hidden');modal.classList.remove('match-modal');}
 function hasSave(){return !!(SAVE.begun||SAVE.circuit>0||(SAVE.lastDeck&&SAVE.lastDeck.length));}
 function wipeKeepAudio(){
   const vol=AUDIO.vol,muted=AUDIO.muted;

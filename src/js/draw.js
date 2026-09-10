@@ -37,7 +37,7 @@ function drawCard(g,x,y,w,h,card,o={}){
   const lbl=cardLabel(card,orient,varV,!!o.catalog);
   const bh2=bp.h*h;
   g.fillStyle='#fff';g.textAlign='center';g.textBaseline='middle';
-  g.font=`700 ${Math.round(bh2*(lbl.length>3?0.52:0.70))}px Futura,"Century Gothic","Avenir Next","Arial Narrow",Arial,sans-serif`;
+  g.font=`700 ${Math.round(bh2*(lbl.length>3?0.52:0.70))}px ${HUD_FONT}`;
   g.shadowColor='rgba(0,0,0,0.65)';g.shadowBlur=2;g.shadowOffsetY=1;
   g.fillText(lbl,(bp.x+bp.w/2)*w,(bp.y+bp.h/2)*h);
   g.shadowColor='transparent';g.shadowBlur=0;g.shadowOffsetY=0;
@@ -56,7 +56,7 @@ function drawCard(g,x,y,w,h,card,o={}){
   g.restore();
   g.save();g.translate(b.x*w,b.y*h);recessShade(g,strip,0,0,b.w*w,b.h*h);g.restore();
   if(isDual){
-    g.fillStyle='#000';g.font=`700 ${Math.round(sh*0.55)}px Futura,"Century Gothic","Avenir Next","Arial Narrow",Arial,sans-serif`;
+    g.fillStyle='#000';g.font=`700 ${Math.round(sh*0.55)}px ${HUD_FONT}`;
     g.textAlign='center';g.textBaseline='middle';
     g.fillText('-',(b.x+b.w*0.25)*w,(b.y+b.h/2)*h+1);g.fillText('+',(b.x+b.w*0.75)*w,(b.y+b.h/2)*h+1);
   }
