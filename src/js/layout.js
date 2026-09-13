@@ -120,7 +120,7 @@ function layoutPortrait(){
   const chanW=Math.max(11,Math.round(15*u));
   const pad=Math.max(8,Math.round(12*u));
   const block=Math.max(6,Math.round(8*u));
-  const rivetClear=Math.max(34,Math.round(36*u));
+  const rivetClear=Math.max(32,Math.round(32*u));
   const barY=fy+rivetClear;
   const bottomPad=Math.round(10*u);
   const barH=Math.max(18,Math.round(22*u));
@@ -131,7 +131,7 @@ function layoutPortrait(){
   let sw=(innerW-2*gap)/3;
   const pack=sw0=>{
     const sh=sw0*(1/CARD_ASPECT), gridW=3*sw0+2*gap, gridH=3*sh+2*gap;
-    const bw2=Math.min(sw0*0.68,(gridW-3*handGap)/4), bh2=bw2/CARD_ASPECT;
+    const bw2=Math.min(sw0*0.76,(gridW-3*handGap)/4), bh2=bw2/CARD_ASPECT;
     const used=barH+block+gridH+4+labelH+4+bh2+block+gridH+4+labelH+4+bh2+block+btnH;
     return {sh,gridW,gridH,bw2,bh2,used};
   };
@@ -160,9 +160,9 @@ function layoutPortrait(){
   const inset=rivetClear;
   const plateGap=Math.max(6,Math.round(8*u));
   const topPX=fx+inset;
-  const topPW=Math.max(70,badges[0].x-plateGap-topPX);
+  const topPW=Math.max(32,badges[0].x-plateGap-topPX);
   const topOX=badges[1].x+bw+plateGap;
-  const topOW=Math.max(70,fx+fw-inset-topOX);
+  const topOW=Math.max(32,fx+fw-inset-topOX);
   const orbP={x:topPX+orbPad+orbR,y:barY+barH*0.54,r:orbR};
   const orbO={x:topOX+topOW-orbPad-orbR,y:barY+barH*0.54,r:orbR};
   const nameY=barY+barH*0.58;

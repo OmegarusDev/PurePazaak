@@ -81,6 +81,21 @@ function polishSheen(g,x,y,w,h,r,amt){
   g.fillStyle=gr;g.fillRect(x,y,w,h);
   g.restore();
 }
+const SLOT_TEXTURES=new Map();
+function slotTexture(sk,variant){
+  const seed=tableSeed(),key=seed+'|'+tableTier()+'|'+variant;
+  let tex=SLOT_TEXTURES.get(key);
+  if(tex)return tex;
+  tex=document.createElement('canvas');tex.width=96;tex.height=130;
+  const g=tex.getContext('2d'),rng=mulberry(seed^(variant*0x9e3779b9));
+  const gr=g.createLinearGradient(0,0,19,130);
+  gr.addColorStop(0,sk.slot0);gr.addColorStop(1,sk.slot1);
+  g.fillStyle=gr;g.fillRect(0,0,96,130);
+  stainWell(g,0,0,96,130,2,sk.grime*0.85,rng);
+  if(sk.shine>0.1)polishSheen(g,0,0,96,130,2,sk.shine*0.22);
+  SLOT_TEXTURES.set(key,tex);
+  return tex;
+}
 function drawRivet(g,x,y,sk){
   sk=sk||tableSkin();
   const gr=g.createRadialGradient(x-1.5,y-1.5,0.5,x,y,5.5);
@@ -132,27 +147,21 @@ function drawFrame(g){
   drawRivet(g,f.x+16,f.y+f.h-16,sk);drawRivet(g,f.x+f.w-16,f.y+f.h-16,sk);
 }
 function drawSlot(g,rct){
-  const sk=tableSkin(),rng=mulberry(tableSeed()^(Math.round(rct.x)*17+Math.round(rct.y)*31));
+  const sk=tableSkin();
   const x=rct.x,y=rct.y,w=rct.w,h=rct.h,rad=3;
-  const lip=Math.max(3.2,Math.min(w,h)*0.11);
+  const lip=Math.max(2.2,Math.min(w,h)*0.075);
+  const variant=(Math.round(x*17)+Math.round(y*31))&3;
   rr(g,x,y,w,h,rad);g.fillStyle=sk.slotStroke;g.fill();
   const x2=x+lip,y2=y+lip,w2=w-2*lip,h2=h-2*lip;
   g.beginPath();g.moveTo(x+rad,y);g.lineTo(x+w-rad,y);g.lineTo(x2+w2,y2);g.lineTo(x2,y2);g.closePath();
-  g.fillStyle=`rgba(255,255,255,${0.08+sk.bevelHi})`;g.fill();
+  g.fillStyle=`rgba(0,0,0,${0.28+sk.bevelLo*0.7})`;g.fill();
   g.beginPath();g.moveTo(x,y+rad);g.lineTo(x2,y2);g.lineTo(x2,y2+h2);g.lineTo(x,y+h-rad);g.closePath();
-  g.fillStyle=`rgba(255,255,255,${0.04+sk.bevelHi*0.45})`;g.fill();
+  g.fillStyle=`rgba(0,0,0,${0.16+sk.bevelLo*0.45})`;g.fill();
   g.beginPath();g.moveTo(x+w,y+rad);g.lineTo(x+w,y+h-rad);g.lineTo(x2+w2,y2+h2);g.lineTo(x2+w2,y2);g.closePath();
-  g.fillStyle=`rgba(0,0,0,${0.28+sk.bevelLo})`;g.fill();
+  g.fillStyle=`rgba(255,255,255,${0.05+sk.bevelHi*0.45})`;g.fill();
   g.beginPath();g.moveTo(x+rad,y+h);g.lineTo(x+w-rad,y+h);g.lineTo(x2+w2,y2+h2);g.lineTo(x2,y2+h2);g.closePath();
-  g.fillStyle=`rgba(0,0,0,${0.4+sk.bevelLo})`;g.fill();
-  rr(g,x2,y2,w2,h2,Math.max(1,rad-1));
-  const gr=g.createLinearGradient(x2,y2,x2+w2*0.2,y2+h2);
-  gr.addColorStop(0,sk.slot0);gr.addColorStop(1,sk.slot1);
-  g.fillStyle=gr;g.fill();
-  g.save();rr(g,x2,y2,w2,h2,Math.max(1,rad-1));g.clip();
-  stainWell(g,x2,y2,w2,h2,2,sk.grime*0.85,rng);
-  if(sk.shine>0.1)polishSheen(g,x2,y2,w2,h2,2,sk.shine*0.22);
-  g.restore();
+  g.fillStyle=`rgba(255,255,255,${0.06+sk.bevelHi*0.65})`;g.fill();
+  g.save();rr(g,x2,y2,w2,h2,Math.max(1,rad-1));g.clip();g.drawImage(slotTexture(sk,variant),x2,y2,w2,h2);g.restore();
   g.strokeStyle=sk.slotStroke;g.lineWidth=1;rr(g,x,y,w,h,rad);g.stroke();
 }
 function drawOrb(g,c,r,state,now){

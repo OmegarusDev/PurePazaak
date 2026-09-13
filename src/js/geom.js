@@ -2,13 +2,15 @@
 // Oracle: RefPlus 572x772 (0.1346,0.0596,0.8007,0.2267), RefMinus 582x774 (0.1323,0.0698,0.7835,0.2209), RefRear 586x778
 // Method: svgsmith (OpenCV HSV + HoughCircles + approxPolyDP 0.007) + 800-iter pixel-diff (MSE 46.27) — analysis only, no asset generation
 // Canvas normalized 0-1. Layer order: outer (0) -> topPanel (1) -> midPanel (1 mirrored) -> diamond (negative) -> blackPanel (2) -> bottomStrip (3) -> badge (4)
-// Symmetry: topPanel ↔ midPanel are vertical translations dy=0.5155 with V inverted (rotational 180° around centre 0.5,0.43); blackPanel centred (0.5,0.4287); badge circle rotationally symmetric
+// Symmetry: topPanel ↔ midPanel are vertical translations with V inverted; the black face is inset between them and the badge circle stays rotationally symmetric.
 const GEOM={
   outer:{x:0,y:0,w:1,h:0.996,r:0.045},
-  // RefPlus 572x772 pixel scan: metal V first at y~0.210; well floor ~0.280; black y 0.334-0.520.
+  // RefPlus/RefMinus measured wells and the black face's metal separation.
   topPanel:{x:0.136,y:0.122,w:0.732,h:0.158,nw:0.307,nd:0.443,tip:{x:0.5,y:0.210}},
   midPanel:{x:0.136,y:0.575,w:0.732,h:0.160,nw:0.307,nd:0.544,tip:{x:0.5,y:0.662}},
-  blackPanel:{x:0.171,y:0.335,w:0.661,h:0.187,r:0.010},
+  // Inner face; paintNumberPlate expands this into a frame aligned with the colored wells.
+  blackPanel:{x:0.143,y:0.295,w:0.718,h:0.265,r:0.010},
+  numberTextH:0.182,
   bottomStrip:{x:0.143,y:0.848,w:0.717,h:0.148},
   // 45° clips, pixel-equal dx/dy. Wells ~18px @572w; bottom strip is a larger clip.
   chamfer:0.032,stripChamfer:0.055,
@@ -71,6 +73,7 @@ function gemBevel(g,path,amt){
   g.save();g.translate(-amt,-amt);g.strokeStyle='rgba(255,255,255,0.28)';g.lineWidth=Math.max(0.6,amt);g.stroke(path);g.restore();
   g.save();g.translate(amt,amt);g.strokeStyle='rgba(0,0,0,0.32)';g.lineWidth=Math.max(0.6,amt);g.stroke(path);g.restore();
 }
+function panelBevel(g,path,w,h){gemBevel(g,path,Math.max(0.4,Math.min(w,h)*0.0035));}
 function recessShade(g,path,x,y,pw,ph){
   g.save();g.clip(path);
   const v=g.createLinearGradient(x,y,x,y+ph);
@@ -97,7 +100,16 @@ function paintBody(g,path,tex,w,h){
   gemBevel(g,path,Math.max(0.35,Math.min(w,h)*0.007));
   g.strokeStyle='rgba(0,0,0,0.5)';g.lineWidth=Math.max(0.5,Math.min(w,h)*0.008);g.stroke(path);
 }
-function paintNumberPlate(g,x,y,ww,hh,r,fill){
+function paintNumberPlate(g,x,y,ww,hh,r,fill,tex){
+  const frame=Math.max(0.75,Math.min(ww,hh)*0.026);
+  const ox=x-frame,oy=y-frame,ow=ww+2*frame,oh=hh+2*frame,or=r+frame;
+  const outer=rrPath(ow,oh,or);
+  g.save();g.translate(ox,oy);g.clip(outer);
+  if(tex)g.drawImage(tex,0,0,ow,oh);else{g.fillStyle='#777a76';g.fillRect(0,0,ow,oh);}
+  const sh=g.createLinearGradient(0,0,0,oh);
+  sh.addColorStop(0,'rgba(255,255,255,0.12)');sh.addColorStop(0.45,'rgba(255,255,255,0)');sh.addColorStop(1,'rgba(0,0,0,0.18)');
+  g.fillStyle=sh;g.fillRect(0,0,ow,oh);g.restore();
+  g.save();g.translate(ox,oy);gemBevel(g,outer,Math.max(0.45,frame*0.55));g.restore();
   rr(g,x,y,ww,hh,r);g.fillStyle=fill;g.fill();
   g.strokeStyle='rgba(168,168,176,0.55)';g.lineWidth=Math.max(0.45,Math.min(ww,hh)*0.012);
   rr(g,x,y,ww,hh,r);g.stroke();
@@ -156,11 +168,13 @@ function drawBack(g,w,h){
   g.save();g.clip(p);
   g.save();g.clip(topPath);g.drawImage(TEX.silver,0,0,w,h);g.fillStyle='rgba(0,0,0,0.26)';g.fillRect(0,0,w,h);g.restore();
   recessShade(g,topPath,tp.x*w,tp.y*h,tp.w*w,tp.h*h);
+  panelBevel(g,topPath,w,h);
   g.save();g.clip(botPath);g.drawImage(TEX.silver,0,0,w,h);g.fillStyle='rgba(0,0,0,0.26)';g.fillRect(0,0,w,h);g.restore();
   recessShade(g,botPath,mp.x*w,mp.y*h,mp.w*w,mp.h*h);
+  panelBevel(g,botPath,w,h);
   const strip=stripPath(b.w*w,b.h*h,chS);
   g.save();g.translate(b.x*w,b.y*h);g.clip(strip);g.drawImage(TEX.silver,-b.x*w,-b.y*h,w,h);g.fillStyle='rgba(0,0,0,0.24)';g.fillRect(0,0,b.w*w,b.h*h);g.restore();
-  g.save();g.translate(b.x*w,b.y*h);recessShade(g,strip,0,0,b.w*w,b.h*h);g.restore();
+  g.save();g.translate(b.x*w,b.y*h);recessShade(g,strip,0,0,b.w*w,b.h*h);panelBevel(g,strip,w,h);g.restore();
   g.restore();
-  paintNumberPlate(g,bp.x*w,bp.y*h,bp.w*w,bp.h*h,Math.min(w,h)*bp.r,'#7e7e84');
+  paintNumberPlate(g,bp.x*w,bp.y*h,bp.w*w,bp.h*h,Math.min(w,h)*bp.r,'#7e7e84',TEX.silver);
 }

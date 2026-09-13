@@ -763,6 +763,7 @@ button.mcard:hover,button.mcard:focus-visible{border-color:var(--select);box-sha
   .kotor-menu-shell{width:min(360px,88vw)}
   .match-wrap{flex-direction:column;justify-content:center;align-items:stretch;padding:0;gap:0}
   .match-board{flex:1 1 auto;width:100%;min-height:0}
+  #scr-match{padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
 
   #scr-circuit,#scr-store,#scr-deck{
     padding:calc(6px + env(safe-area-inset-top)) 6px calc(6px + env(safe-area-inset-bottom));
@@ -1422,7 +1423,7 @@ function layoutPortrait(){
   const chanW=Math.max(11,Math.round(15*u));
   const pad=Math.max(8,Math.round(12*u));
   const block=Math.max(6,Math.round(8*u));
-  const rivetClear=Math.max(34,Math.round(36*u));
+  const rivetClear=Math.max(32,Math.round(32*u));
   const barY=fy+rivetClear;
   const bottomPad=Math.round(10*u);
   const barH=Math.max(18,Math.round(22*u));
@@ -1433,7 +1434,7 @@ function layoutPortrait(){
   let sw=(innerW-2*gap)/3;
   const pack=sw0=>{
     const sh=sw0*(1/CARD_ASPECT), gridW=3*sw0+2*gap, gridH=3*sh+2*gap;
-    const bw2=Math.min(sw0*0.68,(gridW-3*handGap)/4), bh2=bw2/CARD_ASPECT;
+    const bw2=Math.min(sw0*0.76,(gridW-3*handGap)/4), bh2=bw2/CARD_ASPECT;
     const used=barH+block+gridH+4+labelH+4+bh2+block+gridH+4+labelH+4+bh2+block+btnH;
     return {sh,gridW,gridH,bw2,bh2,used};
   };
@@ -1462,9 +1463,9 @@ function layoutPortrait(){
   const inset=rivetClear;
   const plateGap=Math.max(6,Math.round(8*u));
   const topPX=fx+inset;
-  const topPW=Math.max(70,badges[0].x-plateGap-topPX);
+  const topPW=Math.max(32,badges[0].x-plateGap-topPX);
   const topOX=badges[1].x+bw+plateGap;
-  const topOW=Math.max(70,fx+fw-inset-topOX);
+  const topOW=Math.max(32,fx+fw-inset-topOX);
   const orbP={x:topPX+orbPad+orbR,y:barY+barH*0.54,r:orbR};
   const orbO={x:topOX+topOW-orbPad-orbR,y:barY+barH*0.54,r:orbR};
   const nameY=barY+barH*0.58;
@@ -1535,13 +1536,15 @@ function cardPath(w,h){
 // Oracle: RefPlus 572x772 (0.1346,0.0596,0.8007,0.2267), RefMinus 582x774 (0.1323,0.0698,0.7835,0.2209), RefRear 586x778
 // Method: svgsmith (OpenCV HSV + HoughCircles + approxPolyDP 0.007) + 800-iter pixel-diff (MSE 46.27) — analysis only, no asset generation
 // Canvas normalized 0-1. Layer order: outer (0) -> topPanel (1) -> midPanel (1 mirrored) -> diamond (negative) -> blackPanel (2) -> bottomStrip (3) -> badge (4)
-// Symmetry: topPanel ↔ midPanel are vertical translations dy=0.5155 with V inverted (rotational 180° around centre 0.5,0.43); blackPanel centred (0.5,0.4287); badge circle rotationally symmetric
+// Symmetry: topPanel ↔ midPanel are vertical translations with V inverted; the black face is inset between them and the badge circle stays rotationally symmetric.
 const GEOM={
   outer:{x:0,y:0,w:1,h:0.996,r:0.045},
-  // RefPlus 572x772 pixel scan: metal V first at y~0.210; well floor ~0.280; black y 0.334-0.520.
+  // RefPlus/RefMinus measured wells and the black face's metal separation.
   topPanel:{x:0.136,y:0.122,w:0.732,h:0.158,nw:0.307,nd:0.443,tip:{x:0.5,y:0.210}},
   midPanel:{x:0.136,y:0.575,w:0.732,h:0.160,nw:0.307,nd:0.544,tip:{x:0.5,y:0.662}},
-  blackPanel:{x:0.171,y:0.335,w:0.661,h:0.187,r:0.010},
+  // Inner face; paintNumberPlate expands this into a frame aligned with the colored wells.
+  blackPanel:{x:0.143,y:0.295,w:0.718,h:0.265,r:0.010},
+  numberTextH:0.182,
   bottomStrip:{x:0.143,y:0.848,w:0.717,h:0.148},
   // 45° clips, pixel-equal dx/dy. Wells ~18px @572w; bottom strip is a larger clip.
   chamfer:0.032,stripChamfer:0.055,
@@ -1604,6 +1607,7 @@ function gemBevel(g,path,amt){
   g.save();g.translate(-amt,-amt);g.strokeStyle='rgba(255,255,255,0.28)';g.lineWidth=Math.max(0.6,amt);g.stroke(path);g.restore();
   g.save();g.translate(amt,amt);g.strokeStyle='rgba(0,0,0,0.32)';g.lineWidth=Math.max(0.6,amt);g.stroke(path);g.restore();
 }
+function panelBevel(g,path,w,h){gemBevel(g,path,Math.max(0.4,Math.min(w,h)*0.0035));}
 function recessShade(g,path,x,y,pw,ph){
   g.save();g.clip(path);
   const v=g.createLinearGradient(x,y,x,y+ph);
@@ -1630,7 +1634,16 @@ function paintBody(g,path,tex,w,h){
   gemBevel(g,path,Math.max(0.35,Math.min(w,h)*0.007));
   g.strokeStyle='rgba(0,0,0,0.5)';g.lineWidth=Math.max(0.5,Math.min(w,h)*0.008);g.stroke(path);
 }
-function paintNumberPlate(g,x,y,ww,hh,r,fill){
+function paintNumberPlate(g,x,y,ww,hh,r,fill,tex){
+  const frame=Math.max(0.75,Math.min(ww,hh)*0.026);
+  const ox=x-frame,oy=y-frame,ow=ww+2*frame,oh=hh+2*frame,or=r+frame;
+  const outer=rrPath(ow,oh,or);
+  g.save();g.translate(ox,oy);g.clip(outer);
+  if(tex)g.drawImage(tex,0,0,ow,oh);else{g.fillStyle='#777a76';g.fillRect(0,0,ow,oh);}
+  const sh=g.createLinearGradient(0,0,0,oh);
+  sh.addColorStop(0,'rgba(255,255,255,0.12)');sh.addColorStop(0.45,'rgba(255,255,255,0)');sh.addColorStop(1,'rgba(0,0,0,0.18)');
+  g.fillStyle=sh;g.fillRect(0,0,ow,oh);g.restore();
+  g.save();g.translate(ox,oy);gemBevel(g,outer,Math.max(0.45,frame*0.55));g.restore();
   rr(g,x,y,ww,hh,r);g.fillStyle=fill;g.fill();
   g.strokeStyle='rgba(168,168,176,0.55)';g.lineWidth=Math.max(0.45,Math.min(ww,hh)*0.012);
   rr(g,x,y,ww,hh,r);g.stroke();
@@ -1689,13 +1702,15 @@ function drawBack(g,w,h){
   g.save();g.clip(p);
   g.save();g.clip(topPath);g.drawImage(TEX.silver,0,0,w,h);g.fillStyle='rgba(0,0,0,0.26)';g.fillRect(0,0,w,h);g.restore();
   recessShade(g,topPath,tp.x*w,tp.y*h,tp.w*w,tp.h*h);
+  panelBevel(g,topPath,w,h);
   g.save();g.clip(botPath);g.drawImage(TEX.silver,0,0,w,h);g.fillStyle='rgba(0,0,0,0.26)';g.fillRect(0,0,w,h);g.restore();
   recessShade(g,botPath,mp.x*w,mp.y*h,mp.w*w,mp.h*h);
+  panelBevel(g,botPath,w,h);
   const strip=stripPath(b.w*w,b.h*h,chS);
   g.save();g.translate(b.x*w,b.y*h);g.clip(strip);g.drawImage(TEX.silver,-b.x*w,-b.y*h,w,h);g.fillStyle='rgba(0,0,0,0.24)';g.fillRect(0,0,b.w*w,b.h*h);g.restore();
-  g.save();g.translate(b.x*w,b.y*h);recessShade(g,strip,0,0,b.w*w,b.h*h);g.restore();
+  g.save();g.translate(b.x*w,b.y*h);recessShade(g,strip,0,0,b.w*w,b.h*h);panelBevel(g,strip,w,h);g.restore();
   g.restore();
-  paintNumberPlate(g,bp.x*w,bp.y*h,bp.w*w,bp.h*h,Math.min(w,h)*bp.r,'#7e7e84');
+  paintNumberPlate(g,bp.x*w,bp.y*h,bp.w*w,bp.h*h,Math.min(w,h)*bp.r,'#7e7e84',TEX.silver);
 }
 function drawCard(g,x,y,w,h,card,o={}){
   ensureTextures();
@@ -1729,14 +1744,16 @@ function drawCard(g,x,y,w,h,card,o={}){
   g.save();g.clip(p);
   fillColorWell(g,topPath,TEX[bandKey],w,h,0);
   recessShade(g,topPath,tp.x*w,tp.y*h,tp.w*w,tp.h*h);
+  panelBevel(g,topPath,w,h);
   fillColorWell(g,botPath,TEX[isDual?bandKey2:bandKey],w,h,midDarken(isDual?bandKey2:bandKey));
   recessShade(g,botPath,mp.x*w,mp.y*h,mp.w*w,mp.h*h);
+  panelBevel(g,botPath,w,h);
   g.restore();
-  paintNumberPlate(g,bp.x*w,bp.y*h,bp.w*w,bp.h*h,Math.min(w,h)*bp.r,'#07070a');
+  paintNumberPlate(g,bp.x*w,bp.y*h,bp.w*w,bp.h*h,Math.min(w,h)*bp.r,'#07070a',TEX.taupe);
   const lbl=cardLabel(card,orient,varV,!!o.catalog);
-  const bh2=bp.h*h;
+  const bh2=GEOM.numberTextH*h;
   g.fillStyle='#fff';g.textAlign='center';g.textBaseline='middle';
-  g.font=`700 ${Math.round(bh2*(lbl.length>3?0.52:0.70))}px ${HUD_FONT}`;
+  g.font=`600 ${Math.round(bh2*(lbl.length>3?0.52:0.70))}px ${HUD_FONT}`;
   g.shadowColor='rgba(0,0,0,0.65)';g.shadowBlur=2;g.shadowOffsetY=1;
   g.fillText(lbl,(bp.x+bp.w/2)*w,(bp.y+bp.h/2)*h);
   g.shadowColor='transparent';g.shadowBlur=0;g.shadowOffsetY=0;
@@ -1753,7 +1770,7 @@ function drawCard(g,x,y,w,h,card,o={}){
     g.fillStyle=`rgba(0,0,0,${stripDarken(bandKey)})`;g.fillRect(0,0,b.w*w,b.h*h);
   }
   g.restore();
-  g.save();g.translate(b.x*w,b.y*h);recessShade(g,strip,0,0,b.w*w,b.h*h);g.restore();
+  g.save();g.translate(b.x*w,b.y*h);recessShade(g,strip,0,0,b.w*w,b.h*h);panelBevel(g,strip,w,h);g.restore();
   if(isDual){
     g.fillStyle='#000';g.font=`700 ${Math.round(sh*0.55)}px ${HUD_FONT}`;
     g.textAlign='center';g.textBaseline='middle';
@@ -1851,6 +1868,21 @@ function polishSheen(g,x,y,w,h,r,amt){
   g.fillStyle=gr;g.fillRect(x,y,w,h);
   g.restore();
 }
+const SLOT_TEXTURES=new Map();
+function slotTexture(sk,variant){
+  const seed=tableSeed(),key=seed+'|'+tableTier()+'|'+variant;
+  let tex=SLOT_TEXTURES.get(key);
+  if(tex)return tex;
+  tex=document.createElement('canvas');tex.width=96;tex.height=130;
+  const g=tex.getContext('2d'),rng=mulberry(seed^(variant*0x9e3779b9));
+  const gr=g.createLinearGradient(0,0,19,130);
+  gr.addColorStop(0,sk.slot0);gr.addColorStop(1,sk.slot1);
+  g.fillStyle=gr;g.fillRect(0,0,96,130);
+  stainWell(g,0,0,96,130,2,sk.grime*0.85,rng);
+  if(sk.shine>0.1)polishSheen(g,0,0,96,130,2,sk.shine*0.22);
+  SLOT_TEXTURES.set(key,tex);
+  return tex;
+}
 function drawRivet(g,x,y,sk){
   sk=sk||tableSkin();
   const gr=g.createRadialGradient(x-1.5,y-1.5,0.5,x,y,5.5);
@@ -1902,27 +1934,21 @@ function drawFrame(g){
   drawRivet(g,f.x+16,f.y+f.h-16,sk);drawRivet(g,f.x+f.w-16,f.y+f.h-16,sk);
 }
 function drawSlot(g,rct){
-  const sk=tableSkin(),rng=mulberry(tableSeed()^(Math.round(rct.x)*17+Math.round(rct.y)*31));
+  const sk=tableSkin();
   const x=rct.x,y=rct.y,w=rct.w,h=rct.h,rad=3;
-  const lip=Math.max(3.2,Math.min(w,h)*0.11);
+  const lip=Math.max(2.2,Math.min(w,h)*0.075);
+  const variant=(Math.round(x*17)+Math.round(y*31))&3;
   rr(g,x,y,w,h,rad);g.fillStyle=sk.slotStroke;g.fill();
   const x2=x+lip,y2=y+lip,w2=w-2*lip,h2=h-2*lip;
   g.beginPath();g.moveTo(x+rad,y);g.lineTo(x+w-rad,y);g.lineTo(x2+w2,y2);g.lineTo(x2,y2);g.closePath();
-  g.fillStyle=`rgba(255,255,255,${0.08+sk.bevelHi})`;g.fill();
+  g.fillStyle=`rgba(0,0,0,${0.28+sk.bevelLo*0.7})`;g.fill();
   g.beginPath();g.moveTo(x,y+rad);g.lineTo(x2,y2);g.lineTo(x2,y2+h2);g.lineTo(x,y+h-rad);g.closePath();
-  g.fillStyle=`rgba(255,255,255,${0.04+sk.bevelHi*0.45})`;g.fill();
+  g.fillStyle=`rgba(0,0,0,${0.16+sk.bevelLo*0.45})`;g.fill();
   g.beginPath();g.moveTo(x+w,y+rad);g.lineTo(x+w,y+h-rad);g.lineTo(x2+w2,y2+h2);g.lineTo(x2+w2,y2);g.closePath();
-  g.fillStyle=`rgba(0,0,0,${0.28+sk.bevelLo})`;g.fill();
+  g.fillStyle=`rgba(255,255,255,${0.05+sk.bevelHi*0.45})`;g.fill();
   g.beginPath();g.moveTo(x+rad,y+h);g.lineTo(x+w-rad,y+h);g.lineTo(x2+w2,y2+h2);g.lineTo(x2,y2+h2);g.closePath();
-  g.fillStyle=`rgba(0,0,0,${0.4+sk.bevelLo})`;g.fill();
-  rr(g,x2,y2,w2,h2,Math.max(1,rad-1));
-  const gr=g.createLinearGradient(x2,y2,x2+w2*0.2,y2+h2);
-  gr.addColorStop(0,sk.slot0);gr.addColorStop(1,sk.slot1);
-  g.fillStyle=gr;g.fill();
-  g.save();rr(g,x2,y2,w2,h2,Math.max(1,rad-1));g.clip();
-  stainWell(g,x2,y2,w2,h2,2,sk.grime*0.85,rng);
-  if(sk.shine>0.1)polishSheen(g,x2,y2,w2,h2,2,sk.shine*0.22);
-  g.restore();
+  g.fillStyle=`rgba(255,255,255,${0.06+sk.bevelHi*0.65})`;g.fill();
+  g.save();rr(g,x2,y2,w2,h2,Math.max(1,rad-1));g.clip();g.drawImage(slotTexture(sk,variant),x2,y2,w2,h2);g.restore();
   g.strokeStyle=sk.slotStroke;g.lineWidth=1;rr(g,x,y,w,h,rad);g.stroke();
 }
 function drawOrb(g,c,r,state,now){

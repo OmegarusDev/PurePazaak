@@ -30,14 +30,16 @@ function drawCard(g,x,y,w,h,card,o={}){
   g.save();g.clip(p);
   fillColorWell(g,topPath,TEX[bandKey],w,h,0);
   recessShade(g,topPath,tp.x*w,tp.y*h,tp.w*w,tp.h*h);
+  panelBevel(g,topPath,w,h);
   fillColorWell(g,botPath,TEX[isDual?bandKey2:bandKey],w,h,midDarken(isDual?bandKey2:bandKey));
   recessShade(g,botPath,mp.x*w,mp.y*h,mp.w*w,mp.h*h);
+  panelBevel(g,botPath,w,h);
   g.restore();
-  paintNumberPlate(g,bp.x*w,bp.y*h,bp.w*w,bp.h*h,Math.min(w,h)*bp.r,'#07070a');
+  paintNumberPlate(g,bp.x*w,bp.y*h,bp.w*w,bp.h*h,Math.min(w,h)*bp.r,'#07070a',TEX.taupe);
   const lbl=cardLabel(card,orient,varV,!!o.catalog);
-  const bh2=bp.h*h;
+  const bh2=GEOM.numberTextH*h;
   g.fillStyle='#fff';g.textAlign='center';g.textBaseline='middle';
-  g.font=`700 ${Math.round(bh2*(lbl.length>3?0.52:0.70))}px ${HUD_FONT}`;
+  g.font=`600 ${Math.round(bh2*(lbl.length>3?0.52:0.70))}px ${HUD_FONT}`;
   g.shadowColor='rgba(0,0,0,0.65)';g.shadowBlur=2;g.shadowOffsetY=1;
   g.fillText(lbl,(bp.x+bp.w/2)*w,(bp.y+bp.h/2)*h);
   g.shadowColor='transparent';g.shadowBlur=0;g.shadowOffsetY=0;
@@ -54,7 +56,7 @@ function drawCard(g,x,y,w,h,card,o={}){
     g.fillStyle=`rgba(0,0,0,${stripDarken(bandKey)})`;g.fillRect(0,0,b.w*w,b.h*h);
   }
   g.restore();
-  g.save();g.translate(b.x*w,b.y*h);recessShade(g,strip,0,0,b.w*w,b.h*h);g.restore();
+  g.save();g.translate(b.x*w,b.y*h);recessShade(g,strip,0,0,b.w*w,b.h*h);panelBevel(g,strip,w,h);g.restore();
   if(isDual){
     g.fillStyle='#000';g.font=`700 ${Math.round(sh*0.55)}px ${HUD_FONT}`;
     g.textAlign='center';g.textBaseline='middle';

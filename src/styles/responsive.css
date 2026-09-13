@@ -8,6 +8,7 @@
   .kotor-menu-shell{width:min(360px,88vw)}
   .match-wrap{flex-direction:column;justify-content:center;align-items:stretch;padding:0;gap:0}
   .match-board{flex:1 1 auto;width:100%;min-height:0}
+  #scr-match{padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
 
   #scr-circuit,#scr-store,#scr-deck{
     padding:calc(6px + env(safe-area-inset-top)) 6px calc(6px + env(safe-area-inset-bottom));
