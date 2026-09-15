@@ -400,11 +400,16 @@ function askQuit(){
   };
   $('#mno').onclick=()=>{AUDIO.play('click');closeModal();};
 }
+function offerInstall(){
+  AUDIO.play('click');
+  if(typeof consumeInstallPrompt==='function')consumeInstallPrompt();
+}
 function refreshTitle(){
   const load=$('#bt-continue');
   load.disabled=!hasSave();
   document.querySelectorAll('.kotor-menu button').forEach(b=>b.classList.remove('sel'));
   (hasSave()?load:$('#bt-new')).classList.add('sel');
+  if(typeof refreshInstallUi==='function')refreshInstallUi();
   refreshCredits();
 }
 function placeA11yHit(btn,rect){

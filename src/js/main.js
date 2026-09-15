@@ -47,6 +47,7 @@ async function init(){
   $('#bt-store').onclick=()=>{AUDIO.play('click');openStore();};
   $('#bt-sback').onclick=()=>{AUDIO.play('click');buildCircuit();showScreen('circuit');};
   $('#bt-options').onclick=()=>{AUDIO.play('click');openOptions();};
+  $('#bt-install').onclick=offerInstall;
   $('#bt-quit').onclick=askQuit;
   $('#bt-autofill').onclick=autoFill;
   $('#bt-dback').onclick=()=>{

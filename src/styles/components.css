@@ -39,6 +39,7 @@ h1.kotor-lockup,.kotor-lockup{display:flex;flex-direction:column;align-items:cen
 .kotor-menu button:hover,.kotor-menu button:focus-visible,.kotor-menu button.sel{color:#cce666;text-shadow:0 0 8px rgba(200,220,70,.5);outline:none}
 .kotor-menu:hover button.sel:not(:hover){color:#5eb4dc;text-shadow:0 0 7px rgba(60,170,230,.3)}
 .kotor-menu button:disabled{opacity:.34;cursor:default;color:#5eb4dc;text-shadow:none}
+.kotor-menu button[hidden]{display:none}
 /* Soft title haze on the full screen so it never hard-crops above the lockup. */
 #scr-title{flex-direction:column;align-items:center;justify-content:center;gap:clamp(18px,4.2vh,44px);padding:calc(clamp(16px,4vh,48px) + env(safe-area-inset-top)) clamp(12px,4vw,64px) calc(clamp(16px,4vh,36px) + env(safe-area-inset-bottom));overflow-x:hidden}
 #scr-title.active{display:flex}

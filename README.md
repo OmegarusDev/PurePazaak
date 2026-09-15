@@ -6,14 +6,14 @@
     <img src="https://img.shields.io/badge/▶_PLAY_NOW-playable_in_browser-brightgreen?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Play Now" height="40" />
   </a>
 </p>
-<p align="center"><strong>No install.</strong> Works in the browser (desktop &amp; mobile).</p>
+<p align="center"><strong>Play in the browser</strong> — or install as a fullscreen app from the live game page.</p>
 
 # Pure Pazaak — Outer Rim Circuit
 
 A tactical card duel inspired by the Pazaak minigame from *Knights of the Old Republic*.
 
 - **Zero assets** — game art is fully self-contained in `index.html` (inline CSS/JS, canvas-rendered).
-- **Installable PWA** — Add to Home Screen / install for a no-URL-bar app; updates on each open.
+- **Fullscreen WebAPK** — Install from the live page (Android Chrome) or Add to Home Screen (iOS); updates on each open.
 - **No runtime deps** — no libraries; play works offline after the first visit.
 - **Works on desktop & mobile** — responsive layout; portrait and landscape aware.
 - **Strategic AI** — three opponent tiers with distinct decks and play styles.
@@ -71,7 +71,7 @@ src/styles/           tokens, base, components, circuit, deck, match, responsive
 src/js/               util, audio, cards, ai, data, layout, textures, geom,
                       draw, chrome, game, render, ui, pwa, main (concatenated
                       in order, one shared classic-script scope — no modules)
-manifest.webmanifest  install metadata (standalone display)
+manifest.webmanifest  install metadata (fullscreen WebAPK / standalone fallback)
 sw.js                 network-first shell; checks for updates on open only
 icons/                PWA / home-screen icons
 scripts/build.py      concatenates src/ -> index.html
@@ -80,13 +80,22 @@ scripts/serve.py      local server + src/ watch (http://127.0.0.1:8765/)
 scripts/logic-test.js headless game-logic smoke test (node, no deps)
 ```
 
-### Install / auto-update
+### Install / auto-update (WebAPK)
 
-On a supporting browser (Chrome/Edge/Android, or Add to Home Screen on iOS), open
-the live game and install it. The installed app opens without a URL bar
-(`display: standalone`). Each **cold open** asks the service worker for a fresh
-build and reloads once if GitHub Pages has a newer build. Updates discovered
-during an active match wait until the match is left.
+Install as a fullscreen app (no URL bar) from the live game page — not from this
+README. On Android Chrome that install is a WebAPK.
+
+1. Open [omegarusdev.github.io/PurePazaak](https://omegarusdev.github.io/PurePazaak/) (the PLAY button).
+2. Install from that page:
+   - **Android Chrome:** title menu **INSTALL APP**, address-bar install icon, or menu → Install app / Add to Home screen
+   - **iPhone/iPad (Safari):** Share → Add to Home Screen
+3. Later launches use the home-screen icon. That installed app is fullscreen;
+   the browser tab never requests fullscreen on click. Pushes to `main` deploy a
+   new Pages build; each **cold open** pulls it. Updates discovered during an
+   active match wait until the match is left.
+
+Portrait and landscape both work. The manifest uses `display: fullscreen` with
+`standalone` as fallback — that display mode applies only after install.
 
 GitHub Pages publishes only `index.html`, `manifest.webmanifest`, `sw.js`, the
 Orbitron font, and the three install icons. Development sources, scripts, and

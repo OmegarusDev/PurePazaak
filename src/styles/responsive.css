@@ -46,6 +46,7 @@
   #collection{grid-template-columns:repeat(4,minmax(0,1fr))}
   .deck-side{flex:0 0 auto;max-height:none;padding:8px 6px 4px}
   #sidedeck{
+    container-type:normal;
     display:grid;
     grid-template-columns:repeat(5,minmax(0,1fr));
     grid-template-rows:none;
@@ -54,8 +55,10 @@
     max-height:none;
     aspect-ratio:unset;
     gap:6px;
+    justify-content:stretch;
+    align-content:start;
   }
-  .sslot{width:100%;height:auto;aspect-ratio:572/772}
+  .sslot{width:100%;max-width:none;height:auto;aspect-ratio:572/772}
   .sslot canvas{width:100%;height:auto;aspect-ratio:572/772}
   .deck-foot{
     display:grid;
