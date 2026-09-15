@@ -87,6 +87,7 @@
   min-height:0;
 }
 .cell .cnt{
+  font-family:var(--gui);
   font-size:clamp(7px,1.2cqh,9px);
   letter-spacing:.06em;
   color:#8a96a8;
@@ -172,13 +173,15 @@
 }
 .store-note{
   flex:0 0 auto;
-  font-size:clamp(10px,1.5vmin,12px);
-  letter-spacing:.1em;
+  font-family:var(--dialog);
+  font-size:clamp(11px,1.6vmin,13px);
+  letter-spacing:.04em;
   color:#9ad4f0;
   text-align:center;
   width:100%;
   margin:0;
   padding:0 4px;
+  text-transform:none;
 }
 .store-well{padding:8px}
 #stock{

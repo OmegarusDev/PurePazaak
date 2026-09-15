@@ -9,6 +9,7 @@ async function init(){
   initTextures();
   initSaveSync();
   applyRecoveredWager();
+  applyDialogFont(SAVE.dialogFont||'neue');
   AUDIO.vol=SAVE.vol;AUDIO.muted=SAVE.muted;
   if(!SAVE.roster||SAVE.roster.length!==CIRCUIT_LEN){SAVE.roster=buildRoster();persist();}
   else{const before=JSON.stringify(SAVE.roster);normalizeRoster(SAVE);if(before!==JSON.stringify(SAVE.roster))persist();}
@@ -41,6 +42,9 @@ async function init(){
   $('#bt-sback').onclick=()=>{AUDIO.play('click');buildCircuit();showScreen('circuit');};
   $('#bt-options').onclick=()=>{AUDIO.play('click');openOptions();};
   $('#bt-quit').onclick=askQuit;
+  document.querySelectorAll('.type-preview [data-dialog-font]').forEach(b=>{
+    b.onclick=()=>{AUDIO.play('click');applyDialogFont(b.getAttribute('data-dialog-font'));persist();};
+  });
   $('#bt-autofill').onclick=autoFill;
   $('#bt-dback').onclick=()=>{AUDIO.play('click');buildCircuit();showScreen('circuit');};
   $('#bt-begin').onclick=()=>{
@@ -88,7 +92,14 @@ async function init(){
   const board=document.querySelector('.match-board');
   if(board&&typeof ResizeObserver==='function')new ResizeObserver(scheduleFit).observe(board);
   if(document.fonts&&document.fonts.load){
-    try{await document.fonts.load('700 32px "Orbitron"');}catch(_){/* use the local fallback stack */}
+    try{
+      await Promise.all([
+        document.fonts.load('700 32px "Orbitron"'),
+        document.fonts.load('700 32px "Bank Gothic"'),
+        document.fonts.load('700 32px "DIN Alternate"'),
+        document.fonts.load('600 24px "Helvetica Neue"')
+      ]);
+    }catch(_){/* use the local fallback stack */}
   }
   renderStatic();
   refreshTitle();

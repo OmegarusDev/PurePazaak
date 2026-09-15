@@ -88,21 +88,21 @@
   display:flex;align-items:center;justify-content:center;
 }
 .rname{
-  font-family:var(--sans);
-  font-size:clamp(12px,2.4vw,15px);
-  font-weight:700;
-  letter-spacing:.14em;
-  text-indent:.08em;
+  font-family:var(--dialog);
+  font-size:clamp(13px,2.5vw,16px);
+  font-weight:600;
+  letter-spacing:.02em;
+  text-indent:0;
   color:inherit;
-  text-transform:uppercase;
+  text-transform:none;
   white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
   max-width:100%;
-  line-height:1.15;
+  line-height:1.2;
 }
 .rstat{
-  font-family:var(--sans);
+  font-family:var(--gui);
   font-size:clamp(9px,1.8vw,11px);
   font-weight:600;
   letter-spacing:.16em;
@@ -112,6 +112,24 @@
   white-space:nowrap;
   line-height:1.15;
   opacity:.92;
+}
+.tier{font-family:var(--gui)}
+.type-preview{
+  display:flex;align-items:center;gap:6px;flex:0 0 auto;min-width:0;
+  padding:2px 2px 0;
+}
+.type-preview-lab{
+  font-family:var(--gui);font-size:10px;letter-spacing:.16em;color:#7ec8e8;
+  text-transform:uppercase;flex:0 0 auto;
+}
+.type-preview button{
+  appearance:none;-webkit-appearance:none;flex:1 1 0;min-width:0;
+  padding:6px 4px;border:1px solid var(--eq-cyan);border-radius:3px;
+  background:#0c101c;color:#7ec8e8;font-family:var(--dialog);font-size:11px;
+  font-weight:600;letter-spacing:.01em;cursor:pointer;
+}
+.type-preview button[aria-pressed="true"]{
+  border-color:var(--eq-gold-hi);color:var(--eq-gold-hi);background:#222018;
 }
 
 #scr-circuit .circuit-actions #bt-challenge{flex:1.35}

@@ -22,20 +22,22 @@ function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random
 function shade(hex,amt){const n=parseInt(hex.slice(1),16);const r=clamp((n>>16)+amt,0,255),g=clamp(((n>>8)&255)+amt,0,255),b=clamp((n&255)+amt,0,255);return '#'+((1<<24)|(r<<16)|(g<<8)|b).toString(16).slice(1);}
 function rr(g,x,y,w,h,r){g.beginPath();g.moveTo(x+r,y);g.arcTo(x+w,y,x+w,y+h,r);g.arcTo(x+w,y+h,x,y+h,r);g.arcTo(x,y+h,x,y,r);g.arcTo(x,y,x+w,y,r);g.closePath();}
 function rrPath(w,h,r){const p=new Path2D();p.moveTo(r,0);p.lineTo(w-r,0);p.quadraticCurveTo(w,0,w,r);p.lineTo(w,h-r);p.quadraticCurveTo(w,h,w-r,h);p.lineTo(r,h);p.quadraticCurveTo(0,h,0,h-r);p.lineTo(0,r);p.quadraticCurveTo(0,0,r,0);p.closePath();return p;}
-const HUD_FONT='"Orbitron","DIN Alternate","Bank Gothic","Eurostile","Microgramma","Avenir Next Condensed","Century Gothic","Futura","Trebuchet MS",sans-serif';
+const CARD_FONT='"Orbitron","DIN Alternate","Bank Gothic","Eurostile",sans-serif';
+const GUI_FONT='"Bank Gothic","BankGothic Md BT","DIN Alternate","Eurostile","Microgramma","Century Gothic",sans-serif';
+const HUD_FONT=CARD_FONT;
 function drawKeyHint(g,x,y,kind,col,btnH){
   g.save();g.strokeStyle=col;g.fillStyle=col;g.lineWidth=1.3;
   if(kind==='return'){
     const fs=Math.max(10,Math.round(btnH*0.38));
     g.textAlign='center';g.textBaseline='middle';
-    g.font=`600 ${fs}px ${HUD_FONT}`;
+    g.font=`600 ${fs}px ${GUI_FONT}`;
     g.fillText('\u23CE',x,y+0.5);
   }else{
     const w=Math.max(20,btnH*0.78), h=Math.max(9,btnH*0.34);
     rr(g,x-w/2,y-h/2,w,h,h/2);g.fill();
     g.fillStyle='#141418';
     g.textAlign='center';g.textBaseline='middle';
-    g.font=`700 ${Math.max(8,Math.round(h*0.72))}px ${HUD_FONT}`;
+    g.font=`700 ${Math.max(8,Math.round(h*0.72))}px ${GUI_FONT}`;
     g.fillText('\u2423',x,y+0.5);
   }
   g.restore();
@@ -98,12 +100,11 @@ function trapModalTab(box,e){
   }
   return false;
 }
-function tText(g,text,x,y,size,color,spacing=1.4,align='center',bold=true,condense=1,initials=false){
+function tText(g,text,x,y,size,color,spacing=1.4,align='center',bold=true,condense=1,font){
   g.save();g.fillStyle=color;g.textBaseline='middle';g.textAlign='left';
   const raw=String(text),chars=raw.toUpperCase().split('');
-  // Keep title-case initials larger while the displayed label stays uppercase.
-  const fontSize=i=>initials&&/[A-Z]/.test(raw[i])&&(i===0||/\s/.test(raw[i-1]))?size*1.2:size;
-  const fontFor=i=>(bold?'700 ':'400 ')+fontSize(i)+'px '+HUD_FONT;
+  const face=font||GUI_FONT;
+  const fontFor=()=>(bold?'700 ':'400 ')+size+'px '+face;
   let tw=0;const ws=chars.map((ch,i)=>{g.font=fontFor(i);const cw=g.measureText(ch).width;tw+=cw+spacing;return cw;});
   tw-=spacing;tw*=condense;
   let sx=align==='center'?x-tw/2:align==='right'?x-tw:x;

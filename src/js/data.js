@@ -91,7 +91,7 @@ function addToCollection(id){
   return true;
 }
 const SAVE_KEY='pazaak-outer-rim-save-v1';
-function defaultSave(){return {schema:SAVE_SCHEMA,revision:0,writer:'',updatedAt:0,circuit:0,roster:null,unlocked:Object.assign({},STARTER_COLLECTION),lastDeck:[],credits:START_CREDITS,vol:0.6,muted:false,begun:false,activeMatch:null,recoveredMatch:false};}
+function defaultSave(){return {schema:SAVE_SCHEMA,revision:0,writer:'',updatedAt:0,circuit:0,roster:null,unlocked:Object.assign({},STARTER_COLLECTION),lastDeck:[],credits:START_CREDITS,vol:0.6,muted:false,begun:false,activeMatch:null,recoveredMatch:false,dialogFont:'neue'};}
 function normalizeRoster(save){
   if(!Array.isArray(save.roster)||save.roster.length!==CIRCUIT_LEN||
      !save.roster.every(o=>o&&typeof o.name==='string'&&cleanName(o.name)!=='Unknown'&&Number.isInteger(o.tier)&&o.tier>=1&&o.tier<=3)){
@@ -111,6 +111,7 @@ function normalizeSave(raw,recover=true){
   out.credits=Number.isFinite(Number(raw.credits))?Math.max(0,Math.min(999999999,Math.floor(Number(raw.credits)))):START_CREDITS;
   out.vol=Number.isFinite(Number(raw.vol))?Math.max(0,Math.min(1,Number(raw.vol))):0.6;
   out.muted=raw.muted===true;out.begun=raw.begun===true;
+  out.dialogFont=raw.dialogFont==='helvetica'||raw.dialogFont==='arial'?raw.dialogFont:'neue';
   out.activeMatch=raw.activeMatch&&Number.isFinite(Number(raw.activeMatch.wager))&&Number(raw.activeMatch.wager)>0?{
     wager:Math.floor(Number(raw.activeMatch.wager)),rung:Number.isInteger(raw.activeMatch.rung)?raw.activeMatch.rung:null,startedAt:Number(raw.activeMatch.startedAt)||0
   }:null;

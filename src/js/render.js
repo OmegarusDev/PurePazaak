@@ -1,7 +1,7 @@
 function drawFallback(g){
   g.fillStyle='#04050b';g.fillRect(0,0,W,H);
   g.fillStyle='#c9d4e4';g.textAlign='center';g.textBaseline='middle';
-  g.font='700 '+Math.max(12,Math.round(Math.min(W,H)*0.045))+'px '+HUD_FONT;
+  g.font='700 '+Math.max(12,Math.round(Math.min(W,H)*0.045))+'px '+GUI_FONT;
   g.fillText('ROTATE OR ENLARGE WINDOW',W/2,H/2);
 }
 function renderStatic(){
@@ -39,8 +39,8 @@ function renderStatic(){
     rr(g,lab.x,lab.y,lab.w,lab.h,5);g.fillStyle=sk.plate;g.fill();
     g.strokeStyle='#000';g.stroke();
   }
-  tText(g,'Player Hand',L.labP.x+L.labP.w/2,L.labP.y+L.labP.h/2+1,L.fsLab||13,sk.lab,1.2,'center',true,1,true);
-  tText(g,'Opponent Hand',L.labO.x+L.labO.w/2,L.labO.y+L.labO.h/2+1,L.fsLab||13,sk.lab,1.2,'center',true,1,true);
+  tText(g,'Player Hand',L.labP.x+L.labP.w/2,L.labP.y+L.labP.h/2+1,L.fsLab||13,sk.lab,1.2,'center',true,1);
+  tText(g,'Opponent Hand',L.labO.x+L.labO.w/2,L.labO.y+L.labO.h/2+1,L.fsLab||13,sk.lab,1.2,'center',true,1);
   for(const h of [L.handP,L.handO]){
     if(!h)continue;
     for(let i=0;i<4;i++)drawSlot(g,handSlot(h,i));

@@ -203,7 +203,7 @@ function drawBadge(g,b,score,flashT,now){
   g.fillRect(b.x-pipeW-pipeGap,b.y+L.bh/2-pipeH/2,pipeW,pipeH);
   g.fillRect(b.x+L.bw+pipeGap,b.y+L.bh/2-pipeH/2,pipeW,pipeH);
   g.restore();
-  g.fillStyle='#fff';g.font='700 '+Math.max(11,Math.round(L.bh*0.61))+'px '+HUD_FONT;g.textAlign='center';g.textBaseline='middle';
+  g.fillStyle='#fff';g.font='700 '+Math.max(11,Math.round(L.bh*0.61))+'px '+GUI_FONT;g.textAlign='center';g.textBaseline='middle';
   g.fillText(String(score),b.x+L.bw/2,b.y+L.bh/2+1);
 }
 function drawTableButton(g,r,label,opts){

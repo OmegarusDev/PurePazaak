@@ -1,6 +1,6 @@
 /* KOTOR 1 main-menu bars: charcoal plate, cyan side rails, 2px black gaps.
    Idle text/rails = engine cyan #00A8FA. Hover/select = yellow. */
-.kbtn{display:block;position:relative;width:min(420px,92vw);padding:clamp(10px,1.8vmin,15px) clamp(18px,2.4vmin,26px);background:linear-gradient(180deg,#14161a,#0c0e10 50%,#08090a 100%);border:1px solid #000;border-radius:0;color:var(--k1);font-family:var(--sans);font-size:clamp(13px,2.1vmin,16px);font-weight:700;letter-spacing:.14em;text-indent:.04em;text-transform:uppercase;text-align:left;cursor:pointer;touch-action:manipulation;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:inset 4px 0 0 var(--k1),inset -4px 0 0 var(--k1)}
+.kbtn{display:block;position:relative;width:min(420px,92vw);padding:clamp(10px,1.8vmin,15px) clamp(18px,2.4vmin,26px);background:linear-gradient(180deg,#14161a,#0c0e10 50%,#08090a 100%);border:1px solid #000;border-radius:0;color:var(--k1);font-family:var(--gui);font-size:clamp(13px,2.1vmin,16px);font-weight:700;letter-spacing:.14em;text-indent:.04em;text-transform:uppercase;text-align:left;cursor:pointer;touch-action:manipulation;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:inset 4px 0 0 var(--k1),inset -4px 0 0 var(--k1)}
 .kbtn:hover,.kbtn:focus-visible,.kbtn.sel{color:var(--select);text-shadow:0 0 8px rgba(255,255,74,.4);outline:none;background:linear-gradient(180deg,#181a1e,#101214 50%,#0a0c0e 100%);box-shadow:inset 4px 0 0 var(--select),inset -4px 0 0 var(--select)}
 .kbtn:active:not(:disabled){transform:translateY(1px)}
 .kbtn:disabled{opacity:.32;cursor:default;color:var(--k1);text-shadow:none;box-shadow:inset 4px 0 0 var(--k1),inset -4px 0 0 var(--k1)}
@@ -34,7 +34,7 @@ h1.kotor-lockup,.kotor-lockup{display:flex;flex-direction:column;align-items:cen
 .km-rail-in{fill:none;stroke:#2a6a88;stroke-width:1.05;stroke-linecap:round;opacity:.75}
 .km-div{fill:none;stroke:#000;stroke-width:1.1;opacity:.82}
 .kotor-menu{position:relative;z-index:1;display:flex;flex-direction:column;padding:4% 12% 4%}
-.kotor-menu button{appearance:none;-webkit-appearance:none;display:flex;align-items:center;justify-content:center;width:100%;margin:0;padding:clamp(10px,2vh,16px) 4px;background:transparent;border:0;border-bottom:0;color:#5eb4dc;font-family:"DIN Alternate",var(--sans);font-size:clamp(12px,2.05vh,16px);font-weight:700;letter-spacing:.18em;word-spacing:.28em;text-indent:.09em;text-transform:uppercase;text-align:center;cursor:pointer;text-shadow:0 0 7px rgba(60,170,230,.3)}
+.kotor-menu button{appearance:none;-webkit-appearance:none;display:flex;align-items:center;justify-content:center;width:100%;margin:0;padding:clamp(10px,2vh,16px) 4px;background:transparent;border:0;border-bottom:0;color:#5eb4dc;font-family:var(--gui);font-size:clamp(12px,2.05vh,16px);font-weight:700;letter-spacing:.18em;word-spacing:.28em;text-indent:.09em;text-transform:uppercase;text-align:center;cursor:pointer;text-shadow:0 0 7px rgba(60,170,230,.3)}
 .kotor-menu button:last-child{border-bottom:0}
 .kotor-menu button:hover,.kotor-menu button:focus-visible,.kotor-menu button.sel{color:#cce666;text-shadow:0 0 8px rgba(200,220,70,.5);outline:none}
 .kotor-menu:hover button.sel:not(:hover){color:#5eb4dc;text-shadow:0 0 7px rgba(60,170,230,.3)}
@@ -54,7 +54,7 @@ h1.kotor-lockup,.kotor-lockup{display:flex;flex-direction:column;align-items:cen
 .panel{display:flex;flex-direction:column;gap:clamp(8px,2vw,12px);align-items:center;width:min(560px,94vw);padding:clamp(14px,3.5vw,24px) clamp(16px,4vw,28px)}
 .scrh{font-family:var(--serif);font-weight:400;font-size:clamp(18px,4.2vw,26px);letter-spacing:.32em;text-indent:.32em;color:var(--gold);text-shadow:0 0 14px rgba(232,195,74,.3),0 2px 0 #000;text-align:center}
 .foot{font-size:10px;letter-spacing:.3em;text-indent:.3em;color:var(--faint);text-align:center}
-.volrow{display:flex;align-items:center;gap:12px;justify-content:center;color:var(--k1);font-size:12px;letter-spacing:.12em;text-indent:0;padding:12px 20px 0;font-family:var(--sans)}
+.volrow{display:flex;align-items:center;gap:12px;justify-content:center;color:var(--k1);font-size:12px;letter-spacing:.12em;text-indent:0;padding:12px 20px 0;font-family:var(--gui)}
 .volrow input[type=range]{width:min(150px,38vw);accent-color:var(--k1)}
 /* K2 wager-style dialogue — cyan computer overlay (ALL modals) */
 #modal{position:fixed;inset:0;background:rgba(0,0,0,.72);display:flex;align-items:center;justify-content:center;z-index:50;padding:max(12px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left))}
@@ -84,7 +84,7 @@ h1.kotor-lockup,.kotor-lockup{display:flex;flex-direction:column;align-items:cen
 }
 #modalbox h2{
   position:relative;
-  font-family:var(--sans);
+  font-family:var(--gui);
   font-weight:700;
   font-size:clamp(13px,3.2vw,16px);
   letter-spacing:.1em;
@@ -112,9 +112,9 @@ h1.kotor-lockup,.kotor-lockup{display:flex;flex-direction:column;align-items:cen
   box-sizing:border-box;
 }
 #modalbox p,#modalbox li{
-  font-family:var(--sans);
+  font-family:var(--dialog);
   font-size:clamp(12px,3.1vw,14px);
-  letter-spacing:.06em;
+  letter-spacing:.03em;
   line-height:1.5;
   color:var(--dlg);
   text-shadow:0 0 6px rgba(40,140,220,.25);
@@ -142,6 +142,7 @@ h1.kotor-lockup,.kotor-lockup{display:flex;flex-direction:column;align-items:cen
   letter-spacing:.12em;
   text-indent:0;
   text-align:center;
+  font-family:var(--gui);
   box-shadow:0 0 8px rgba(40,120,220,.25);
   text-shadow:none;
   white-space:nowrap;
@@ -157,10 +158,9 @@ h1.kotor-lockup,.kotor-lockup{display:flex;flex-direction:column;align-items:cen
 }
 #modal.match-modal #modalbox,
 #modal.match-modal #modalbox h2,
+#modal.match-modal #modalbox .kbtn{font-family:var(--gui)}
 #modal.match-modal #modalbox p,
-#modal.match-modal #modalbox li,
-#modal.match-modal #modalbox .kbtn,
-#modal.match-modal .volrow{font-family:var(--orbitron)}
+#modal.match-modal #modalbox li{font-family:var(--dialog)}
 #modalbox .kbtn.danger{border-color:#e07070;color:#e09090;box-shadow:0 0 8px rgba(220,80,80,.2)}
 #modalbox .kbtn.danger:hover,#modalbox .kbtn.danger.sel{border-color:#ffb0b0;color:#ffc8c8;box-shadow:0 0 12px rgba(255,140,140,.3);background:rgba(40,10,10,.35)}
 .mcards{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;padding:12px 10px 0}
