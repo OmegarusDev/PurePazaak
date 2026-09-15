@@ -41,17 +41,15 @@
   --amber:#e8c34a;
   --red:#e05555;
   /* Odyssey GUI ≈ Bank Gothic (DIN Alternate is the installed square stand-in).
-     Dialogue / roster names ≈ Helvetica/Arial. Cards keep bundled Orbitron. */
+     Dialogue / roster names ≈ Arial with extra tracking. Cards keep bundled Orbitron. */
   --serif:"Trajan Pro",Trajan,Cinzel,"Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
   --gui:"Bank Gothic","BankGothic Md BT","Bank Gothic Medium","DIN Alternate","Eurostile","Microgramma","Century Gothic",sans-serif;
-  --dialog:"Helvetica Neue",Helvetica,Arial,sans-serif;
+  --dialog:Arial,Helvetica,"Helvetica Neue",sans-serif;
   --card:"Orbitron","DIN Alternate","Bank Gothic","Eurostile",sans-serif;
   --sans:var(--gui);
   --orbitron:var(--card);
   --r:14px;
 }
-html[data-dialog-font="helvetica"]{--dialog:Helvetica,"Helvetica Neue",Arial,sans-serif}
-html[data-dialog-font="arial"]{--dialog:Arial,Helvetica,"Helvetica Neue",sans-serif}
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
 body{background:var(--abyss);color:var(--ink);font-family:var(--gui);overflow:hidden;user-select:none;-webkit-user-select:none;touch-action:manipulation}

@@ -24,6 +24,8 @@ function rr(g,x,y,w,h,r){g.beginPath();g.moveTo(x+r,y);g.arcTo(x+w,y,x+w,y+h,r);
 function rrPath(w,h,r){const p=new Path2D();p.moveTo(r,0);p.lineTo(w-r,0);p.quadraticCurveTo(w,0,w,r);p.lineTo(w,h-r);p.quadraticCurveTo(w,h,w-r,h);p.lineTo(r,h);p.quadraticCurveTo(0,h,0,h-r);p.lineTo(0,r);p.quadraticCurveTo(0,0,r,0);p.closePath();return p;}
 const CARD_FONT='"Orbitron","DIN Alternate","Bank Gothic","Eurostile",sans-serif';
 const GUI_FONT='"Bank Gothic","BankGothic Md BT","DIN Alternate","Eurostile","Microgramma","Century Gothic",sans-serif';
+const DIALOG_FONT='Arial,Helvetica,"Helvetica Neue",sans-serif';
+const NAME_TRACK_EM=0.12;
 const HUD_FONT=CARD_FONT;
 function drawKeyHint(g,x,y,kind,col,btnH){
   g.save();g.strokeStyle=col;g.fillStyle=col;g.lineWidth=1.3;
@@ -100,9 +102,9 @@ function trapModalTab(box,e){
   }
   return false;
 }
-function tText(g,text,x,y,size,color,spacing=1.4,align='center',bold=true,condense=1,font){
+function tText(g,text,x,y,size,color,spacing=1.4,align='center',bold=true,condense=1,font,keepCase=false){
   g.save();g.fillStyle=color;g.textBaseline='middle';g.textAlign='left';
-  const raw=String(text),chars=raw.toUpperCase().split('');
+  const raw=String(text),chars=(keepCase?raw:raw.toUpperCase()).split('');
   const face=font||GUI_FONT;
   const fontFor=()=>(bold?'700 ':'400 ')+size+'px '+face;
   let tw=0;const ws=chars.map((ch,i)=>{g.font=fontFor(i);const cw=g.measureText(ch).width;tw+=cw+spacing;return cw;});
@@ -111,4 +113,14 @@ function tText(g,text,x,y,size,color,spacing=1.4,align='center',bold=true,conden
   g.scale(condense,1);sx/=condense;
   for(let i=0;i<chars.length;i++){g.font=fontFor(i);g.fillText(chars[i],sx,y);sx+=ws[i]+spacing;}
   g.restore();
+}
+function tName(g,text,x,y,size,color,align,maxW){
+  const spacing=size*NAME_TRACK_EM;
+  const raw=String(text);
+  g.save();g.font='700 '+size+'px '+DIALOG_FONT;
+  let tw=0;
+  for(let i=0;i<raw.length;i++)tw+=g.measureText(raw[i]).width+(i?spacing:0);
+  g.restore();
+  const condense=maxW&&tw>maxW?maxW/tw:1;
+  tText(g,raw,x,y,size,color,spacing,align,true,condense,DIALOG_FONT,true);
 }

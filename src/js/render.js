@@ -20,13 +20,15 @@ function renderStatic(){
   }
   const on=M;
   const nameCol=sk.name;
+  const fsName=L.fsName||12;
+  const namePad=Math.max(6,Math.round(L.topP.h*0.18));
   g.save();
   rr(g,L.topP.x,L.topP.y,L.topP.w,L.topP.h,Math.max(6,L.topP.h/2));g.clip();
-  tText(g,'YOU',L.nameP.x,L.nameP.y,L.fsName||12,nameCol,1.4,'left');
+  tName(g,'YOU',L.nameP.x,L.nameP.y,fsName,nameCol,'left',Math.max(24,L.topP.x+L.topP.w-namePad-L.nameP.x));
   g.restore();
   g.save();
   rr(g,L.topO.x,L.topO.y,L.topO.w,L.topO.h,Math.max(6,L.topO.h/2));g.clip();
-  tText(g,on?on.opp.name:'OPPONENT',L.nameO.x,L.nameO.y,L.fsName||12,nameCol,1.4,'right');
+  tName(g,on?on.opp.name:'Opponent',L.nameO.x,L.nameO.y,fsName,nameCol,'right',Math.max(24,L.nameO.x-(L.topO.x+namePad)));
   g.restore();
   for(const grid of [L.gridP,L.gridO]){
     const gx=L.gapX!=null?L.gapX:L.gap, gy=L.gapY!=null?L.gapY:L.gap;

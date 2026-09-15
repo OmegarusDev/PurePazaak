@@ -1,12 +1,4 @@
-function applyDialogFont(id){
-  const next=id==='helvetica'||id==='arial'?id:'neue';
-  SAVE.dialogFont=next;
-  if(document.documentElement)document.documentElement.setAttribute('data-dialog-font',next);
-  document.querySelectorAll('[data-dialog-font]').forEach(b=>{
-    if(b.tagName!=='BUTTON')return;
-    b.setAttribute('aria-pressed',b.getAttribute('data-dialog-font')===next?'true':'false');
-  });
-}
+let modalFocusRest=null,matchLiveSig='';
 function showScreen(id){
   document.querySelectorAll('.screen').forEach(s=>{
     const on=s.id==='scr-'+id;

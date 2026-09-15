@@ -58,17 +58,15 @@
   --amber:#e8c34a;
   --red:#e05555;
   /* Odyssey GUI ≈ Bank Gothic (DIN Alternate is the installed square stand-in).
-     Dialogue / roster names ≈ Helvetica/Arial. Cards keep bundled Orbitron. */
+     Dialogue / roster names ≈ Arial with extra tracking. Cards keep bundled Orbitron. */
   --serif:"Trajan Pro",Trajan,Cinzel,"Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
   --gui:"Bank Gothic","BankGothic Md BT","Bank Gothic Medium","DIN Alternate","Eurostile","Microgramma","Century Gothic",sans-serif;
-  --dialog:"Helvetica Neue",Helvetica,Arial,sans-serif;
+  --dialog:Arial,Helvetica,"Helvetica Neue",sans-serif;
   --card:"Orbitron","DIN Alternate","Bank Gothic","Eurostile",sans-serif;
   --sans:var(--gui);
   --orbitron:var(--card);
   --r:14px;
 }
-html[data-dialog-font="helvetica"]{--dialog:Helvetica,"Helvetica Neue",Arial,sans-serif}
-html[data-dialog-font="arial"]{--dialog:Arial,Helvetica,"Helvetica Neue",sans-serif}
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
 body{background:var(--abyss);color:var(--ink);font-family:var(--gui);overflow:hidden;user-select:none;-webkit-user-select:none;touch-action:manipulation}
@@ -538,8 +536,9 @@ button.mcard:hover,button.mcard:focus-visible{border-color:var(--select);box-sha
   font-family:var(--dialog);
   font-size:clamp(13px,2.5vw,16px);
   font-weight:600;
-  letter-spacing:.02em;
-  text-indent:0;
+  letter-spacing:.12em;
+  text-indent:.06em;
+  font-kerning:normal;
   color:inherit;
   text-transform:none;
   white-space:nowrap;
@@ -561,23 +560,6 @@ button.mcard:hover,button.mcard:focus-visible{border-color:var(--select);box-sha
   opacity:.92;
 }
 .tier{font-family:var(--gui)}
-.type-preview{
-  display:flex;align-items:center;gap:6px;flex:0 0 auto;min-width:0;
-  padding:2px 2px 0;
-}
-.type-preview-lab{
-  font-family:var(--gui);font-size:10px;letter-spacing:.16em;color:#7ec8e8;
-  text-transform:uppercase;flex:0 0 auto;
-}
-.type-preview button{
-  appearance:none;-webkit-appearance:none;flex:1 1 0;min-width:0;
-  padding:6px 4px;border:1px solid var(--eq-cyan);border-radius:3px;
-  background:#0c101c;color:#7ec8e8;font-family:var(--dialog);font-size:11px;
-  font-weight:600;letter-spacing:.01em;cursor:pointer;
-}
-.type-preview button[aria-pressed="true"]{
-  border-color:var(--eq-gold-hi);color:var(--eq-gold-hi);background:#222018;
-}
 
 #scr-circuit .circuit-actions #bt-challenge{flex:1.35}
 
@@ -954,12 +936,6 @@ button.mcard:hover,button.mcard:focus-visible{border-color:var(--select);box-sha
         <div class="steel-hbadge" data-credits data-credits-after aria-live="polite">0 CREDITS</div>
         <div class="steel-hbadge">OUTER RIM CIRCUIT</div>
       </div>
-      <div class="type-preview" role="group" aria-label="Roster name font">
-        <span class="type-preview-lab">NAMES</span>
-        <button type="button" data-dialog-font="neue">Helvetica Neue</button>
-        <button type="button" data-dialog-font="helvetica">Helvetica</button>
-        <button type="button" data-dialog-font="arial">Arial</button>
-      </div>
       <div class="steel-well circuit-well">
         <div id="rungs"></div>
       </div>
@@ -1046,6 +1022,8 @@ function rr(g,x,y,w,h,r){g.beginPath();g.moveTo(x+r,y);g.arcTo(x+w,y,x+w,y+h,r);
 function rrPath(w,h,r){const p=new Path2D();p.moveTo(r,0);p.lineTo(w-r,0);p.quadraticCurveTo(w,0,w,r);p.lineTo(w,h-r);p.quadraticCurveTo(w,h,w-r,h);p.lineTo(r,h);p.quadraticCurveTo(0,h,0,h-r);p.lineTo(0,r);p.quadraticCurveTo(0,0,r,0);p.closePath();return p;}
 const CARD_FONT='"Orbitron","DIN Alternate","Bank Gothic","Eurostile",sans-serif';
 const GUI_FONT='"Bank Gothic","BankGothic Md BT","DIN Alternate","Eurostile","Microgramma","Century Gothic",sans-serif';
+const DIALOG_FONT='Arial,Helvetica,"Helvetica Neue",sans-serif';
+const NAME_TRACK_EM=0.12;
 const HUD_FONT=CARD_FONT;
 function drawKeyHint(g,x,y,kind,col,btnH){
   g.save();g.strokeStyle=col;g.fillStyle=col;g.lineWidth=1.3;
@@ -1122,9 +1100,9 @@ function trapModalTab(box,e){
   }
   return false;
 }
-function tText(g,text,x,y,size,color,spacing=1.4,align='center',bold=true,condense=1,font){
+function tText(g,text,x,y,size,color,spacing=1.4,align='center',bold=true,condense=1,font,keepCase=false){
   g.save();g.fillStyle=color;g.textBaseline='middle';g.textAlign='left';
-  const raw=String(text),chars=raw.toUpperCase().split('');
+  const raw=String(text),chars=(keepCase?raw:raw.toUpperCase()).split('');
   const face=font||GUI_FONT;
   const fontFor=()=>(bold?'700 ':'400 ')+size+'px '+face;
   let tw=0;const ws=chars.map((ch,i)=>{g.font=fontFor(i);const cw=g.measureText(ch).width;tw+=cw+spacing;return cw;});
@@ -1133,6 +1111,16 @@ function tText(g,text,x,y,size,color,spacing=1.4,align='center',bold=true,conden
   g.scale(condense,1);sx/=condense;
   for(let i=0;i<chars.length;i++){g.font=fontFor(i);g.fillText(chars[i],sx,y);sx+=ws[i]+spacing;}
   g.restore();
+}
+function tName(g,text,x,y,size,color,align,maxW){
+  const spacing=size*NAME_TRACK_EM;
+  const raw=String(text);
+  g.save();g.font='700 '+size+'px '+DIALOG_FONT;
+  let tw=0;
+  for(let i=0;i<raw.length;i++)tw+=g.measureText(raw[i]).width+(i?spacing:0);
+  g.restore();
+  const condense=maxW&&tw>maxW?maxW/tw:1;
+  tText(g,raw,x,y,size,color,spacing,align,true,condense,DIALOG_FONT,true);
 }
 const AUDIO={
   ctx:null,master:null,vol:0.6,muted:false,
@@ -1398,7 +1386,7 @@ function addToCollection(id){
   return true;
 }
 const SAVE_KEY='pazaak-outer-rim-save-v1';
-function defaultSave(){return {schema:SAVE_SCHEMA,revision:0,writer:'',updatedAt:0,circuit:0,roster:null,unlocked:Object.assign({},STARTER_COLLECTION),lastDeck:[],credits:START_CREDITS,vol:0.6,muted:false,begun:false,activeMatch:null,recoveredMatch:false,dialogFont:'neue'};}
+function defaultSave(){return {schema:SAVE_SCHEMA,revision:0,writer:'',updatedAt:0,circuit:0,roster:null,unlocked:Object.assign({},STARTER_COLLECTION),lastDeck:[],credits:START_CREDITS,vol:0.6,muted:false,begun:false,activeMatch:null,recoveredMatch:false};}
 function normalizeRoster(save){
   if(!Array.isArray(save.roster)||save.roster.length!==CIRCUIT_LEN||
      !save.roster.every(o=>o&&typeof o.name==='string'&&cleanName(o.name)!=='Unknown'&&Number.isInteger(o.tier)&&o.tier>=1&&o.tier<=3)){
@@ -1418,7 +1406,6 @@ function normalizeSave(raw,recover=true){
   out.credits=Number.isFinite(Number(raw.credits))?Math.max(0,Math.min(999999999,Math.floor(Number(raw.credits)))):START_CREDITS;
   out.vol=Number.isFinite(Number(raw.vol))?Math.max(0,Math.min(1,Number(raw.vol))):0.6;
   out.muted=raw.muted===true;out.begun=raw.begun===true;
-  out.dialogFont=raw.dialogFont==='helvetica'||raw.dialogFont==='arial'?raw.dialogFont:'neue';
   out.activeMatch=raw.activeMatch&&Number.isFinite(Number(raw.activeMatch.wager))&&Number(raw.activeMatch.wager)>0?{
     wager:Math.floor(Number(raw.activeMatch.wager)),rung:Number.isInteger(raw.activeMatch.rung)?raw.activeMatch.rung:null,startedAt:Number(raw.activeMatch.startedAt)||0
   }:null;
@@ -2517,13 +2504,15 @@ function renderStatic(){
   }
   const on=M;
   const nameCol=sk.name;
+  const fsName=L.fsName||12;
+  const namePad=Math.max(6,Math.round(L.topP.h*0.18));
   g.save();
   rr(g,L.topP.x,L.topP.y,L.topP.w,L.topP.h,Math.max(6,L.topP.h/2));g.clip();
-  tText(g,'YOU',L.nameP.x,L.nameP.y,L.fsName||12,nameCol,1.4,'left');
+  tName(g,'YOU',L.nameP.x,L.nameP.y,fsName,nameCol,'left',Math.max(24,L.topP.x+L.topP.w-namePad-L.nameP.x));
   g.restore();
   g.save();
   rr(g,L.topO.x,L.topO.y,L.topO.w,L.topO.h,Math.max(6,L.topO.h/2));g.clip();
-  tText(g,on?on.opp.name:'OPPONENT',L.nameO.x,L.nameO.y,L.fsName||12,nameCol,1.4,'right');
+  tName(g,on?on.opp.name:'Opponent',L.nameO.x,L.nameO.y,fsName,nameCol,'right',Math.max(24,L.nameO.x-(L.topO.x+namePad)));
   g.restore();
   for(const grid of [L.gridP,L.gridO]){
     const gx=L.gapX!=null?L.gapX:L.gap, gy=L.gapY!=null?L.gapY:L.gap;
@@ -2614,15 +2603,7 @@ function render(now){
     ctx.restore();
   });
 }
-function applyDialogFont(id){
-  const next=id==='helvetica'||id==='arial'?id:'neue';
-  SAVE.dialogFont=next;
-  if(document.documentElement)document.documentElement.setAttribute('data-dialog-font',next);
-  document.querySelectorAll('[data-dialog-font]').forEach(b=>{
-    if(b.tagName!=='BUTTON')return;
-    b.setAttribute('aria-pressed',b.getAttribute('data-dialog-font')===next?'true':'false');
-  });
-}
+let modalFocusRest=null,matchLiveSig='';
 function showScreen(id){
   document.querySelectorAll('.screen').forEach(s=>{
     const on=s.id==='scr-'+id;
@@ -3111,7 +3092,6 @@ async function init(){
   initTextures();
   initSaveSync();
   applyRecoveredWager();
-  applyDialogFont(SAVE.dialogFont||'neue');
   AUDIO.vol=SAVE.vol;AUDIO.muted=SAVE.muted;
   if(!SAVE.roster||SAVE.roster.length!==CIRCUIT_LEN){SAVE.roster=buildRoster();persist();}
   else{const before=JSON.stringify(SAVE.roster);normalizeRoster(SAVE);if(before!==JSON.stringify(SAVE.roster))persist();}
@@ -3144,9 +3124,6 @@ async function init(){
   $('#bt-sback').onclick=()=>{AUDIO.play('click');buildCircuit();showScreen('circuit');};
   $('#bt-options').onclick=()=>{AUDIO.play('click');openOptions();};
   $('#bt-quit').onclick=askQuit;
-  document.querySelectorAll('.type-preview [data-dialog-font]').forEach(b=>{
-    b.onclick=()=>{AUDIO.play('click');applyDialogFont(b.getAttribute('data-dialog-font'));persist();};
-  });
   $('#bt-autofill').onclick=autoFill;
   $('#bt-dback').onclick=()=>{AUDIO.play('click');buildCircuit();showScreen('circuit');};
   $('#bt-begin').onclick=()=>{
@@ -3199,7 +3176,7 @@ async function init(){
         document.fonts.load('700 32px "Orbitron"'),
         document.fonts.load('700 32px "Bank Gothic"'),
         document.fonts.load('700 32px "DIN Alternate"'),
-        document.fonts.load('600 24px "Helvetica Neue"')
+        document.fonts.load('600 24px Arial')
       ]);
     }catch(_){/* use the local fallback stack */}
   }
