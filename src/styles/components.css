@@ -34,7 +34,7 @@ h1.kotor-lockup,.kotor-lockup{display:flex;flex-direction:column;align-items:cen
 .km-rail-in{fill:none;stroke:#2a6a88;stroke-width:1.05;stroke-linecap:round;opacity:.75}
 .km-div{fill:none;stroke:#000;stroke-width:1.1;opacity:.82}
 .kotor-menu{position:relative;z-index:1;display:flex;flex-direction:column;padding:4% 12% 4%}
-.kotor-menu button{appearance:none;-webkit-appearance:none;display:flex;align-items:center;justify-content:center;width:100%;margin:0;padding:clamp(10px,2vh,16px) 4px;background:transparent;border:0;border-bottom:0;color:#5eb4dc;font-family:var(--gui);font-size:clamp(12px,2.05vh,16px);font-weight:700;letter-spacing:.18em;word-spacing:.28em;text-indent:.09em;text-transform:uppercase;text-align:center;cursor:pointer;text-shadow:0 0 7px rgba(60,170,230,.3)}
+.kotor-menu button{appearance:none;-webkit-appearance:none;display:flex;align-items:center;justify-content:center;width:100%;margin:0;padding:clamp(8px,1.55vh,13px) 4px;background:transparent;border:0;border-bottom:0;color:#5eb4dc;font-family:var(--gui);font-size:clamp(12px,1.85vh,15px);font-weight:700;letter-spacing:.18em;word-spacing:.28em;text-indent:.09em;text-transform:uppercase;text-align:center;cursor:pointer;text-shadow:0 0 7px rgba(60,170,230,.3)}
 .kotor-menu button:last-child{border-bottom:0}
 .kotor-menu button:hover,.kotor-menu button:focus-visible,.kotor-menu button.sel{color:#cce666;text-shadow:0 0 8px rgba(200,220,70,.5);outline:none}
 .kotor-menu:hover button.sel:not(:hover){color:#5eb4dc;text-shadow:0 0 7px rgba(60,170,230,.3)}

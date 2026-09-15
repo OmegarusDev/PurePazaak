@@ -24,15 +24,68 @@ function dialogCancel(){
   if(gameHooks.closeModal)gameHooks.closeModal();
   if(d&&d.onCancel){if(gameHooks.dialog)setTimeout(()=>d.onCancel(),0);else d.onCancel();}
 }
-function newMatch(opp,replayRung){
+function isVs(){return !!(M&&M.vs);}
+function acting(){return !!(M&&M.phase==='pAction'&&(!M.vs||M.seat===M.turn));}
+function viewWho(panel){
+  if(!isVs())return panel;
+  const seat=M.seat||'p';
+  return panel==='p'?seat:other(seat);
+}
+function plateName(who){
+  if(isVs()&&M.names)return M.names[who]||(who==='p'?'Player 1':'Player 2');
+  return who==='p'?'YOU':((M.opp&&M.opp.name)||'Opponent');
+}
+function handOpen(who){
+  if(!M)return false;
+  if(M.phase==='pass'||M.phase==='over'||M.phase==='done')return false;
+  if(M.vs)return who===M.seat&&M.phase==='pAction';
+  return who==='p';
+}
+function acceptPass(){
+  if(!M||M.phase!=='pass')return;
+  AUDIO.play('click');
+  M.seat=M.turn;M.sel=-1;M.orient=1;M.varV=1;M.sidePlayed=false;
+  drawTo(M.turn);
+  const res=resolveAfterDraw(M.turn);
+  if(res==='fill'||res==='bust'){refreshVsView();return;}
+  if(res==='stood'){
+    if(sideOf(other(M.turn)).stood)resolveStandoff();
+    else beginTurn(other(M.turn));
+    refreshVsView();return;
+  }
+  M.phase='pAction';
+  refreshVsView();
+}
+function refreshVsView(){
+  if(typeof renderStatic==='function')renderStatic();
+  if(typeof kickRender==='function'&&typeof requestAnimationFrame==='function')kickRender();
+}
+function queueHumanTurn(w){
+  M.sidePlayed=false;M.sel=-1;M.orient=1;M.varV=1;
+  if(M.vs&&M.seat!==w){M.phase='pass';return;}
+  M.phase='pAction';
+}
+function vsPlayerName(raw,fallback){
+  const n=cleanName(raw);
+  return n==='Unknown'?fallback:n.slice(0,18);
+}
+function newMatch(opp,replayRung,opts){
+  const o=opts||{};
   const tk=M?M.token+1:1;
   const mkSide=()=>({board:Array(9).fill(null),hand:[null,null,null,null],score:0,stood:false,bust:false,tiebreak:false,side:[]});
   M={opp,replayRung,token:tk,phase:'idle',setNum:0,setsP:0,setsO:0,
-     setStarter:Math.random()<0.5?'p':'o',turn:'p',
+     setStarter:o.vs?'p':(Math.random()<0.5?'p':'o'),turn:'p',
      p:mkSide(),o:mkSide(),deck:[],sel:-1,orient:1,varV:1,sidePlayed:false,toasts:[],
-     anims:{deal:null,flash:null},flashBadge:{p:0,o:0},lastScores:{p:0,o:0},wager:0};
-  M.p.side=SAVE.lastDeck.map(id=>makeCard(id)).filter(Boolean);
-  M.o.side=genSideDeck(opp.tier).map(id=>makeCard(id)).filter(Boolean);
+     anims:{deal:null,flash:null},flashBadge:{p:0,o:0},lastScores:{p:0,o:0},wager:0,
+     vs:!!o.vs,seat:'p',names:{p:'YOU',o:(opp&&opp.name)||'Opponent'}};
+  if(M.vs){
+    M.names.p=vsPlayerName(o.pName,'Player 1');
+    M.names.o=vsPlayerName(o.oName,(opp&&opp.name)||'Player 2');
+  }
+  const pDeck=o.pDeck||SAVE.lastDeck||[];
+  const oDeck=o.oDeck||genSideDeck(opp.tier);
+  M.p.side=pDeck.map(id=>makeCard(id)).filter(Boolean);
+  M.o.side=(oDeck||[]).map(id=>makeCard(id)).filter(Boolean);
   for(const w of ['p','o']){
     const S=sideOf(w);
     const n=S.side.length;
@@ -79,6 +132,7 @@ function beginTurn(w){
     beginTurn(other(w));
     return;
   }
+  if(M.vs&&M.seat!==w){M.phase='pass';return;}
   drawTo(w);
   const res=resolveAfterDraw(w);
   if(res==='fill'||res==='bust')return;
@@ -87,19 +141,22 @@ function beginTurn(w){
     beginTurn(other(w));
     return;
   }
-  if(w==='p'){M.sidePlayed=false;M.phase='pAction';}else{M.phase='oTurn';aiTurn(M.token);}
+  if(w==='p'||M.vs)queueHumanTurn(w);
+  else{M.phase='oTurn';aiTurn(M.token);}
 }
-function passToOpp(){beginTurn('o');}
+function passToOpp(){beginTurn(other(M.turn));}
 function endPlayerTurn(){
-  if(M.phase!=='pAction')return;AUDIO.play('click');M.sel=-1;
-  if(M.p.score>20){bustFlash('p');endSet('o','bust');return;}
-  passToOpp();
+  if(!acting())return;AUDIO.play('click');M.sel=-1;
+  const w=M.turn;
+  if(sideOf(w).score>20){bustFlash(w);endSet(other(w),'bust');return;}
+  beginTurn(other(w));
 }
 function playerStand(){
-  if(M.phase!=='pAction')return;AUDIO.play('click');
-  if(M.p.score>20){bustFlash('p');endSet('o','bust');return;}
-  M.p.stood=true;M.sel=-1;toast('YOU STAND');
-  if(M.o.stood)resolveStandoff();else passToOpp();
+  if(!acting())return;AUDIO.play('click');
+  const w=M.turn,S=sideOf(w);
+  if(S.score>20){bustFlash(w);endSet(other(w),'bust');return;}
+  S.stood=true;M.sel=-1;toast(plateName(w).toUpperCase()+' STANDS');
+  if(sideOf(other(w)).stood)resolveStandoff();else beginTurn(other(w));
 }
 function cycleFlex(){
   if(M.orient>0&&M.varV===1)M.varV=2;
@@ -108,32 +165,33 @@ function cycleFlex(){
   else{M.orient=1;M.varV=1;}
 }
 function flipArmed(){
-  if(M.phase!=='pAction'||M.sel<0)return;
-  const card=M.p.hand[M.sel];
+  if(!acting()||M.sel<0)return;
+  const card=sideOf(M.turn).hand[M.sel];
   if(!canFlip(card))return;
   AUDIO.play('click');
   if(card.kind==='flex')cycleFlex();
   else M.orient*=-1;
 }
 function confirmPlay(i){
-  if(M.phase!=='pAction'||M.sidePlayed)return;
-  const card=M.p.hand[i];if(!card)return;
-  if(card.kind==='dbl'&&!lastMain(M.p.board)){toast('NOTHING TO DOUBLE');return;}
+  if(!acting()||M.sidePlayed)return;
+  const w=M.turn,S=sideOf(w);
+  const card=S.hand[i];if(!card)return;
+  if(card.kind==='dbl'&&!lastMain(S.board)){toast('NOTHING TO DOUBLE');return;}
   if(card.kind==='flip'){
-    const n=applyFlip(M.p.board,card.vals);
+    const n=applyFlip(S.board,card.vals);
     if(!n){toast('NOTHING TO FLIP');return;}
     AUDIO.play('place');
     toast('FLIPPED '+n+' CARD'+(n===1?'':'S'));
   }else{
     AUDIO.play('place');
-    if(card.kind==='dbl')applyDouble(M.p.board);
-    else{const si=placeSide(M.p,card,M.orient,M.varV);if(si>=0)M.anims.deal={who:'p',slot:si,t0:performance.now()};}
+    if(card.kind==='dbl')applyDouble(S.board);
+    else{const si=placeSide(S,card,M.orient,M.varV);if(si>=0)M.anims.deal={who:w,slot:si,t0:performance.now()};}
   }
-  if(card.kind==='tie')M.p.tiebreak=true;
-  M.p.hand[i]=null;M.sel=-1;M.sidePlayed=true;
-  const res=resolveBoard('p');
+  if(card.kind==='tie')S.tiebreak=true;
+  S.hand[i]=null;M.sel=-1;M.sidePlayed=true;
+  const res=resolveBoard(w);
   if(res==='fill'||res==='bust')return;
-  if(res==='stood'){if(M.o.stood)resolveStandoff();else passToOpp();}
+  if(res==='stood'){if(sideOf(other(w)).stood)resolveStandoff();else beginTurn(other(w));}
 }
 function bustRisk(w){
   const S=sideOf(w),rem=M.deck.length;
@@ -189,20 +247,35 @@ function resolveStandoff(){
   else if(M.o.tiebreak&&!M.p.tiebreak)winner='o';
   if(winner){endSet(winner,'score');return;}
   M.phase='over';
-  presentDialog('THE SET IS TIED.','NO POINT AWARDED',()=>{M.setStarter=other(M.setStarter);startSet();});
+  presentDialog('THE SET IS TIED.','NO POINT AWARDED',()=>{
+    M.setStarter=other(M.setStarter);
+    if(M.vs)M.seat=null;
+    startSet();
+  });
 }
 function endSet(winner,reason){
   M.phase='over';M.sel=-1;
-  if(winner==='p'){M.setsP++;AUDIO.play('win');}
-  else{M.setsO++;AUDIO.play(reason==='bust'?'bust':'lose');}
+  if(winner==='p')M.setsP++;else M.setsO++;
+  if(M.vs)AUDIO.play(reason==='bust'?'bust':'win');
+  else if(winner==='p')AUDIO.play('win');
+  else AUDIO.play(reason==='bust'?'bust':'lose');
   const lines=setEndText(winner,reason);
   presentDialog(lines[0],lines[1],()=>{
     if(M.setsP>=3){matchEnd('p');return;}
     if(M.setsO>=3){matchEnd('o');return;}
-    M.setStarter=winner;startSet();
+    M.setStarter=winner;
+    if(M.vs)M.seat=null;
+    startSet();
   });
 }
 function setEndText(winner,reason){
+  const wName=plateName(winner).toUpperCase();
+  const lName=plateName(other(winner)).toUpperCase();
+  if(M.vs){
+    if(reason==='bust')return [wName+' WINS THE SET.',lName+' WENT BUST'];
+    if(reason==='fill')return [wName+' WINS THE SET.','BOARD FILLED - NINE CARDS'];
+    return [wName+' WINS THE SET.',sideOf(winner).score+' TO '+sideOf(other(winner)).score];
+  }
   if(winner==='p'){
     if(reason==='bust')return ['YOU WIN THE SET.','OPPONENT BUSTED'];
     if(reason==='fill')return ['YOU WIN THE SET.','BOARD FILLED - NINE CARDS'];
@@ -215,6 +288,11 @@ function setEndText(winner,reason){
 function matchEnd(winner){
   M.phase='done';
   SAVE.activeMatch=null;
+  if(M.vs){
+    AUDIO.play('win');
+    presentDialog(plateName(winner).toUpperCase()+' WINS.','FIRST TO 3 SETS',()=>leaveMatch());
+    return;
+  }
   if(winner==='p'){
     AUDIO.play('win');
     const rematch=M.replayRung!=null,wager=M.wager||0;
@@ -229,10 +307,21 @@ function matchEnd(winner){
   }
 }
 function leaveMatch(){
+  const vs=isVs();
   SAVE.activeMatch=null;
   persist();
   if(M)M.token++;M=null;
-  if(gameHooks.onLeaveMatch)gameHooks.onLeaveMatch();
+  if(gameHooks.onLeaveMatch)gameHooks.onLeaveMatch(vs);
+}
+function startVsMatch(names,tier,pDeck,oDeck){
+  const n1=vsPlayerName(names&&names[0],'Player 1');
+  const n2=vsPlayerName(names&&names[1],'Player 2');
+  const t=Math.max(1,Math.min(3,tier|0||1));
+  const opp={name:n2,tier:t,title:'Challenger'};
+  newMatch(opp,null,{vs:true,pDeck:pDeck,oDeck:oDeck,pName:n1,oName:n2});
+  M.wager=0;M.seat='p';
+  if(gameHooks.onEnterMatch)gameHooks.onEnterMatch();
+  startSet();
 }
 function startMatch(rung){
   const opp=Array.isArray(SAVE.roster)?SAVE.roster[rung]:null;
@@ -263,7 +352,7 @@ function orbState(w){
   const S=sideOf(w);
   if(S.bust)return 'red';
   if(S.stood)return 'amber';
-  if(M.turn===w&&(M.phase==='pAction'||M.phase==='oTurn'||M.phase==='turn'))return 'red';
+  if(M.turn===w&&(M.phase==='pAction'||M.phase==='oTurn'||M.phase==='turn'||M.phase==='pass'))return 'red';
   return 'idle';
 }
 function matchLive(){return !!(M&&M.phase!=='done'&&M.phase!=='over');}

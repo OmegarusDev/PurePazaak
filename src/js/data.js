@@ -75,6 +75,24 @@ const STORE_FROM={
   '1\u00B12':9
 };
 function storeMinCircuit(id){return STORE_FROM[id]==null?99:STORE_FROM[id];}
+/** 2-player pools: T1 +/− only, T2 adds duals, T3 full K2 roster. Two of each. */
+function vsTierIds(tier){
+  if(tier>=3)return SIDE_CARD_IDS.slice();
+  const ids=[];
+  for(let v=1;v<=6;v++)ids.push('+'+v,'-'+v);
+  if(tier>=2)for(let v=1;v<=6;v++)ids.push('\u00B1'+v);
+  return ids;
+}
+function vsCollection(tier){
+  const u={};
+  vsTierIds(tier).forEach(id=>u[id]=2);
+  return u;
+}
+function vsTierNote(tier){
+  if(tier>=3)return 'Full KOTOR 2 side-deck roster. Two of every card.';
+  if(tier>=2)return 'Plus, minus, and \u00B1 duals. Two of every card.';
+  return 'Plus and minus cards only. Two of every card.';
+}
 function storeStock(){
   return Object.keys(CARD_PRICE).filter(id=>storeMinCircuit(id)<=SAVE.circuit)
     .sort((a,b)=>storeMinCircuit(a)-storeMinCircuit(b)||(CARD_PRICE[a]-CARD_PRICE[b]));

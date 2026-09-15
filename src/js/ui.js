@@ -27,13 +27,16 @@ function focusActiveScreen(){
 function bindMatchDialog(title,sub,opts){
   const o=opts||{};
   const html='<h2 id="modal-title">'+escapeHtml(title)+'</h2>'+(sub?'<p>'+escapeHtml(sub)+'</p>':'')+(o.sub2?'<p>'+escapeHtml(o.sub2)+'</p>':'')+
-    '<div class="mrow">'+(o.cancelText?'<button type="button" id="dcancel" class="kbtn">'+escapeHtml(o.cancelText)+'</button>':'')+'<button type="button" id="dok" class="kbtn">OK</button></div>';
+    '<div class="mrow">'+(o.cancelText?'<button type="button" id="dcancel" class="kbtn">'+escapeHtml(o.cancelText)+'</button>':'')+'<button type="button" id="dok" class="kbtn">'+escapeHtml(o.okText||'OK')+'</button></div>';
   openModal(html);
   $('#dok').onclick=dialogOK;
   $('#dok').classList.add('sel');
   if(o.cancelText)$('#dcancel').onclick=dialogCancel;
 }
 let circuitSel=0;
+let deckMode='campaign',deckPool=null,deckCovered=false;
+let vsSetup={tier:1,names:['Player 1','Player 2'],decks:[null,null],who:0};
+function currentUnlocked(){return deckPool||SAVE.unlocked;}
 function circuitDefaultSel(){return Math.min(SAVE.circuit,Math.max(0,SAVE.roster.length-1));}
 function clampCircuitSel(){
   if(circuitSel==null||circuitSel<0||circuitSel>=SAVE.roster.length||circuitSel>SAVE.circuit)
@@ -71,39 +74,51 @@ function buildCircuit(){
   refreshCredits();
 }
 const DECK_ORDER=SIDE_CARD_IDS.slice();
-function ownedIds(){return DECK_ORDER.filter(id=>(SAVE.unlocked[id]||0)>0);}
+function ownedIds(){const u=currentUnlocked();return DECK_ORDER.filter(id=>(u[id]||0)>0);}
 function inDeckCount(id){return deckSel.filter(x=>x===id).length;}
-function drawMini(cvs,id,w=64,h){
+function drawMini(cvs,id,w=64,h,opts){
   if(h==null)h=Math.round(w/CARD_ASPECT);
   const d=Math.min(2,window.devicePixelRatio||1);
   cvs.width=w*d;cvs.height=h*d;
   const g=cvs.getContext('2d');g.setTransform(d,0,0,d,0,0);
-  drawCard(g,2,2,w-4,h-4,makeCard(id),{glow:false,catalog:true});
+  const back=!!(opts&&opts.back);
+  drawCard(g,2,2,w-4,h-4,back?null:makeCard(id),{glow:false,catalog:true,back:back});
 }
 function buildDeckUI(){
   const col=$('#collection');
   const keep=document.activeElement&&(col.contains(document.activeElement)||$('#sidedeck').contains(document.activeElement));
   const keepId=keep&&document.activeElement.getAttribute('data-card');
   const keepSlot=keep&&document.activeElement.getAttribute('data-slot');
+  const unlocked=currentUnlocked();
+  const left=$('#deck-h-left'),mid=$('#deck-h-mid');
+  if(left){
+    if(deckMode==='vs'){
+      left.removeAttribute('data-credits');left.removeAttribute('data-credits-after');
+      left.textContent=vsSetup.names[vsSetup.who]||('Player '+(vsSetup.who+1));
+    }else{
+      left.setAttribute('data-credits','');left.setAttribute('data-credits-after','');
+    }
+  }
+  if(mid)mid.textContent=deckCovered?'CARDS HIDDEN':'CHOOSE CARDS';
   col.innerHTML='';
   ownedIds().forEach(id=>{
-    const owned=SAVE.unlocked[id],used=inDeckCount(id);
-    const full=used>=owned||deckSel.length>=10;
+    const owned=unlocked[id]||0,used=inDeckCount(id);
+    const full=used>=owned||deckSel.length>=10||deckCovered;
     const cell=document.createElement('button');
     cell.type='button';
     cell.className='cell'+(full?' maxed':'');
     cell.dataset.card=id;
     cell.disabled=full;
-    cell.setAttribute('aria-label',cardSpeak(makeCard(id),1,1,true)+', owned '+owned+(used?' , '+used+' in side deck':''));
+    cell.setAttribute('aria-label',deckCovered?'Hidden card':cardSpeak(makeCard(id),1,1,true)+', owned '+owned+(used?' , '+used+' in side deck':''));
     const cvs=document.createElement('canvas');
     cvs.setAttribute('aria-hidden','true');
     cell.appendChild(cvs);
     const cnt=document.createElement('span');
-    cnt.className='cnt';cnt.textContent='\u00D7'+owned+(used?' \u00B7 IN DECK '+used:'');
+    cnt.className='cnt';cnt.textContent=deckCovered?'':'×'+owned+(used?' · IN DECK '+used:'');
     cell.appendChild(cnt);
-    drawMini(cvs,id);
+    drawMini(cvs,id,64,null,{back:deckCovered});
     cell.onclick=()=>{
-      if(deckSel.length>=10||inDeckCount(id)>=owned)return;
+      if(deckCovered||deckSel.length>=10||inDeckCount(id)>=owned)return;
       AUDIO.play('click');deckSel.push(id);buildDeckUI();
     };
     col.appendChild(cell);
@@ -116,18 +131,19 @@ function buildDeckUI(){
     slot.dataset.slot=String(i);
     if(deckSel[i]){
       slot.dataset.card=deckSel[i];
-      slot.setAttribute('aria-label','Remove '+cardSpeak(makeCard(deckSel[i]),1,1,true)+' from side deck slot '+(i+1));
+      slot.setAttribute('aria-label',deckCovered?'Hidden side deck card':'Remove '+cardSpeak(makeCard(deckSel[i]),1,1,true)+' from side deck slot '+(i+1));
       const cvs=document.createElement('canvas');
       cvs.setAttribute('aria-hidden','true');
-      slot.appendChild(cvs);drawMini(cvs,deckSel[i]);
-      slot.onclick=()=>{AUDIO.play('click');deckSel.splice(i,1);buildDeckUI();};
+      slot.appendChild(cvs);drawMini(cvs,deckSel[i],64,null,{back:deckCovered});
+      slot.onclick=()=>{if(deckCovered)return;AUDIO.play('click');deckSel.splice(i,1);buildDeckUI();};
+      if(deckCovered)slot.disabled=true;
     }else{
       slot.disabled=true;
       slot.setAttribute('aria-label','Empty side deck slot '+(i+1));
     }
     sd.appendChild(slot);
   }
-  if(keep){
+  if(keep&&!deckCovered){
     const again=keepId?document.querySelector('#scr-deck [data-card="'+CSS.escape(keepId)+'"]'):null;
     const slot=keepSlot!=null?document.querySelector('#sidedeck [data-slot="'+keepSlot+'"]'):null;
     (again||slot)?.focus();
@@ -136,32 +152,96 @@ function buildDeckUI(){
   dc.textContent=deckSel.length+'/10';
   dc.classList.toggle('full',deckSel.length===10);
   const begin=$('#bt-begin');
-  const opp=SAVE.roster[deckRung], wager=opp?matchWager(opp.tier):50;
-  const ready=deckSel.length===10, broke=SAVE.credits<wager;
-  begin.disabled=!ready||broke;
-  begin.textContent=!ready?'PLAY':broke?'NEED '+wager+' CR':'PLAY';
-  begin.classList.toggle('sel',ready&&!broke);
-  begin.title=ready&&!broke?('WAGER '+wager+' CR'):'';
+  const ready=deckSel.length===10&&!deckCovered;
+  if(deckMode==='vs'){
+    begin.disabled=!ready;
+    begin.textContent=vsSetup.who===0?'CONFIRM':'CONFIRM';
+    begin.classList.toggle('sel',ready);
+    begin.title='';
+  }else{
+    const opp=SAVE.roster[deckRung], wager=opp?matchWager(opp.tier):50;
+    const broke=SAVE.credits<wager;
+    begin.disabled=!ready||broke;
+    begin.textContent=!ready?'PLAY':broke?'NEED '+wager+' CR':'PLAY';
+    begin.classList.toggle('sel',ready&&!broke);
+    begin.title=ready&&!broke?('WAGER '+wager+' CR'):'';
+  }
+  refreshCredits();
 }
 function validateDeck(deck){
-  const out=[],counts={};
+  const out=[],counts={},u=currentUnlocked();
   for(const id of deck||[]){
     counts[id]=(counts[id]||0)+1;
-    if(counts[id]<=(SAVE.unlocked[id]||0)&&out.length<10)out.push(id);
+    if(counts[id]<=(u[id]||0)&&out.length<10)out.push(id);
   }
   return out;
 }
+function resetDeckMode(){
+  deckMode='campaign';deckPool=null;deckCovered=false;
+}
 function openDeckBuilder(rung){
+  resetDeckMode();
   deckRung=rung;
   deckSel=validateDeck(SAVE.lastDeck);
   buildDeckUI();
   showScreen('deck');
 }
+function openVsDeck(who){
+  deckMode='vs';
+  deckCovered=false;
+  vsSetup.who=who;
+  deckPool=vsCollection(vsSetup.tier);
+  deckSel=validateDeck(vsSetup.decks[who]||[]);
+  buildDeckUI();
+  showScreen('deck');
+}
+function vsReadNames(){
+  vsSetup.names[0]=vsPlayerName($('#vs-name-p')&&$('#vs-name-p').value,'Player 1');
+  vsSetup.names[1]=vsPlayerName($('#vs-name-o')&&$('#vs-name-o').value,'Player 2');
+}
+function vsConfirmDeck(){
+  if(deckSel.length!==10)return;
+  vsSetup.decks[vsSetup.who]=deckSel.slice();
+  deckCovered=true;
+  buildDeckUI();
+  const other=vsSetup.who===0?1:0;
+  const otherName=(vsSetup.names[other]||('Player '+(other+1))).toUpperCase();
+  if(vsSetup.who===0){
+    presentDialog('PASS TO '+otherName,'FLIP THE DEVICE AWAY FROM THIS SCREEN',()=>{
+      deckCovered=false;
+      openVsDeck(1);
+    });
+  }else{
+    presentDialog('PASS TO '+otherName,'HAND THE DEVICE BACK',()=>{
+      startVsMatch(vsSetup.names,vsSetup.tier,vsSetup.decks[0],vsSetup.decks[1]);
+    },{okText:'START GAME'});
+  }
+}
+function paintVsSetup(){
+  const t=vsSetup.tier;
+  [1,2,3].forEach(n=>{
+    const b=$('#vs-t'+n);
+    if(b)b.classList.toggle('sel',n===t);
+  });
+  const note=$('#vs-tier-note');
+  if(note)note.textContent=vsTierNote(t);
+}
+function openVersus(){
+  vsSetup={tier:vsSetup.tier||1,names:vsSetup.names||['Player 1','Player 2'],decks:[null,null],who:0};
+  resetDeckMode();
+  const p=$('#vs-name-p'),o=$('#vs-name-o');
+  if(p)p.value=vsSetup.names[0]||'Player 1';
+  if(o)o.value=vsSetup.names[1]||'Player 2';
+  paintVsSetup();
+  showScreen('versus');
+}
 function autoFill(){
+  if(deckCovered)return;
   deckSel=[];
+  const unlocked=currentUnlocked();
   const priority=['1\u00B12','\u00B16','+6','-6','\u00B15','\u00B14','\u00B13','\u00B12','\u00B11','TIE','+5','-5','+4','-4','+3','-3','+2','-2','+1','-1','DBL','2&4','3&6'];
   for(const id of priority){
-    let avail=SAVE.unlocked[id]||0;
+    let avail=unlocked[id]||0;
     while(deckSel.length<10&&avail>0){deckSel.push(id);avail--;}
     if(deckSel.length>=10)break;
   }
@@ -343,17 +423,18 @@ function ensureMatchA11y(){
     const b=document.createElement('button');
     b.type='button';b.className='a11y-hit';b.dataset.kind='hand';b.dataset.i=String(i);
     b.addEventListener('click',()=>{
-      if(!M||matchDlg||M.phase!=='pAction')return;
+      if(!M||matchDlg||!acting())return;
       const idx=+b.dataset.i;
-      if(!M.p.hand[idx])return;
+      const card=sideOf(viewWho('p')).hand[idx];
+      if(!card)return;
       if(M.sel===idx)confirmPlay(idx);
       else{AUDIO.play('click');M.sel=idx;M.orient=1;M.varV=1;}
       syncMatchA11y();
     });
     b.addEventListener('contextmenu',e=>{
       e.preventDefault();
-      if(!M||matchDlg||M.phase!=='pAction')return;
-      const idx=+b.dataset.i,card=M.p.hand[idx];
+      if(!M||matchDlg||!acting())return;
+      const idx=+b.dataset.i,card=sideOf(viewWho('p')).hand[idx];
       if(!canFlip(card))return;
       if(M.sel!==idx){M.sel=idx;M.orient=1;M.varV=1;}
       flipArmed();syncMatchA11y();
@@ -376,21 +457,28 @@ function ensureMatchA11y(){
     });
     root.appendChild(b);
   }
+  const pass=document.createElement('button');
+  pass.type='button';pass.className='a11y-hit';pass.dataset.kind='pass';
+  pass.setAttribute('aria-label','Pass device, tap when ready');
+  pass.addEventListener('click',()=>{if(!M||matchDlg)return;acceptPass();syncMatchA11y();});
+  root.appendChild(pass);
   root.dataset.ready='1';
   return root;
 }
 function matchStatusText(){
   if(!M)return '';
   if(L&&L.fallback)return 'Layout cannot fit. Rotate or enlarge the window.';
-  const opp=M.opp&&M.opp.name?M.opp.name:'Opponent';
+  const nP=plateName('p'),nO=plateName('o');
   let phase='';
-  if(M.phase==='pAction')phase='Your turn.';
-  else if(M.phase==='oTurn')phase=opp+' is playing.';
+  if(M.phase==='pass')phase='Pass the device to '+plateName(M.turn)+'.';
+  else if(M.phase==='pAction')phase=(M.vs?plateName(M.turn):'Your')+' turn.';
+  else if(M.phase==='oTurn')phase=nO+' is playing.';
   else if(M.phase==='over')phase='Set over.';
   else if(M.phase==='done')phase='Match over.';
   const toast=M.toasts&&M.toasts.length?M.toasts[M.toasts.length-1].t+'. ':'';
-  const armed=M.sel>=0&&M.p.hand[M.sel]?' Armed '+cardSpeak(M.p.hand[M.sel],M.orient,M.varV)+'. ':'';
-  return 'You '+M.p.score+', '+opp+' '+M.o.score+'. Sets '+M.setsP+' to '+M.setsO+'. '+phase+' '+toast+armed;
+  const seated=viewWho('p');
+  const armed=M.sel>=0&&sideOf(seated).hand[M.sel]&&handOpen(seated)?' Armed '+cardSpeak(sideOf(seated).hand[M.sel],M.orient,M.varV)+'. ':'';
+  return nP+' '+M.p.score+', '+nO+' '+M.o.score+'. Sets '+M.setsP+' to '+M.setsO+'. '+phase+' '+toast+armed;
 }
 function syncMatchA11y(){
   const root=ensureMatchA11y();
@@ -403,12 +491,15 @@ function syncMatchA11y(){
   root.hidden=false;
   const ui=typeof tableUI==='function'?tableUI():{act:false,flipOk:false};
   const canAct=!!(ui.act&&!matchDlg&&!(L&&L.fallback));
+  const passing=M.phase==='pass';
+  const seated=viewWho('p');
+  const seatedHand=sideOf(seated).hand;
   for(let i=0;i<4;i++){
     const b=root.querySelector('.a11y-hit[data-kind="hand"][data-i="'+i+'"]');
-    const card=M.p.hand[i];
+    const card=seatedHand[i];
     placeA11yHit(b,L&&L.handP?handSlot(L.handP,i):null);
     if(!b)continue;
-    if(!card||L.fallback){b.hidden=true;continue;}
+    if(passing||!card||L.fallback||!handOpen(seated)){b.hidden=true;continue;}
     b.disabled=!canAct;
     const selected=M.sel===i;
     const name=cardSpeak(card,selected?M.orient:1,selected?M.varV:1);
@@ -421,9 +512,20 @@ function syncMatchA11y(){
     placeA11yHit(b,rect);
     if(!b)continue;
     if(L&&L.fallback){b.hidden=true;continue;}
+    if(passing&&kind!=='forfeit'){b.hidden=true;continue;}
+    b.hidden=false;
     if(kind==='flip')b.disabled=!ui.flipOk||!!matchDlg;
     else if(kind==='forfeit')b.disabled=!canForfeit()||!!matchDlg||!!(L&&L.fallback);
     else b.disabled=!canAct;
+  }
+  const passBtn=root.querySelector('.a11y-hit[data-kind="pass"]');
+  if(passBtn){
+    if(passing&&!(L&&L.fallback)){
+      placeA11yHit(passBtn,L.frame);
+      passBtn.hidden=false;
+      passBtn.disabled=!!matchDlg;
+      passBtn.setAttribute('aria-label','Pass to '+plateName(M.turn)+', tap when ready');
+    }else passBtn.hidden=true;
   }
   const sig=matchStatusText();
   if(live&&sig!==matchLiveSig){matchLiveSig=sig;live.textContent=sig;}

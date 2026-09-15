@@ -5,7 +5,12 @@ async function init(){
   gameHooks.closeModal=closeModal;
   gameHooks.spoils=showSpoilsModal;
   gameHooks.onEnterMatch=()=>{showScreen('match');fit();kickRender();};
-  gameHooks.onLeaveMatch=()=>{circuitSel=circuitDefaultSel();buildCircuit();showScreen('circuit');if(globalThis.flushPwaReload)globalThis.flushPwaReload();};
+  gameHooks.onLeaveMatch=vs=>{
+    resetDeckMode();
+    if(vs){refreshTitle();showScreen('title');}
+    else{circuitSel=circuitDefaultSel();buildCircuit();showScreen('circuit');}
+    if(globalThis.flushPwaReload)globalThis.flushPwaReload();
+  };
   initTextures();
   initSaveSync();
   applyRecoveredWager();
@@ -16,6 +21,7 @@ async function init(){
   cv=table;ctx=table.getContext('2d');
   fit();
   $('#bt-new').onclick=startNewGame;
+  $('#bt-vs').onclick=()=>{AUDIO.play('click');openVersus();};
   $('#bt-continue').onclick=()=>{if(!hasSave())return;AUDIO.play('click');enterCircuit();};
   $('#bt-challenge').onclick=()=>{
     if(circuitSel>SAVE.circuit)return;
@@ -32,6 +38,7 @@ async function init(){
     '<li>Tied sets award no point and replay. Your 4 hand cards last the entire match - spend them wisely.</li>'+
     '<li>Arrow keys move between menus and table controls. Tab also works. Click a hand card to arm it, click again to play. FLIP, F, or right-click cycles +/- on duals, tiebreakers, and the 1\u00B12 card.</li>'+
     '<li>Keys: Space or E end turn, Enter or S stand, F or right-click flip, Esc cancel or close. Click a hand card twice to play it.</li>'+
+    '<li>Two Player is pass-and-play on one device. Whoever holds the phone sits at the bottom with the full-size hand. Hands flip face-down between turns; tap when the device has changed hands.</li>'+
     '<li>Matches are played for a credits wager. Win and you may take one card from their side deck, or skip if it is clutter.</li>'+
     '<li>The cantina store sells side-deck cards. Better stock unlocks as you climb the circuit.</li>'+
     '</ul><div class="mrow"><button type="button" id="mclose" class="kbtn sel">CLOSE</button></div>');
@@ -42,13 +49,29 @@ async function init(){
   $('#bt-options').onclick=()=>{AUDIO.play('click');openOptions();};
   $('#bt-quit').onclick=askQuit;
   $('#bt-autofill').onclick=autoFill;
-  $('#bt-dback').onclick=()=>{AUDIO.play('click');buildCircuit();showScreen('circuit');};
-  $('#bt-begin').onclick=()=>{
-    if(deckSel.length!==10)return;
+  $('#bt-dback').onclick=()=>{
     AUDIO.play('click');
+    if(deckMode==='vs'){deckCovered=false;openVersus();return;}
+    buildCircuit();showScreen('circuit');
+  };
+  $('#bt-begin').onclick=()=>{
+    if(deckSel.length!==10||deckCovered)return;
+    AUDIO.play('click');
+    if(deckMode==='vs'){vsReadNames();vsConfirmDeck();return;}
     SAVE.lastDeck=deckSel.slice();persist();
     startMatch(deckRung);
   };
+  $('#bt-vback').onclick=()=>{AUDIO.play('click');resetDeckMode();refreshTitle();showScreen('title');};
+  $('#bt-vnext').onclick=()=>{
+    AUDIO.play('click');
+    vsReadNames();
+    vsSetup.decks=[null,null];
+    openVsDeck(0);
+  };
+  [1,2,3].forEach(n=>{
+    const b=$('#vs-t'+n);
+    if(b)b.onclick=()=>{AUDIO.play('click');vsSetup.tier=n;paintVsSetup();};
+  });
   table.addEventListener('pointerdown',onTablePointer);
   table.addEventListener('pointermove',onTableHover);
   table.addEventListener('contextmenu',onTableContext);
@@ -75,7 +98,11 @@ async function init(){
     }
     if(curScreen!=='match'||!M)return;
     const fromBtn=e.target&&e.target.closest&&e.target.closest('button');
-    if(M.phase!=='pAction')return;
+    if(M.phase==='pass'){
+      if(k==='enter'||k===' '||k==='e'){e.preventDefault();acceptPass();}
+      return;
+    }
+    if(!acting())return;
     if((k==='e'||(k===' ' && !fromBtn))){e.preventDefault();endPlayerTurn();}
     else if((k==='s')||(k==='enter'&&!fromBtn)){e.preventDefault();playerStand();}
     else if(k==='f'){e.preventDefault();flipArmed();}
@@ -124,13 +151,19 @@ function canvasPoint(e){
 function askForfeit(){
   if(!canForfeit())return;
   AUDIO.play('click');
-  presentDialog('FORFEIT THE MATCH?','THE WAGER WILL BE LOST',()=>{AUDIO.play('lose');leaveMatch();},{cancelText:'NO',onCancel(){}});
+  const sub=isVs()?'THE MATCH WILL END':'THE WAGER WILL BE LOST';
+  presentDialog('FORFEIT THE MATCH?',sub,()=>{AUDIO.play('lose');leaveMatch();},{cancelText:'NO',onCancel(){}});
 }
 function hitTable(p){
   if(!M||matchDlg||L.fallback)return null;
-  if(L.handP&&!M.sidePlayed){
+  if(M.phase==='pass'){
+    if(inRect(p,L.btnForf)&&canForfeit())return {kind:'forfeit'};
+    return {kind:'pass'};
+  }
+  const seated=viewWho('p');
+  if(L.handP&&!M.sidePlayed&&handOpen(seated)){
     for(let i=0;i<4;i++){
-      if(inRect(p,handSlot(L.handP,i))&&M.p.hand[i])return {kind:'hand',i};
+      if(inRect(p,handSlot(L.handP,i))&&sideOf(seated).hand[i])return {kind:'hand',i};
     }
   }
   const ui=tableUI();
@@ -151,32 +184,34 @@ function onTablePointer(e){
   if(!hit)return;
   e.preventDefault();
   if(hit.kind==='hand'){
-    if(M.phase!=='pAction')return;
+    if(!acting())return;
     if(M.sel===hit.i)confirmPlay(hit.i);
     else{AUDIO.play('click');M.sel=hit.i;M.orient=1;M.varV=1;}
   }else if(hit.kind==='end')endPlayerTurn();
   else if(hit.kind==='stand')playerStand();
   else if(hit.kind==='flip')flipArmed();
   else if(hit.kind==='forfeit')askForfeit();
+  else if(hit.kind==='pass')acceptPass();
 }
 function onTableContext(e){
   if(curScreen!=='match')return;
   e.preventDefault();
-  if(!M||matchDlg||M.phase!=='pAction')return;
+  if(!M||matchDlg||!acting())return;
   const hit=hitTable(canvasPoint(e));
   if(!hit||hit.kind!=='hand')return;
-  const card=M.p.hand[hit.i];
+  const card=sideOf(viewWho('p')).hand[hit.i];
   if(!canFlip(card))return;
   if(M.sel!==hit.i){M.sel=hit.i;M.orient=1;M.varV=1;}
   flipArmed();
 }
 globalThis.PZ={shuffle,buildMainDeck,boardScore,placeMain,placeSide,applyDouble,applyFlip,aiDecide,shouldStand,genSideDeck,generateOpponent,cardLabel,cardSpeak,CARD_DEFS,SIDE_CARD_IDS,buildRoster,makeCard,faceVal,canFlip,playValue,lastMain,lastSlot,
   startSet,beginTurn,endPlayerTurn,playerStand,confirmPlay,endSet,resolveBoard,resolveStandoff,boardCount,dialogOK,
-  newMatchForTest:(deckIds,opp)=>{SAVE.lastDeck=deckIds;newMatch(opp,null);},
+  newMatchForTest:(deckIds,opp,opts)=>{SAVE.lastDeck=deckIds;newMatch(opp,null,opts);},
   getM:()=>M,setSleepScale:v=>{SLEEP_SCALE=v;},chanState,fitCard,CARD_ASPECT,
   matchWager,storeStock,storeMinCircuit,addToCollection,isClutterId,CARD_PRICE,getSave:()=>SAVE,
   persist,normalizeSave,applyRecoveredWager,startMatch,leaveMatch,matchEnd,defaultSave,START_CREDITS,SAVE_KEY,
-  blockPersist:v=>{PERSIST_BLOCK=!!v;}};
+  blockPersist:v=>{PERSIST_BLOCK=!!v;},
+  vsTierIds,vsCollection,startVsMatch,acceptPass,viewWho,plateName,isVs};
 if(typeof document!=='undefined'){
   document.addEventListener('DOMContentLoaded',init);
 }

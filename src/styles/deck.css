@@ -199,3 +199,70 @@
   border-radius:0;
   box-shadow:none;
 }
+
+#scr-versus{
+  justify-content:center;
+  align-items:center;
+  background:#05060c;
+  gap:0;
+  padding:clamp(8px,1.6vh,16px) clamp(8px,2vw,18px);
+}
+.vs-console{
+  width:min(560px,96vw);
+  height:auto;
+  max-height:100%;
+}
+.vs-well{
+  padding:clamp(16px,3vh,28px) clamp(16px,4vw,28px);
+  gap:clamp(10px,1.8vh,16px);
+  overflow-y:auto;
+}
+.vs-field{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  font-family:var(--gui);
+  font-size:clamp(10px,1.5vh,12px);
+  letter-spacing:.16em;
+  color:#7ec8e8;
+  text-transform:uppercase;
+}
+.vs-field input{
+  appearance:none;-webkit-appearance:none;
+  width:100%;
+  box-sizing:border-box;
+  min-height:44px;
+  padding:10px 12px;
+  background:#0a0e14;
+  border:1px solid #3a78d0;
+  border-radius:6px;
+  color:#f3efe6;
+  font-family:var(--dialog);
+  font-size:16px;
+  letter-spacing:.04em;
+  text-transform:none;
+}
+.vs-field input:focus{
+  outline:none;
+  border-color:#7ec8e8;
+  box-shadow:0 0 0 1px rgba(126,200,232,.35);
+}
+.vs-label{
+  margin:8px 0 0;
+  font-family:var(--gui);
+  font-size:clamp(10px,1.5vh,12px);
+  letter-spacing:.16em;
+  color:#7ec8e8;
+  text-align:center;
+}
+.vs-tiers{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.vs-tiers .kplate{min-height:48px;padding:12px 6px;font-size:12px}
+.vs-tier-note{
+  margin:0;
+  font-family:var(--dialog);
+  font-size:clamp(11px,1.6vmin,13px);
+  letter-spacing:.04em;
+  color:#9ad4f0;
+  text-align:center;
+  text-transform:none;
+}

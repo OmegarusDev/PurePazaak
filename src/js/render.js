@@ -22,13 +22,15 @@ function renderStatic(){
   const on=M;
   const nameCol=sk.name;
   const fsName=L.fsName||12;
+  const whoP=typeof viewWho==='function'?viewWho('p'):'p';
+  const whoO=typeof viewWho==='function'?viewWho('o'):'o';
   g.save();
   rr(g,L.topP.x,L.topP.y,L.topP.w,L.topP.h,Math.max(6,L.topP.h/2));g.clip();
-  tName(g,'YOU',L.nameP.x,L.nameP.y,fsName,nameCol,'left',L.nameMaxP||24);
+  tName(g,on?plateName(whoP):'YOU',L.nameP.x,L.nameP.y,fsName,nameCol,'left',L.nameMaxP||24);
   g.restore();
   g.save();
   rr(g,L.topO.x,L.topO.y,L.topO.w,L.topO.h,Math.max(6,L.topO.h/2));g.clip();
-  tName(g,on?on.opp.name:'Opponent',L.nameO.x,L.nameO.y,fsName,nameCol,'right',L.nameMaxO||24);
+  tName(g,on?plateName(whoO):'Opponent',L.nameO.x,L.nameO.y,fsName,nameCol,'right',L.nameMaxO||24);
   g.restore();
   for(const grid of [L.gridP,L.gridO]){
     const gx=L.gapX!=null?L.gapX:L.gap, gy=L.gapY!=null?L.gapY:L.gap;
@@ -40,7 +42,7 @@ function renderStatic(){
   if(L.labP){
     rr(g,L.labP.x,L.labP.y,L.labP.w,L.labP.h,5);g.fillStyle=sk.plate;g.fill();
     g.strokeStyle='#000';g.stroke();
-    tText(g,'Player Hand',L.labP.x+L.labP.w/2,L.labP.y+L.labP.h/2+1,L.fsLab||13,sk.lab,1.2,'center',true,1);
+    tText(g,(on&&typeof plateName==='function'?plateName(whoP):'Player')+' Hand',L.labP.x+L.labP.w/2,L.labP.y+L.labP.h/2+1,L.fsLab||13,sk.lab,1.2,'center',true,1);
   }
   for(const h of [L.handP,L.handO]){
     if(!h)continue;
@@ -48,9 +50,24 @@ function renderStatic(){
   }
 }
 function tableUI(){
-  const act=!!(M&&M.phase==='pAction');
-  const armed=act&&M.sel>=0?M.p.hand[M.sel]:null;
+  const act=!!(M&&M.phase==='pAction'&&(!M.vs||M.seat===M.turn));
+  const armed=act&&M.sel>=0?sideOf(M.turn).hand[M.sel]:null;
   return {act,armed,flipOk:!!(armed&&canFlip(armed))};
+}
+function drawPassShutter(g){
+  if(!M||M.phase!=='pass')return;
+  const name=plateName(M.turn).toUpperCase();
+  g.save();
+  g.fillStyle='rgba(2,6,14,0.72)';
+  g.fillRect(0,0,W,H);
+  const bw=Math.min(W*0.84,420),bh=Math.min(H*0.28,150);
+  const bx=(W-bw)/2,by=(H-bh)/2;
+  rr(g,bx,by,bw,bh,14);
+  g.fillStyle='rgba(2,8,18,0.94)';g.fill();
+  g.strokeStyle='#3a78d0';g.lineWidth=2;g.stroke();
+  tText(g,'PASS TO '+name,W/2,by+bh*0.38,Math.max(13,Math.round(bh*0.18)),'#7ec8e8',2.2,'center',true,1);
+  tText(g,'TAP WHEN READY',W/2,by+bh*0.68,Math.max(10,Math.round(bh*0.12)),'#ffe14d',1.6,'center',true,1);
+  g.restore();
 }
 function render(now){
   if(curScreen!=='match'||!M||!ctx)return;
@@ -59,30 +76,30 @@ function render(now){
   if(L.fallback)return;
   if(M.p.score!==M.lastScores.p){M.flashBadge.p=now;M.lastScores.p=M.p.score;}
   if(M.o.score!==M.lastScores.o){M.flashBadge.o=now;M.lastScores.o=M.o.score;}
-  drawChannel(ctx,L.chanP,chanState('p'));
-  drawChannel(ctx,L.chanO,chanState('o'));
-  drawOrb(ctx,L.orbP,L.orbP.r,orbState('p'),now);
-  drawOrb(ctx,L.orbO,L.orbO.r,orbState('o'),now);
-  drawBadge(ctx,L.badges[0],M.p.score,M.flashBadge.p,now);
-  drawBadge(ctx,L.badges[1],M.o.score,M.flashBadge.o,now);
-  if(L.handO){
+  const whoP=viewWho('p'),whoO=viewWho('o');
+  drawChannel(ctx,L.chanP,chanState(whoP));
+  drawChannel(ctx,L.chanO,chanState(whoO));
+  drawOrb(ctx,L.orbP,L.orbP.r,orbState(whoP),now);
+  drawOrb(ctx,L.orbO,L.orbO.r,orbState(whoO),now);
+  drawBadge(ctx,L.badges[0],sideOf(whoP).score,M.flashBadge[whoP],now);
+  drawBadge(ctx,L.badges[1],sideOf(whoO).score,M.flashBadge[whoO],now);
+  function paintHand(panel,handL){
+    if(!handL)return;
+    const who=viewWho(panel),open=handOpen(who),S=sideOf(who);
     for(let i=0;i<4;i++){
-      const rct=handSlot(L.handO,i);
-      if(M.o.hand[i])drawCard(ctx,rct.x,rct.y,rct.w,rct.h,null,{back:true});
-    }
-  }
-  if(L.handP){
-    for(let i=0;i<4;i++){
-      const rct=handSlot(L.handP,i),card=M.p.hand[i];
+      const rct=handSlot(handL,i),card=S.hand[i];
       if(!card)continue;
-      const armed=M.sel===i;
+      if(!open){drawCard(ctx,rct.x,rct.y,rct.w,rct.h,null,{back:true});continue;}
+      const armed=M.sel===i&&M.turn===who;
       drawCard(ctx,rct.x,rct.y,rct.w,rct.h,card,{
         orient:armed?M.orient:1, varV:armed?M.varV:1, selected:armed
       });
     }
   }
-  for(const who of ['p','o']){
-    const S=sideOf(who),grid=who==='p'?L.gridP:L.gridO;
+  paintHand('o',L.handO);
+  paintHand('p',L.handP);
+  for(const panel of ['p','o']){
+    const who=viewWho(panel),S=sideOf(who),grid=panel==='p'?L.gridP:L.gridO;
     for(let i=0;i<9;i++){
       const sl=S.board[i];if(!sl)continue;
       const rc=slotRect(grid,Math.floor(i/3),i%3);
@@ -104,7 +121,8 @@ function render(now){
   if(M.anims.flash){
     const p=(now-M.anims.flash.t0)/500;
     if(p<1){
-      const grid=M.anims.flash.who==='p'?L.gridP:L.gridO;
+      const panel=viewWho('p')===M.anims.flash.who?'p':'o';
+      const grid=panel==='p'?L.gridP:L.gridO;
       ctx.save();ctx.globalAlpha=(1-p)*0.35;ctx.fillStyle='#d02020';
       const gx=L.gapX!=null?L.gapX:L.gap, gy=L.gapY!=null?L.gapY:L.gap;
       rr(ctx,grid.x-10,grid.y-10,3*L.sw+2*gx+20,3*L.sh+2*gy+20,10);ctx.fill();ctx.restore();
@@ -117,4 +135,5 @@ function render(now){
     tText(ctx,t.t,W/2,(L.toastY||H*0.414)-i*Math.round(22*H/768),15,'#bfe8ff',3);
     ctx.restore();
   });
+  drawPassShutter(ctx);
 }

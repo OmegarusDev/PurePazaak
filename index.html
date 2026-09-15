@@ -138,7 +138,7 @@ h1.kotor-lockup,.kotor-lockup{display:flex;flex-direction:column;align-items:cen
 .km-rail-in{fill:none;stroke:#2a6a88;stroke-width:1.05;stroke-linecap:round;opacity:.75}
 .km-div{fill:none;stroke:#000;stroke-width:1.1;opacity:.82}
 .kotor-menu{position:relative;z-index:1;display:flex;flex-direction:column;padding:4% 12% 4%}
-.kotor-menu button{appearance:none;-webkit-appearance:none;display:flex;align-items:center;justify-content:center;width:100%;margin:0;padding:clamp(10px,2vh,16px) 4px;background:transparent;border:0;border-bottom:0;color:#5eb4dc;font-family:var(--gui);font-size:clamp(12px,2.05vh,16px);font-weight:700;letter-spacing:.18em;word-spacing:.28em;text-indent:.09em;text-transform:uppercase;text-align:center;cursor:pointer;text-shadow:0 0 7px rgba(60,170,230,.3)}
+.kotor-menu button{appearance:none;-webkit-appearance:none;display:flex;align-items:center;justify-content:center;width:100%;margin:0;padding:clamp(8px,1.55vh,13px) 4px;background:transparent;border:0;border-bottom:0;color:#5eb4dc;font-family:var(--gui);font-size:clamp(12px,1.85vh,15px);font-weight:700;letter-spacing:.18em;word-spacing:.28em;text-indent:.09em;text-transform:uppercase;text-align:center;cursor:pointer;text-shadow:0 0 7px rgba(60,170,230,.3)}
 .kotor-menu button:last-child{border-bottom:0}
 .kotor-menu button:hover,.kotor-menu button:focus-visible,.kotor-menu button.sel{color:#cce666;text-shadow:0 0 8px rgba(200,220,70,.5);outline:none}
 .kotor-menu:hover button.sel:not(:hover){color:#5eb4dc;text-shadow:0 0 7px rgba(60,170,230,.3)}
@@ -767,6 +767,73 @@ button.mcard:hover,button.mcard:focus-visible{border-color:var(--select);box-sha
   border-radius:0;
   box-shadow:none;
 }
+
+#scr-versus{
+  justify-content:center;
+  align-items:center;
+  background:#05060c;
+  gap:0;
+  padding:clamp(8px,1.6vh,16px) clamp(8px,2vw,18px);
+}
+.vs-console{
+  width:min(560px,96vw);
+  height:auto;
+  max-height:100%;
+}
+.vs-well{
+  padding:clamp(16px,3vh,28px) clamp(16px,4vw,28px);
+  gap:clamp(10px,1.8vh,16px);
+  overflow-y:auto;
+}
+.vs-field{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  font-family:var(--gui);
+  font-size:clamp(10px,1.5vh,12px);
+  letter-spacing:.16em;
+  color:#7ec8e8;
+  text-transform:uppercase;
+}
+.vs-field input{
+  appearance:none;-webkit-appearance:none;
+  width:100%;
+  box-sizing:border-box;
+  min-height:44px;
+  padding:10px 12px;
+  background:#0a0e14;
+  border:1px solid #3a78d0;
+  border-radius:6px;
+  color:#f3efe6;
+  font-family:var(--dialog);
+  font-size:16px;
+  letter-spacing:.04em;
+  text-transform:none;
+}
+.vs-field input:focus{
+  outline:none;
+  border-color:#7ec8e8;
+  box-shadow:0 0 0 1px rgba(126,200,232,.35);
+}
+.vs-label{
+  margin:8px 0 0;
+  font-family:var(--gui);
+  font-size:clamp(10px,1.5vh,12px);
+  letter-spacing:.16em;
+  color:#7ec8e8;
+  text-align:center;
+}
+.vs-tiers{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.vs-tiers .kplate{min-height:48px;padding:12px 6px;font-size:12px}
+.vs-tier-note{
+  margin:0;
+  font-family:var(--dialog);
+  font-size:clamp(11px,1.6vmin,13px);
+  letter-spacing:.04em;
+  color:#9ad4f0;
+  text-align:center;
+  text-transform:none;
+}
 /* Match: the metal table is the whole HUD. */
 #scr-match{padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);justify-content:stretch;align-items:stretch;overflow:hidden}
 .match-wrap{display:flex;flex-direction:row;align-items:stretch;justify-content:center;width:100%;height:100%;min-height:0;padding:0;gap:0}
@@ -794,7 +861,7 @@ button.mcard:hover,button.mcard:focus-visible{border-color:var(--select);box-sha
   .match-wrap{flex-direction:column;justify-content:center;align-items:stretch;padding:0;gap:0}
   .match-board{flex:1 1 auto;width:100%;min-height:0}
 
-  #scr-circuit,#scr-store,#scr-deck{
+  #scr-circuit,#scr-store,#scr-deck,#scr-versus{
     padding:calc(6px + env(safe-area-inset-top)) 6px calc(6px + env(safe-area-inset-bottom));
   }
   .steel-console{
@@ -863,7 +930,7 @@ button.mcard:hover,button.mcard:focus-visible{border-color:var(--select);box-sha
   .kotor-menu-shell{width:min(480px,52vw)}
 }
 @media (orientation:landscape) and (max-width:700px){
-  #scr-deck,#scr-circuit,#scr-store{padding:6px}
+  #scr-deck,#scr-circuit,#scr-store,#scr-versus{padding:6px}
   .steel-console{width:100%;padding:8px;gap:6px}
   .deck-headers{grid-template-columns:minmax(80px,.8fr) minmax(0,2fr) minmax(90px,.9fr)}
   .steel-hbadge{font-size:10px;letter-spacing:.1em;min-height:26px;padding:3px 6px}
@@ -878,7 +945,7 @@ button.mcard:hover,button.mcard:focus-visible{border-color:var(--select);box-sha
   .kotor-menu-shell{width:min(300px,40vw)}
   .kotor-menu button{font-size:11px;letter-spacing:.16em}
   .kbtn{padding:8px 14px;font-size:12px}
-  #scr-deck,#scr-circuit,#scr-store{justify-content:stretch;padding:4px}
+  #scr-deck,#scr-circuit,#scr-store,#scr-versus{justify-content:stretch;padding:4px}
   .steel-console{height:100%;padding:6px;gap:5px;border-radius:12px}
   .steel-hbadge{min-height:22px;font-size:9px}
   .kplate{padding:8px 10px;font-size:11px;min-height:36px}
@@ -916,15 +983,39 @@ button.mcard:hover,button.mcard:focus-visible{border-color:var(--select);box-sha
         <path class="km-rail" d="M184.8 3.2C189 16 191.1 32 191.3 50C191.1 68 189 84 184.8 96.8"/>
         <path class="km-rail-in" d="M21.2 5C16.8 18 14.8 33 14.6 50C14.8 67 16.8 82 21.2 95"/>
         <path class="km-rail-in" d="M178.8 5C183.2 18 185.2 33 185.4 50C185.2 67 183.2 82 178.8 95"/>
-        <path class="km-div" d="M26 21.8H174M24 40.6H176M24 59.4H176M26 78.2H174"/>
+        <path class="km-div" d="M26 18.8H174M24 34.4H176M24 50H176M24 65.6H176M26 81.2H174"/>
       </svg>
       <nav class="kotor-menu" aria-label="Main menu">
         <button type="button" id="bt-new">NEW GAME</button>
         <button type="button" id="bt-continue">LOAD GAME</button>
+        <button type="button" id="bt-vs">2-PLAYER</button>
         <button type="button" id="bt-how">HOW TO PLAY</button>
         <button type="button" id="bt-options">OPTIONS</button>
         <button type="button" id="bt-quit">QUIT</button>
       </nav>
+    </div>
+  </section>
+  <section id="scr-versus" class="screen">
+    <div class="steel-console vs-console">
+      <div class="steel-headers steel-headers-2">
+        <div class="steel-hbadge steel-hbadge-wide">TWO PLAYER</div>
+        <div class="steel-hbadge">PASS AND PLAY</div>
+      </div>
+      <div class="steel-well vs-well">
+        <label class="vs-field">PLAYER 1 NAME<input id="vs-name-p" type="text" maxlength="18" autocomplete="off" spellcheck="false" value="Player 1"></label>
+        <label class="vs-field">PLAYER 2 NAME<input id="vs-name-o" type="text" maxlength="18" autocomplete="off" spellcheck="false" value="Player 2"></label>
+        <p class="vs-label">DECK TIER</p>
+        <div class="vs-tiers">
+          <button type="button" id="vs-t1" class="kplate sel">TIER I</button>
+          <button type="button" id="vs-t2" class="kplate">TIER II</button>
+          <button type="button" id="vs-t3" class="kplate">TIER III</button>
+        </div>
+        <p id="vs-tier-note" class="vs-tier-note">Plus and minus cards only. Two of every card.</p>
+      </div>
+      <div class="steel-foot">
+        <button type="button" id="bt-vback" class="kplate">TITLE</button>
+        <button type="button" id="bt-vnext" class="kplate sel">CHOOSE DECKS</button>
+      </div>
     </div>
   </section>
   <section id="scr-circuit" class="screen">
@@ -961,8 +1052,8 @@ button.mcard:hover,button.mcard:focus-visible{border-color:var(--select);box-sha
   <section id="scr-deck" class="screen">
     <div class="steel-console deck-console">
       <div class="steel-headers deck-headers">
-        <div class="steel-hbadge" data-credits data-credits-after>0 CREDITS</div>
-        <div class="steel-hbadge steel-hbadge-wide deck-hbadge-wide">CHOOSE CARDS</div>
+        <div id="deck-h-left" class="steel-hbadge" data-credits data-credits-after>0 CREDITS</div>
+        <div id="deck-h-mid" class="steel-hbadge steel-hbadge-wide deck-hbadge-wide">CHOOSE CARDS</div>
         <div class="steel-hbadge">SIDEDECK <span id="deckcount">0/10</span></div>
       </div>
       <div class="steel-well deck-body">
@@ -1367,6 +1458,24 @@ const STORE_FROM={
   '1\u00B12':9
 };
 function storeMinCircuit(id){return STORE_FROM[id]==null?99:STORE_FROM[id];}
+/** 2-player pools: T1 +/− only, T2 adds duals, T3 full K2 roster. Two of each. */
+function vsTierIds(tier){
+  if(tier>=3)return SIDE_CARD_IDS.slice();
+  const ids=[];
+  for(let v=1;v<=6;v++)ids.push('+'+v,'-'+v);
+  if(tier>=2)for(let v=1;v<=6;v++)ids.push('\u00B1'+v);
+  return ids;
+}
+function vsCollection(tier){
+  const u={};
+  vsTierIds(tier).forEach(id=>u[id]=2);
+  return u;
+}
+function vsTierNote(tier){
+  if(tier>=3)return 'Full KOTOR 2 side-deck roster. Two of every card.';
+  if(tier>=2)return 'Plus, minus, and \u00B1 duals. Two of every card.';
+  return 'Plus and minus cards only. Two of every card.';
+}
 function storeStock(){
   return Object.keys(CARD_PRICE).filter(id=>storeMinCircuit(id)<=SAVE.circuit)
     .sort((a,b)=>storeMinCircuit(a)-storeMinCircuit(b)||(CARD_PRICE[a]-CARD_PRICE[b]));
@@ -2471,15 +2580,68 @@ function dialogCancel(){
   if(gameHooks.closeModal)gameHooks.closeModal();
   if(d&&d.onCancel){if(gameHooks.dialog)setTimeout(()=>d.onCancel(),0);else d.onCancel();}
 }
-function newMatch(opp,replayRung){
+function isVs(){return !!(M&&M.vs);}
+function acting(){return !!(M&&M.phase==='pAction'&&(!M.vs||M.seat===M.turn));}
+function viewWho(panel){
+  if(!isVs())return panel;
+  const seat=M.seat||'p';
+  return panel==='p'?seat:other(seat);
+}
+function plateName(who){
+  if(isVs()&&M.names)return M.names[who]||(who==='p'?'Player 1':'Player 2');
+  return who==='p'?'YOU':((M.opp&&M.opp.name)||'Opponent');
+}
+function handOpen(who){
+  if(!M)return false;
+  if(M.phase==='pass'||M.phase==='over'||M.phase==='done')return false;
+  if(M.vs)return who===M.seat&&M.phase==='pAction';
+  return who==='p';
+}
+function acceptPass(){
+  if(!M||M.phase!=='pass')return;
+  AUDIO.play('click');
+  M.seat=M.turn;M.sel=-1;M.orient=1;M.varV=1;M.sidePlayed=false;
+  drawTo(M.turn);
+  const res=resolveAfterDraw(M.turn);
+  if(res==='fill'||res==='bust'){refreshVsView();return;}
+  if(res==='stood'){
+    if(sideOf(other(M.turn)).stood)resolveStandoff();
+    else beginTurn(other(M.turn));
+    refreshVsView();return;
+  }
+  M.phase='pAction';
+  refreshVsView();
+}
+function refreshVsView(){
+  if(typeof renderStatic==='function')renderStatic();
+  if(typeof kickRender==='function'&&typeof requestAnimationFrame==='function')kickRender();
+}
+function queueHumanTurn(w){
+  M.sidePlayed=false;M.sel=-1;M.orient=1;M.varV=1;
+  if(M.vs&&M.seat!==w){M.phase='pass';return;}
+  M.phase='pAction';
+}
+function vsPlayerName(raw,fallback){
+  const n=cleanName(raw);
+  return n==='Unknown'?fallback:n.slice(0,18);
+}
+function newMatch(opp,replayRung,opts){
+  const o=opts||{};
   const tk=M?M.token+1:1;
   const mkSide=()=>({board:Array(9).fill(null),hand:[null,null,null,null],score:0,stood:false,bust:false,tiebreak:false,side:[]});
   M={opp,replayRung,token:tk,phase:'idle',setNum:0,setsP:0,setsO:0,
-     setStarter:Math.random()<0.5?'p':'o',turn:'p',
+     setStarter:o.vs?'p':(Math.random()<0.5?'p':'o'),turn:'p',
      p:mkSide(),o:mkSide(),deck:[],sel:-1,orient:1,varV:1,sidePlayed:false,toasts:[],
-     anims:{deal:null,flash:null},flashBadge:{p:0,o:0},lastScores:{p:0,o:0},wager:0};
-  M.p.side=SAVE.lastDeck.map(id=>makeCard(id)).filter(Boolean);
-  M.o.side=genSideDeck(opp.tier).map(id=>makeCard(id)).filter(Boolean);
+     anims:{deal:null,flash:null},flashBadge:{p:0,o:0},lastScores:{p:0,o:0},wager:0,
+     vs:!!o.vs,seat:'p',names:{p:'YOU',o:(opp&&opp.name)||'Opponent'}};
+  if(M.vs){
+    M.names.p=vsPlayerName(o.pName,'Player 1');
+    M.names.o=vsPlayerName(o.oName,(opp&&opp.name)||'Player 2');
+  }
+  const pDeck=o.pDeck||SAVE.lastDeck||[];
+  const oDeck=o.oDeck||genSideDeck(opp.tier);
+  M.p.side=pDeck.map(id=>makeCard(id)).filter(Boolean);
+  M.o.side=(oDeck||[]).map(id=>makeCard(id)).filter(Boolean);
   for(const w of ['p','o']){
     const S=sideOf(w);
     const n=S.side.length;
@@ -2526,6 +2688,7 @@ function beginTurn(w){
     beginTurn(other(w));
     return;
   }
+  if(M.vs&&M.seat!==w){M.phase='pass';return;}
   drawTo(w);
   const res=resolveAfterDraw(w);
   if(res==='fill'||res==='bust')return;
@@ -2534,19 +2697,22 @@ function beginTurn(w){
     beginTurn(other(w));
     return;
   }
-  if(w==='p'){M.sidePlayed=false;M.phase='pAction';}else{M.phase='oTurn';aiTurn(M.token);}
+  if(w==='p'||M.vs)queueHumanTurn(w);
+  else{M.phase='oTurn';aiTurn(M.token);}
 }
-function passToOpp(){beginTurn('o');}
+function passToOpp(){beginTurn(other(M.turn));}
 function endPlayerTurn(){
-  if(M.phase!=='pAction')return;AUDIO.play('click');M.sel=-1;
-  if(M.p.score>20){bustFlash('p');endSet('o','bust');return;}
-  passToOpp();
+  if(!acting())return;AUDIO.play('click');M.sel=-1;
+  const w=M.turn;
+  if(sideOf(w).score>20){bustFlash(w);endSet(other(w),'bust');return;}
+  beginTurn(other(w));
 }
 function playerStand(){
-  if(M.phase!=='pAction')return;AUDIO.play('click');
-  if(M.p.score>20){bustFlash('p');endSet('o','bust');return;}
-  M.p.stood=true;M.sel=-1;toast('YOU STAND');
-  if(M.o.stood)resolveStandoff();else passToOpp();
+  if(!acting())return;AUDIO.play('click');
+  const w=M.turn,S=sideOf(w);
+  if(S.score>20){bustFlash(w);endSet(other(w),'bust');return;}
+  S.stood=true;M.sel=-1;toast(plateName(w).toUpperCase()+' STANDS');
+  if(sideOf(other(w)).stood)resolveStandoff();else beginTurn(other(w));
 }
 function cycleFlex(){
   if(M.orient>0&&M.varV===1)M.varV=2;
@@ -2555,32 +2721,33 @@ function cycleFlex(){
   else{M.orient=1;M.varV=1;}
 }
 function flipArmed(){
-  if(M.phase!=='pAction'||M.sel<0)return;
-  const card=M.p.hand[M.sel];
+  if(!acting()||M.sel<0)return;
+  const card=sideOf(M.turn).hand[M.sel];
   if(!canFlip(card))return;
   AUDIO.play('click');
   if(card.kind==='flex')cycleFlex();
   else M.orient*=-1;
 }
 function confirmPlay(i){
-  if(M.phase!=='pAction'||M.sidePlayed)return;
-  const card=M.p.hand[i];if(!card)return;
-  if(card.kind==='dbl'&&!lastMain(M.p.board)){toast('NOTHING TO DOUBLE');return;}
+  if(!acting()||M.sidePlayed)return;
+  const w=M.turn,S=sideOf(w);
+  const card=S.hand[i];if(!card)return;
+  if(card.kind==='dbl'&&!lastMain(S.board)){toast('NOTHING TO DOUBLE');return;}
   if(card.kind==='flip'){
-    const n=applyFlip(M.p.board,card.vals);
+    const n=applyFlip(S.board,card.vals);
     if(!n){toast('NOTHING TO FLIP');return;}
     AUDIO.play('place');
     toast('FLIPPED '+n+' CARD'+(n===1?'':'S'));
   }else{
     AUDIO.play('place');
-    if(card.kind==='dbl')applyDouble(M.p.board);
-    else{const si=placeSide(M.p,card,M.orient,M.varV);if(si>=0)M.anims.deal={who:'p',slot:si,t0:performance.now()};}
+    if(card.kind==='dbl')applyDouble(S.board);
+    else{const si=placeSide(S,card,M.orient,M.varV);if(si>=0)M.anims.deal={who:w,slot:si,t0:performance.now()};}
   }
-  if(card.kind==='tie')M.p.tiebreak=true;
-  M.p.hand[i]=null;M.sel=-1;M.sidePlayed=true;
-  const res=resolveBoard('p');
+  if(card.kind==='tie')S.tiebreak=true;
+  S.hand[i]=null;M.sel=-1;M.sidePlayed=true;
+  const res=resolveBoard(w);
   if(res==='fill'||res==='bust')return;
-  if(res==='stood'){if(M.o.stood)resolveStandoff();else passToOpp();}
+  if(res==='stood'){if(sideOf(other(w)).stood)resolveStandoff();else beginTurn(other(w));}
 }
 function bustRisk(w){
   const S=sideOf(w),rem=M.deck.length;
@@ -2636,20 +2803,35 @@ function resolveStandoff(){
   else if(M.o.tiebreak&&!M.p.tiebreak)winner='o';
   if(winner){endSet(winner,'score');return;}
   M.phase='over';
-  presentDialog('THE SET IS TIED.','NO POINT AWARDED',()=>{M.setStarter=other(M.setStarter);startSet();});
+  presentDialog('THE SET IS TIED.','NO POINT AWARDED',()=>{
+    M.setStarter=other(M.setStarter);
+    if(M.vs)M.seat=null;
+    startSet();
+  });
 }
 function endSet(winner,reason){
   M.phase='over';M.sel=-1;
-  if(winner==='p'){M.setsP++;AUDIO.play('win');}
-  else{M.setsO++;AUDIO.play(reason==='bust'?'bust':'lose');}
+  if(winner==='p')M.setsP++;else M.setsO++;
+  if(M.vs)AUDIO.play(reason==='bust'?'bust':'win');
+  else if(winner==='p')AUDIO.play('win');
+  else AUDIO.play(reason==='bust'?'bust':'lose');
   const lines=setEndText(winner,reason);
   presentDialog(lines[0],lines[1],()=>{
     if(M.setsP>=3){matchEnd('p');return;}
     if(M.setsO>=3){matchEnd('o');return;}
-    M.setStarter=winner;startSet();
+    M.setStarter=winner;
+    if(M.vs)M.seat=null;
+    startSet();
   });
 }
 function setEndText(winner,reason){
+  const wName=plateName(winner).toUpperCase();
+  const lName=plateName(other(winner)).toUpperCase();
+  if(M.vs){
+    if(reason==='bust')return [wName+' WINS THE SET.',lName+' WENT BUST'];
+    if(reason==='fill')return [wName+' WINS THE SET.','BOARD FILLED - NINE CARDS'];
+    return [wName+' WINS THE SET.',sideOf(winner).score+' TO '+sideOf(other(winner)).score];
+  }
   if(winner==='p'){
     if(reason==='bust')return ['YOU WIN THE SET.','OPPONENT BUSTED'];
     if(reason==='fill')return ['YOU WIN THE SET.','BOARD FILLED - NINE CARDS'];
@@ -2662,6 +2844,11 @@ function setEndText(winner,reason){
 function matchEnd(winner){
   M.phase='done';
   SAVE.activeMatch=null;
+  if(M.vs){
+    AUDIO.play('win');
+    presentDialog(plateName(winner).toUpperCase()+' WINS.','FIRST TO 3 SETS',()=>leaveMatch());
+    return;
+  }
   if(winner==='p'){
     AUDIO.play('win');
     const rematch=M.replayRung!=null,wager=M.wager||0;
@@ -2676,10 +2863,21 @@ function matchEnd(winner){
   }
 }
 function leaveMatch(){
+  const vs=isVs();
   SAVE.activeMatch=null;
   persist();
   if(M)M.token++;M=null;
-  if(gameHooks.onLeaveMatch)gameHooks.onLeaveMatch();
+  if(gameHooks.onLeaveMatch)gameHooks.onLeaveMatch(vs);
+}
+function startVsMatch(names,tier,pDeck,oDeck){
+  const n1=vsPlayerName(names&&names[0],'Player 1');
+  const n2=vsPlayerName(names&&names[1],'Player 2');
+  const t=Math.max(1,Math.min(3,tier|0||1));
+  const opp={name:n2,tier:t,title:'Challenger'};
+  newMatch(opp,null,{vs:true,pDeck:pDeck,oDeck:oDeck,pName:n1,oName:n2});
+  M.wager=0;M.seat='p';
+  if(gameHooks.onEnterMatch)gameHooks.onEnterMatch();
+  startSet();
 }
 function startMatch(rung){
   const opp=Array.isArray(SAVE.roster)?SAVE.roster[rung]:null;
@@ -2710,7 +2908,7 @@ function orbState(w){
   const S=sideOf(w);
   if(S.bust)return 'red';
   if(S.stood)return 'amber';
-  if(M.turn===w&&(M.phase==='pAction'||M.phase==='oTurn'||M.phase==='turn'))return 'red';
+  if(M.turn===w&&(M.phase==='pAction'||M.phase==='oTurn'||M.phase==='turn'||M.phase==='pass'))return 'red';
   return 'idle';
 }
 function matchLive(){return !!(M&&M.phase!=='done'&&M.phase!=='over');}
@@ -2743,13 +2941,15 @@ function renderStatic(){
   const on=M;
   const nameCol=sk.name;
   const fsName=L.fsName||12;
+  const whoP=typeof viewWho==='function'?viewWho('p'):'p';
+  const whoO=typeof viewWho==='function'?viewWho('o'):'o';
   g.save();
   rr(g,L.topP.x,L.topP.y,L.topP.w,L.topP.h,Math.max(6,L.topP.h/2));g.clip();
-  tName(g,'YOU',L.nameP.x,L.nameP.y,fsName,nameCol,'left',L.nameMaxP||24);
+  tName(g,on?plateName(whoP):'YOU',L.nameP.x,L.nameP.y,fsName,nameCol,'left',L.nameMaxP||24);
   g.restore();
   g.save();
   rr(g,L.topO.x,L.topO.y,L.topO.w,L.topO.h,Math.max(6,L.topO.h/2));g.clip();
-  tName(g,on?on.opp.name:'Opponent',L.nameO.x,L.nameO.y,fsName,nameCol,'right',L.nameMaxO||24);
+  tName(g,on?plateName(whoO):'Opponent',L.nameO.x,L.nameO.y,fsName,nameCol,'right',L.nameMaxO||24);
   g.restore();
   for(const grid of [L.gridP,L.gridO]){
     const gx=L.gapX!=null?L.gapX:L.gap, gy=L.gapY!=null?L.gapY:L.gap;
@@ -2761,7 +2961,7 @@ function renderStatic(){
   if(L.labP){
     rr(g,L.labP.x,L.labP.y,L.labP.w,L.labP.h,5);g.fillStyle=sk.plate;g.fill();
     g.strokeStyle='#000';g.stroke();
-    tText(g,'Player Hand',L.labP.x+L.labP.w/2,L.labP.y+L.labP.h/2+1,L.fsLab||13,sk.lab,1.2,'center',true,1);
+    tText(g,(on&&typeof plateName==='function'?plateName(whoP):'Player')+' Hand',L.labP.x+L.labP.w/2,L.labP.y+L.labP.h/2+1,L.fsLab||13,sk.lab,1.2,'center',true,1);
   }
   for(const h of [L.handP,L.handO]){
     if(!h)continue;
@@ -2769,9 +2969,24 @@ function renderStatic(){
   }
 }
 function tableUI(){
-  const act=!!(M&&M.phase==='pAction');
-  const armed=act&&M.sel>=0?M.p.hand[M.sel]:null;
+  const act=!!(M&&M.phase==='pAction'&&(!M.vs||M.seat===M.turn));
+  const armed=act&&M.sel>=0?sideOf(M.turn).hand[M.sel]:null;
   return {act,armed,flipOk:!!(armed&&canFlip(armed))};
+}
+function drawPassShutter(g){
+  if(!M||M.phase!=='pass')return;
+  const name=plateName(M.turn).toUpperCase();
+  g.save();
+  g.fillStyle='rgba(2,6,14,0.72)';
+  g.fillRect(0,0,W,H);
+  const bw=Math.min(W*0.84,420),bh=Math.min(H*0.28,150);
+  const bx=(W-bw)/2,by=(H-bh)/2;
+  rr(g,bx,by,bw,bh,14);
+  g.fillStyle='rgba(2,8,18,0.94)';g.fill();
+  g.strokeStyle='#3a78d0';g.lineWidth=2;g.stroke();
+  tText(g,'PASS TO '+name,W/2,by+bh*0.38,Math.max(13,Math.round(bh*0.18)),'#7ec8e8',2.2,'center',true,1);
+  tText(g,'TAP WHEN READY',W/2,by+bh*0.68,Math.max(10,Math.round(bh*0.12)),'#ffe14d',1.6,'center',true,1);
+  g.restore();
 }
 function render(now){
   if(curScreen!=='match'||!M||!ctx)return;
@@ -2780,30 +2995,30 @@ function render(now){
   if(L.fallback)return;
   if(M.p.score!==M.lastScores.p){M.flashBadge.p=now;M.lastScores.p=M.p.score;}
   if(M.o.score!==M.lastScores.o){M.flashBadge.o=now;M.lastScores.o=M.o.score;}
-  drawChannel(ctx,L.chanP,chanState('p'));
-  drawChannel(ctx,L.chanO,chanState('o'));
-  drawOrb(ctx,L.orbP,L.orbP.r,orbState('p'),now);
-  drawOrb(ctx,L.orbO,L.orbO.r,orbState('o'),now);
-  drawBadge(ctx,L.badges[0],M.p.score,M.flashBadge.p,now);
-  drawBadge(ctx,L.badges[1],M.o.score,M.flashBadge.o,now);
-  if(L.handO){
+  const whoP=viewWho('p'),whoO=viewWho('o');
+  drawChannel(ctx,L.chanP,chanState(whoP));
+  drawChannel(ctx,L.chanO,chanState(whoO));
+  drawOrb(ctx,L.orbP,L.orbP.r,orbState(whoP),now);
+  drawOrb(ctx,L.orbO,L.orbO.r,orbState(whoO),now);
+  drawBadge(ctx,L.badges[0],sideOf(whoP).score,M.flashBadge[whoP],now);
+  drawBadge(ctx,L.badges[1],sideOf(whoO).score,M.flashBadge[whoO],now);
+  function paintHand(panel,handL){
+    if(!handL)return;
+    const who=viewWho(panel),open=handOpen(who),S=sideOf(who);
     for(let i=0;i<4;i++){
-      const rct=handSlot(L.handO,i);
-      if(M.o.hand[i])drawCard(ctx,rct.x,rct.y,rct.w,rct.h,null,{back:true});
-    }
-  }
-  if(L.handP){
-    for(let i=0;i<4;i++){
-      const rct=handSlot(L.handP,i),card=M.p.hand[i];
+      const rct=handSlot(handL,i),card=S.hand[i];
       if(!card)continue;
-      const armed=M.sel===i;
+      if(!open){drawCard(ctx,rct.x,rct.y,rct.w,rct.h,null,{back:true});continue;}
+      const armed=M.sel===i&&M.turn===who;
       drawCard(ctx,rct.x,rct.y,rct.w,rct.h,card,{
         orient:armed?M.orient:1, varV:armed?M.varV:1, selected:armed
       });
     }
   }
-  for(const who of ['p','o']){
-    const S=sideOf(who),grid=who==='p'?L.gridP:L.gridO;
+  paintHand('o',L.handO);
+  paintHand('p',L.handP);
+  for(const panel of ['p','o']){
+    const who=viewWho(panel),S=sideOf(who),grid=panel==='p'?L.gridP:L.gridO;
     for(let i=0;i<9;i++){
       const sl=S.board[i];if(!sl)continue;
       const rc=slotRect(grid,Math.floor(i/3),i%3);
@@ -2825,7 +3040,8 @@ function render(now){
   if(M.anims.flash){
     const p=(now-M.anims.flash.t0)/500;
     if(p<1){
-      const grid=M.anims.flash.who==='p'?L.gridP:L.gridO;
+      const panel=viewWho('p')===M.anims.flash.who?'p':'o';
+      const grid=panel==='p'?L.gridP:L.gridO;
       ctx.save();ctx.globalAlpha=(1-p)*0.35;ctx.fillStyle='#d02020';
       const gx=L.gapX!=null?L.gapX:L.gap, gy=L.gapY!=null?L.gapY:L.gap;
       rr(ctx,grid.x-10,grid.y-10,3*L.sw+2*gx+20,3*L.sh+2*gy+20,10);ctx.fill();ctx.restore();
@@ -2838,6 +3054,7 @@ function render(now){
     tText(ctx,t.t,W/2,(L.toastY||H*0.414)-i*Math.round(22*H/768),15,'#bfe8ff',3);
     ctx.restore();
   });
+  drawPassShutter(ctx);
 }
 let modalFocusRest=null,matchLiveSig='';
 function showScreen(id){
@@ -2868,13 +3085,16 @@ function focusActiveScreen(){
 function bindMatchDialog(title,sub,opts){
   const o=opts||{};
   const html='<h2 id="modal-title">'+escapeHtml(title)+'</h2>'+(sub?'<p>'+escapeHtml(sub)+'</p>':'')+(o.sub2?'<p>'+escapeHtml(o.sub2)+'</p>':'')+
-    '<div class="mrow">'+(o.cancelText?'<button type="button" id="dcancel" class="kbtn">'+escapeHtml(o.cancelText)+'</button>':'')+'<button type="button" id="dok" class="kbtn">OK</button></div>';
+    '<div class="mrow">'+(o.cancelText?'<button type="button" id="dcancel" class="kbtn">'+escapeHtml(o.cancelText)+'</button>':'')+'<button type="button" id="dok" class="kbtn">'+escapeHtml(o.okText||'OK')+'</button></div>';
   openModal(html);
   $('#dok').onclick=dialogOK;
   $('#dok').classList.add('sel');
   if(o.cancelText)$('#dcancel').onclick=dialogCancel;
 }
 let circuitSel=0;
+let deckMode='campaign',deckPool=null,deckCovered=false;
+let vsSetup={tier:1,names:['Player 1','Player 2'],decks:[null,null],who:0};
+function currentUnlocked(){return deckPool||SAVE.unlocked;}
 function circuitDefaultSel(){return Math.min(SAVE.circuit,Math.max(0,SAVE.roster.length-1));}
 function clampCircuitSel(){
   if(circuitSel==null||circuitSel<0||circuitSel>=SAVE.roster.length||circuitSel>SAVE.circuit)
@@ -2912,39 +3132,51 @@ function buildCircuit(){
   refreshCredits();
 }
 const DECK_ORDER=SIDE_CARD_IDS.slice();
-function ownedIds(){return DECK_ORDER.filter(id=>(SAVE.unlocked[id]||0)>0);}
+function ownedIds(){const u=currentUnlocked();return DECK_ORDER.filter(id=>(u[id]||0)>0);}
 function inDeckCount(id){return deckSel.filter(x=>x===id).length;}
-function drawMini(cvs,id,w=64,h){
+function drawMini(cvs,id,w=64,h,opts){
   if(h==null)h=Math.round(w/CARD_ASPECT);
   const d=Math.min(2,window.devicePixelRatio||1);
   cvs.width=w*d;cvs.height=h*d;
   const g=cvs.getContext('2d');g.setTransform(d,0,0,d,0,0);
-  drawCard(g,2,2,w-4,h-4,makeCard(id),{glow:false,catalog:true});
+  const back=!!(opts&&opts.back);
+  drawCard(g,2,2,w-4,h-4,back?null:makeCard(id),{glow:false,catalog:true,back:back});
 }
 function buildDeckUI(){
   const col=$('#collection');
   const keep=document.activeElement&&(col.contains(document.activeElement)||$('#sidedeck').contains(document.activeElement));
   const keepId=keep&&document.activeElement.getAttribute('data-card');
   const keepSlot=keep&&document.activeElement.getAttribute('data-slot');
+  const unlocked=currentUnlocked();
+  const left=$('#deck-h-left'),mid=$('#deck-h-mid');
+  if(left){
+    if(deckMode==='vs'){
+      left.removeAttribute('data-credits');left.removeAttribute('data-credits-after');
+      left.textContent=vsSetup.names[vsSetup.who]||('Player '+(vsSetup.who+1));
+    }else{
+      left.setAttribute('data-credits','');left.setAttribute('data-credits-after','');
+    }
+  }
+  if(mid)mid.textContent=deckCovered?'CARDS HIDDEN':'CHOOSE CARDS';
   col.innerHTML='';
   ownedIds().forEach(id=>{
-    const owned=SAVE.unlocked[id],used=inDeckCount(id);
-    const full=used>=owned||deckSel.length>=10;
+    const owned=unlocked[id]||0,used=inDeckCount(id);
+    const full=used>=owned||deckSel.length>=10||deckCovered;
     const cell=document.createElement('button');
     cell.type='button';
     cell.className='cell'+(full?' maxed':'');
     cell.dataset.card=id;
     cell.disabled=full;
-    cell.setAttribute('aria-label',cardSpeak(makeCard(id),1,1,true)+', owned '+owned+(used?' , '+used+' in side deck':''));
+    cell.setAttribute('aria-label',deckCovered?'Hidden card':cardSpeak(makeCard(id),1,1,true)+', owned '+owned+(used?' , '+used+' in side deck':''));
     const cvs=document.createElement('canvas');
     cvs.setAttribute('aria-hidden','true');
     cell.appendChild(cvs);
     const cnt=document.createElement('span');
-    cnt.className='cnt';cnt.textContent='\u00D7'+owned+(used?' \u00B7 IN DECK '+used:'');
+    cnt.className='cnt';cnt.textContent=deckCovered?'':'×'+owned+(used?' · IN DECK '+used:'');
     cell.appendChild(cnt);
-    drawMini(cvs,id);
+    drawMini(cvs,id,64,null,{back:deckCovered});
     cell.onclick=()=>{
-      if(deckSel.length>=10||inDeckCount(id)>=owned)return;
+      if(deckCovered||deckSel.length>=10||inDeckCount(id)>=owned)return;
       AUDIO.play('click');deckSel.push(id);buildDeckUI();
     };
     col.appendChild(cell);
@@ -2957,18 +3189,19 @@ function buildDeckUI(){
     slot.dataset.slot=String(i);
     if(deckSel[i]){
       slot.dataset.card=deckSel[i];
-      slot.setAttribute('aria-label','Remove '+cardSpeak(makeCard(deckSel[i]),1,1,true)+' from side deck slot '+(i+1));
+      slot.setAttribute('aria-label',deckCovered?'Hidden side deck card':'Remove '+cardSpeak(makeCard(deckSel[i]),1,1,true)+' from side deck slot '+(i+1));
       const cvs=document.createElement('canvas');
       cvs.setAttribute('aria-hidden','true');
-      slot.appendChild(cvs);drawMini(cvs,deckSel[i]);
-      slot.onclick=()=>{AUDIO.play('click');deckSel.splice(i,1);buildDeckUI();};
+      slot.appendChild(cvs);drawMini(cvs,deckSel[i],64,null,{back:deckCovered});
+      slot.onclick=()=>{if(deckCovered)return;AUDIO.play('click');deckSel.splice(i,1);buildDeckUI();};
+      if(deckCovered)slot.disabled=true;
     }else{
       slot.disabled=true;
       slot.setAttribute('aria-label','Empty side deck slot '+(i+1));
     }
     sd.appendChild(slot);
   }
-  if(keep){
+  if(keep&&!deckCovered){
     const again=keepId?document.querySelector('#scr-deck [data-card="'+CSS.escape(keepId)+'"]'):null;
     const slot=keepSlot!=null?document.querySelector('#sidedeck [data-slot="'+keepSlot+'"]'):null;
     (again||slot)?.focus();
@@ -2977,32 +3210,96 @@ function buildDeckUI(){
   dc.textContent=deckSel.length+'/10';
   dc.classList.toggle('full',deckSel.length===10);
   const begin=$('#bt-begin');
-  const opp=SAVE.roster[deckRung], wager=opp?matchWager(opp.tier):50;
-  const ready=deckSel.length===10, broke=SAVE.credits<wager;
-  begin.disabled=!ready||broke;
-  begin.textContent=!ready?'PLAY':broke?'NEED '+wager+' CR':'PLAY';
-  begin.classList.toggle('sel',ready&&!broke);
-  begin.title=ready&&!broke?('WAGER '+wager+' CR'):'';
+  const ready=deckSel.length===10&&!deckCovered;
+  if(deckMode==='vs'){
+    begin.disabled=!ready;
+    begin.textContent=vsSetup.who===0?'CONFIRM':'CONFIRM';
+    begin.classList.toggle('sel',ready);
+    begin.title='';
+  }else{
+    const opp=SAVE.roster[deckRung], wager=opp?matchWager(opp.tier):50;
+    const broke=SAVE.credits<wager;
+    begin.disabled=!ready||broke;
+    begin.textContent=!ready?'PLAY':broke?'NEED '+wager+' CR':'PLAY';
+    begin.classList.toggle('sel',ready&&!broke);
+    begin.title=ready&&!broke?('WAGER '+wager+' CR'):'';
+  }
+  refreshCredits();
 }
 function validateDeck(deck){
-  const out=[],counts={};
+  const out=[],counts={},u=currentUnlocked();
   for(const id of deck||[]){
     counts[id]=(counts[id]||0)+1;
-    if(counts[id]<=(SAVE.unlocked[id]||0)&&out.length<10)out.push(id);
+    if(counts[id]<=(u[id]||0)&&out.length<10)out.push(id);
   }
   return out;
 }
+function resetDeckMode(){
+  deckMode='campaign';deckPool=null;deckCovered=false;
+}
 function openDeckBuilder(rung){
+  resetDeckMode();
   deckRung=rung;
   deckSel=validateDeck(SAVE.lastDeck);
   buildDeckUI();
   showScreen('deck');
 }
+function openVsDeck(who){
+  deckMode='vs';
+  deckCovered=false;
+  vsSetup.who=who;
+  deckPool=vsCollection(vsSetup.tier);
+  deckSel=validateDeck(vsSetup.decks[who]||[]);
+  buildDeckUI();
+  showScreen('deck');
+}
+function vsReadNames(){
+  vsSetup.names[0]=vsPlayerName($('#vs-name-p')&&$('#vs-name-p').value,'Player 1');
+  vsSetup.names[1]=vsPlayerName($('#vs-name-o')&&$('#vs-name-o').value,'Player 2');
+}
+function vsConfirmDeck(){
+  if(deckSel.length!==10)return;
+  vsSetup.decks[vsSetup.who]=deckSel.slice();
+  deckCovered=true;
+  buildDeckUI();
+  const other=vsSetup.who===0?1:0;
+  const otherName=(vsSetup.names[other]||('Player '+(other+1))).toUpperCase();
+  if(vsSetup.who===0){
+    presentDialog('PASS TO '+otherName,'FLIP THE DEVICE AWAY FROM THIS SCREEN',()=>{
+      deckCovered=false;
+      openVsDeck(1);
+    });
+  }else{
+    presentDialog('PASS TO '+otherName,'HAND THE DEVICE BACK',()=>{
+      startVsMatch(vsSetup.names,vsSetup.tier,vsSetup.decks[0],vsSetup.decks[1]);
+    },{okText:'START GAME'});
+  }
+}
+function paintVsSetup(){
+  const t=vsSetup.tier;
+  [1,2,3].forEach(n=>{
+    const b=$('#vs-t'+n);
+    if(b)b.classList.toggle('sel',n===t);
+  });
+  const note=$('#vs-tier-note');
+  if(note)note.textContent=vsTierNote(t);
+}
+function openVersus(){
+  vsSetup={tier:vsSetup.tier||1,names:vsSetup.names||['Player 1','Player 2'],decks:[null,null],who:0};
+  resetDeckMode();
+  const p=$('#vs-name-p'),o=$('#vs-name-o');
+  if(p)p.value=vsSetup.names[0]||'Player 1';
+  if(o)o.value=vsSetup.names[1]||'Player 2';
+  paintVsSetup();
+  showScreen('versus');
+}
 function autoFill(){
+  if(deckCovered)return;
   deckSel=[];
+  const unlocked=currentUnlocked();
   const priority=['1\u00B12','\u00B16','+6','-6','\u00B15','\u00B14','\u00B13','\u00B12','\u00B11','TIE','+5','-5','+4','-4','+3','-3','+2','-2','+1','-1','DBL','2&4','3&6'];
   for(const id of priority){
-    let avail=SAVE.unlocked[id]||0;
+    let avail=unlocked[id]||0;
     while(deckSel.length<10&&avail>0){deckSel.push(id);avail--;}
     if(deckSel.length>=10)break;
   }
@@ -3184,17 +3481,18 @@ function ensureMatchA11y(){
     const b=document.createElement('button');
     b.type='button';b.className='a11y-hit';b.dataset.kind='hand';b.dataset.i=String(i);
     b.addEventListener('click',()=>{
-      if(!M||matchDlg||M.phase!=='pAction')return;
+      if(!M||matchDlg||!acting())return;
       const idx=+b.dataset.i;
-      if(!M.p.hand[idx])return;
+      const card=sideOf(viewWho('p')).hand[idx];
+      if(!card)return;
       if(M.sel===idx)confirmPlay(idx);
       else{AUDIO.play('click');M.sel=idx;M.orient=1;M.varV=1;}
       syncMatchA11y();
     });
     b.addEventListener('contextmenu',e=>{
       e.preventDefault();
-      if(!M||matchDlg||M.phase!=='pAction')return;
-      const idx=+b.dataset.i,card=M.p.hand[idx];
+      if(!M||matchDlg||!acting())return;
+      const idx=+b.dataset.i,card=sideOf(viewWho('p')).hand[idx];
       if(!canFlip(card))return;
       if(M.sel!==idx){M.sel=idx;M.orient=1;M.varV=1;}
       flipArmed();syncMatchA11y();
@@ -3217,21 +3515,28 @@ function ensureMatchA11y(){
     });
     root.appendChild(b);
   }
+  const pass=document.createElement('button');
+  pass.type='button';pass.className='a11y-hit';pass.dataset.kind='pass';
+  pass.setAttribute('aria-label','Pass device, tap when ready');
+  pass.addEventListener('click',()=>{if(!M||matchDlg)return;acceptPass();syncMatchA11y();});
+  root.appendChild(pass);
   root.dataset.ready='1';
   return root;
 }
 function matchStatusText(){
   if(!M)return '';
   if(L&&L.fallback)return 'Layout cannot fit. Rotate or enlarge the window.';
-  const opp=M.opp&&M.opp.name?M.opp.name:'Opponent';
+  const nP=plateName('p'),nO=plateName('o');
   let phase='';
-  if(M.phase==='pAction')phase='Your turn.';
-  else if(M.phase==='oTurn')phase=opp+' is playing.';
+  if(M.phase==='pass')phase='Pass the device to '+plateName(M.turn)+'.';
+  else if(M.phase==='pAction')phase=(M.vs?plateName(M.turn):'Your')+' turn.';
+  else if(M.phase==='oTurn')phase=nO+' is playing.';
   else if(M.phase==='over')phase='Set over.';
   else if(M.phase==='done')phase='Match over.';
   const toast=M.toasts&&M.toasts.length?M.toasts[M.toasts.length-1].t+'. ':'';
-  const armed=M.sel>=0&&M.p.hand[M.sel]?' Armed '+cardSpeak(M.p.hand[M.sel],M.orient,M.varV)+'. ':'';
-  return 'You '+M.p.score+', '+opp+' '+M.o.score+'. Sets '+M.setsP+' to '+M.setsO+'. '+phase+' '+toast+armed;
+  const seated=viewWho('p');
+  const armed=M.sel>=0&&sideOf(seated).hand[M.sel]&&handOpen(seated)?' Armed '+cardSpeak(sideOf(seated).hand[M.sel],M.orient,M.varV)+'. ':'';
+  return nP+' '+M.p.score+', '+nO+' '+M.o.score+'. Sets '+M.setsP+' to '+M.setsO+'. '+phase+' '+toast+armed;
 }
 function syncMatchA11y(){
   const root=ensureMatchA11y();
@@ -3244,12 +3549,15 @@ function syncMatchA11y(){
   root.hidden=false;
   const ui=typeof tableUI==='function'?tableUI():{act:false,flipOk:false};
   const canAct=!!(ui.act&&!matchDlg&&!(L&&L.fallback));
+  const passing=M.phase==='pass';
+  const seated=viewWho('p');
+  const seatedHand=sideOf(seated).hand;
   for(let i=0;i<4;i++){
     const b=root.querySelector('.a11y-hit[data-kind="hand"][data-i="'+i+'"]');
-    const card=M.p.hand[i];
+    const card=seatedHand[i];
     placeA11yHit(b,L&&L.handP?handSlot(L.handP,i):null);
     if(!b)continue;
-    if(!card||L.fallback){b.hidden=true;continue;}
+    if(passing||!card||L.fallback||!handOpen(seated)){b.hidden=true;continue;}
     b.disabled=!canAct;
     const selected=M.sel===i;
     const name=cardSpeak(card,selected?M.orient:1,selected?M.varV:1);
@@ -3262,9 +3570,20 @@ function syncMatchA11y(){
     placeA11yHit(b,rect);
     if(!b)continue;
     if(L&&L.fallback){b.hidden=true;continue;}
+    if(passing&&kind!=='forfeit'){b.hidden=true;continue;}
+    b.hidden=false;
     if(kind==='flip')b.disabled=!ui.flipOk||!!matchDlg;
     else if(kind==='forfeit')b.disabled=!canForfeit()||!!matchDlg||!!(L&&L.fallback);
     else b.disabled=!canAct;
+  }
+  const passBtn=root.querySelector('.a11y-hit[data-kind="pass"]');
+  if(passBtn){
+    if(passing&&!(L&&L.fallback)){
+      placeA11yHit(passBtn,L.frame);
+      passBtn.hidden=false;
+      passBtn.disabled=!!matchDlg;
+      passBtn.setAttribute('aria-label','Pass to '+plateName(M.turn)+', tap when ready');
+    }else passBtn.hidden=true;
   }
   const sig=matchStatusText();
   if(live&&sig!==matchLiveSig){matchLiveSig=sig;live.textContent=sig;}
@@ -3324,7 +3643,12 @@ async function init(){
   gameHooks.closeModal=closeModal;
   gameHooks.spoils=showSpoilsModal;
   gameHooks.onEnterMatch=()=>{showScreen('match');fit();kickRender();};
-  gameHooks.onLeaveMatch=()=>{circuitSel=circuitDefaultSel();buildCircuit();showScreen('circuit');if(globalThis.flushPwaReload)globalThis.flushPwaReload();};
+  gameHooks.onLeaveMatch=vs=>{
+    resetDeckMode();
+    if(vs){refreshTitle();showScreen('title');}
+    else{circuitSel=circuitDefaultSel();buildCircuit();showScreen('circuit');}
+    if(globalThis.flushPwaReload)globalThis.flushPwaReload();
+  };
   initTextures();
   initSaveSync();
   applyRecoveredWager();
@@ -3335,6 +3659,7 @@ async function init(){
   cv=table;ctx=table.getContext('2d');
   fit();
   $('#bt-new').onclick=startNewGame;
+  $('#bt-vs').onclick=()=>{AUDIO.play('click');openVersus();};
   $('#bt-continue').onclick=()=>{if(!hasSave())return;AUDIO.play('click');enterCircuit();};
   $('#bt-challenge').onclick=()=>{
     if(circuitSel>SAVE.circuit)return;
@@ -3351,6 +3676,7 @@ async function init(){
     '<li>Tied sets award no point and replay. Your 4 hand cards last the entire match - spend them wisely.</li>'+
     '<li>Arrow keys move between menus and table controls. Tab also works. Click a hand card to arm it, click again to play. FLIP, F, or right-click cycles +/- on duals, tiebreakers, and the 1\u00B12 card.</li>'+
     '<li>Keys: Space or E end turn, Enter or S stand, F or right-click flip, Esc cancel or close. Click a hand card twice to play it.</li>'+
+    '<li>Two Player is pass-and-play on one device. Whoever holds the phone sits at the bottom with the full-size hand. Hands flip face-down between turns; tap when the device has changed hands.</li>'+
     '<li>Matches are played for a credits wager. Win and you may take one card from their side deck, or skip if it is clutter.</li>'+
     '<li>The cantina store sells side-deck cards. Better stock unlocks as you climb the circuit.</li>'+
     '</ul><div class="mrow"><button type="button" id="mclose" class="kbtn sel">CLOSE</button></div>');
@@ -3361,13 +3687,29 @@ async function init(){
   $('#bt-options').onclick=()=>{AUDIO.play('click');openOptions();};
   $('#bt-quit').onclick=askQuit;
   $('#bt-autofill').onclick=autoFill;
-  $('#bt-dback').onclick=()=>{AUDIO.play('click');buildCircuit();showScreen('circuit');};
-  $('#bt-begin').onclick=()=>{
-    if(deckSel.length!==10)return;
+  $('#bt-dback').onclick=()=>{
     AUDIO.play('click');
+    if(deckMode==='vs'){deckCovered=false;openVersus();return;}
+    buildCircuit();showScreen('circuit');
+  };
+  $('#bt-begin').onclick=()=>{
+    if(deckSel.length!==10||deckCovered)return;
+    AUDIO.play('click');
+    if(deckMode==='vs'){vsReadNames();vsConfirmDeck();return;}
     SAVE.lastDeck=deckSel.slice();persist();
     startMatch(deckRung);
   };
+  $('#bt-vback').onclick=()=>{AUDIO.play('click');resetDeckMode();refreshTitle();showScreen('title');};
+  $('#bt-vnext').onclick=()=>{
+    AUDIO.play('click');
+    vsReadNames();
+    vsSetup.decks=[null,null];
+    openVsDeck(0);
+  };
+  [1,2,3].forEach(n=>{
+    const b=$('#vs-t'+n);
+    if(b)b.onclick=()=>{AUDIO.play('click');vsSetup.tier=n;paintVsSetup();};
+  });
   table.addEventListener('pointerdown',onTablePointer);
   table.addEventListener('pointermove',onTableHover);
   table.addEventListener('contextmenu',onTableContext);
@@ -3394,7 +3736,11 @@ async function init(){
     }
     if(curScreen!=='match'||!M)return;
     const fromBtn=e.target&&e.target.closest&&e.target.closest('button');
-    if(M.phase!=='pAction')return;
+    if(M.phase==='pass'){
+      if(k==='enter'||k===' '||k==='e'){e.preventDefault();acceptPass();}
+      return;
+    }
+    if(!acting())return;
     if((k==='e'||(k===' ' && !fromBtn))){e.preventDefault();endPlayerTurn();}
     else if((k==='s')||(k==='enter'&&!fromBtn)){e.preventDefault();playerStand();}
     else if(k==='f'){e.preventDefault();flipArmed();}
@@ -3443,13 +3789,19 @@ function canvasPoint(e){
 function askForfeit(){
   if(!canForfeit())return;
   AUDIO.play('click');
-  presentDialog('FORFEIT THE MATCH?','THE WAGER WILL BE LOST',()=>{AUDIO.play('lose');leaveMatch();},{cancelText:'NO',onCancel(){}});
+  const sub=isVs()?'THE MATCH WILL END':'THE WAGER WILL BE LOST';
+  presentDialog('FORFEIT THE MATCH?',sub,()=>{AUDIO.play('lose');leaveMatch();},{cancelText:'NO',onCancel(){}});
 }
 function hitTable(p){
   if(!M||matchDlg||L.fallback)return null;
-  if(L.handP&&!M.sidePlayed){
+  if(M.phase==='pass'){
+    if(inRect(p,L.btnForf)&&canForfeit())return {kind:'forfeit'};
+    return {kind:'pass'};
+  }
+  const seated=viewWho('p');
+  if(L.handP&&!M.sidePlayed&&handOpen(seated)){
     for(let i=0;i<4;i++){
-      if(inRect(p,handSlot(L.handP,i))&&M.p.hand[i])return {kind:'hand',i};
+      if(inRect(p,handSlot(L.handP,i))&&sideOf(seated).hand[i])return {kind:'hand',i};
     }
   }
   const ui=tableUI();
@@ -3470,32 +3822,34 @@ function onTablePointer(e){
   if(!hit)return;
   e.preventDefault();
   if(hit.kind==='hand'){
-    if(M.phase!=='pAction')return;
+    if(!acting())return;
     if(M.sel===hit.i)confirmPlay(hit.i);
     else{AUDIO.play('click');M.sel=hit.i;M.orient=1;M.varV=1;}
   }else if(hit.kind==='end')endPlayerTurn();
   else if(hit.kind==='stand')playerStand();
   else if(hit.kind==='flip')flipArmed();
   else if(hit.kind==='forfeit')askForfeit();
+  else if(hit.kind==='pass')acceptPass();
 }
 function onTableContext(e){
   if(curScreen!=='match')return;
   e.preventDefault();
-  if(!M||matchDlg||M.phase!=='pAction')return;
+  if(!M||matchDlg||!acting())return;
   const hit=hitTable(canvasPoint(e));
   if(!hit||hit.kind!=='hand')return;
-  const card=M.p.hand[hit.i];
+  const card=sideOf(viewWho('p')).hand[hit.i];
   if(!canFlip(card))return;
   if(M.sel!==hit.i){M.sel=hit.i;M.orient=1;M.varV=1;}
   flipArmed();
 }
 globalThis.PZ={shuffle,buildMainDeck,boardScore,placeMain,placeSide,applyDouble,applyFlip,aiDecide,shouldStand,genSideDeck,generateOpponent,cardLabel,cardSpeak,CARD_DEFS,SIDE_CARD_IDS,buildRoster,makeCard,faceVal,canFlip,playValue,lastMain,lastSlot,
   startSet,beginTurn,endPlayerTurn,playerStand,confirmPlay,endSet,resolveBoard,resolveStandoff,boardCount,dialogOK,
-  newMatchForTest:(deckIds,opp)=>{SAVE.lastDeck=deckIds;newMatch(opp,null);},
+  newMatchForTest:(deckIds,opp,opts)=>{SAVE.lastDeck=deckIds;newMatch(opp,null,opts);},
   getM:()=>M,setSleepScale:v=>{SLEEP_SCALE=v;},chanState,fitCard,CARD_ASPECT,
   matchWager,storeStock,storeMinCircuit,addToCollection,isClutterId,CARD_PRICE,getSave:()=>SAVE,
   persist,normalizeSave,applyRecoveredWager,startMatch,leaveMatch,matchEnd,defaultSave,START_CREDITS,SAVE_KEY,
-  blockPersist:v=>{PERSIST_BLOCK=!!v;}};
+  blockPersist:v=>{PERSIST_BLOCK=!!v;},
+  vsTierIds,vsCollection,startVsMatch,acceptPass,viewWho,plateName,isVs};
 if(typeof document!=='undefined'){
   document.addEventListener('DOMContentLoaded',init);
 }

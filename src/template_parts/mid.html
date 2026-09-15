@@ -30,15 +30,39 @@
         <path class="km-rail" d="M184.8 3.2C189 16 191.1 32 191.3 50C191.1 68 189 84 184.8 96.8"/>
         <path class="km-rail-in" d="M21.2 5C16.8 18 14.8 33 14.6 50C14.8 67 16.8 82 21.2 95"/>
         <path class="km-rail-in" d="M178.8 5C183.2 18 185.2 33 185.4 50C185.2 67 183.2 82 178.8 95"/>
-        <path class="km-div" d="M26 21.8H174M24 40.6H176M24 59.4H176M26 78.2H174"/>
+        <path class="km-div" d="M26 18.8H174M24 34.4H176M24 50H176M24 65.6H176M26 81.2H174"/>
       </svg>
       <nav class="kotor-menu" aria-label="Main menu">
         <button type="button" id="bt-new">NEW GAME</button>
         <button type="button" id="bt-continue">LOAD GAME</button>
+        <button type="button" id="bt-vs">2-PLAYER</button>
         <button type="button" id="bt-how">HOW TO PLAY</button>
         <button type="button" id="bt-options">OPTIONS</button>
         <button type="button" id="bt-quit">QUIT</button>
       </nav>
+    </div>
+  </section>
+  <section id="scr-versus" class="screen">
+    <div class="steel-console vs-console">
+      <div class="steel-headers steel-headers-2">
+        <div class="steel-hbadge steel-hbadge-wide">TWO PLAYER</div>
+        <div class="steel-hbadge">PASS AND PLAY</div>
+      </div>
+      <div class="steel-well vs-well">
+        <label class="vs-field">PLAYER 1 NAME<input id="vs-name-p" type="text" maxlength="18" autocomplete="off" spellcheck="false" value="Player 1"></label>
+        <label class="vs-field">PLAYER 2 NAME<input id="vs-name-o" type="text" maxlength="18" autocomplete="off" spellcheck="false" value="Player 2"></label>
+        <p class="vs-label">DECK TIER</p>
+        <div class="vs-tiers">
+          <button type="button" id="vs-t1" class="kplate sel">TIER I</button>
+          <button type="button" id="vs-t2" class="kplate">TIER II</button>
+          <button type="button" id="vs-t3" class="kplate">TIER III</button>
+        </div>
+        <p id="vs-tier-note" class="vs-tier-note">Plus and minus cards only. Two of every card.</p>
+      </div>
+      <div class="steel-foot">
+        <button type="button" id="bt-vback" class="kplate">TITLE</button>
+        <button type="button" id="bt-vnext" class="kplate sel">CHOOSE DECKS</button>
+      </div>
     </div>
   </section>
   <section id="scr-circuit" class="screen">
@@ -75,8 +99,8 @@
   <section id="scr-deck" class="screen">
     <div class="steel-console deck-console">
       <div class="steel-headers deck-headers">
-        <div class="steel-hbadge" data-credits data-credits-after>0 CREDITS</div>
-        <div class="steel-hbadge steel-hbadge-wide deck-hbadge-wide">CHOOSE CARDS</div>
+        <div id="deck-h-left" class="steel-hbadge" data-credits data-credits-after>0 CREDITS</div>
+        <div id="deck-h-mid" class="steel-hbadge steel-hbadge-wide deck-hbadge-wide">CHOOSE CARDS</div>
         <div class="steel-hbadge">SIDEDECK <span id="deckcount">0/10</span></div>
       </div>
       <div class="steel-well deck-body">

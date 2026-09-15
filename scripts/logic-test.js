@@ -485,4 +485,32 @@ function prepPlay(deck, handIds) {
   PZ.blockPersist(false);
 }
 
+{
+  t('vs-t1-mods', PZ.vsTierIds(1).every(id=>/^[+-][1-6]$/.test(id)) && PZ.vsTierIds(1).length===12);
+  t('vs-t1-two-each', PZ.vsCollection(1)['+4']===2 && PZ.vsCollection(1)['-6']===2 && !PZ.vsCollection(1)['\u00B11']);
+  t('vs-t2-duals', PZ.vsCollection(2)['\u00B13']===2 && PZ.vsCollection(2)['+1']===2 && !PZ.vsCollection(2).TIE);
+  t('vs-t3-full', PZ.SIDE_CARD_IDS.every(id=>PZ.vsCollection(3)[id]===2));
+  const vsDeck=['+1','-1','+2','-2','+3','-3','+4','-4','+5','-5'];
+  const credits0=PZ.getSave().credits, circuit0=PZ.getSave().circuit;
+  PZ.newMatchForTest(vsDeck,{name:'Ben',tier:2,title:'X'},{vs:true,pDeck:vsDeck,oDeck:vsDeck,pName:'Ada',oName:'Ben'});
+  PZ.startSet();
+  M=PZ.getM();
+  t('vs-no-campaign-debit', PZ.getSave().credits===credits0 && PZ.getSave().circuit===circuit0 && M.vs===true && M.names.p==='Ada');
+  t('vs-p1-first', M.turn==='p' && M.seat==='p' && (M.phase==='pAction'||M.phase==='over'||M.phase==='done'));
+  M.turn='o';M.seat='p';M.phase='pass';M.sidePlayed=false;
+  PZ.acceptPass();
+  t('vs-accept-pass', M.seat==='o' && M.phase==='pAction' && M.turn==='o');
+  M.turn='o';M.seat='o';M.phase='pAction';M.sidePlayed=false;M.sel=-1;
+  M.o.stood=false;M.o.bust=false;
+  M.o.board=[{card:{kind:'main',v:10},eff:10,isMain:true},null,null,null,null,null,null,null,null];
+  M.o.score=10;
+  M.o.hand=[PZ.makeCard('+3'),null,null,null];
+  PZ.confirmPlay(0);
+  t('vs-p2-plays', M.o.score===13 && M.o.hand[0]===null && M.sidePlayed===true);
+  M.p.stood=true;M.p.score=12;M.o.score=13;M.phase='pAction';M.turn='o';M.seat='o';
+  const setsO0=M.setsO;
+  PZ.playerStand();
+  t('vs-p2-stand-resolves', PZ.getM().setsO===setsO0+1);
+}
+
 process.exit(fail ? 1 : 0);
