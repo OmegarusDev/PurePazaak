@@ -51,6 +51,19 @@ function placeSide(side,card,orient,varV){const i=side.board.findIndex(s=>!s);if
   side.board[i]={card,eff,isMain:false};return i;}
 function applyDouble(board){const ls=lastMain(board);if(!ls)return -1;ls.eff*=2;return 1;}
 function applyFlip(board,vals){let n=0;for(const sl of board){const v=faceVal(sl);if(v!=null&&vals.includes(v)&&sl.eff>0){sl.eff=-sl.eff;n++;}}return n;}
+function cardSpeak(card,orient=1,varV=1,catalog=false){
+  if(!card)return 'empty';
+  switch(card.kind){
+    case 'main':return 'main '+card.v;
+    case 'mod':return (card.sign>0?'plus ':'minus ')+card.v;
+    case 'dual':return catalog?'plus or minus '+card.v:(orient>0?'plus ':'minus ')+card.v;
+    case 'tie':return catalog?'tiebreaker plus or minus 1':(orient>0?'plus ':'minus ')+'1 tiebreaker';
+    case 'dbl':return 'double';
+    case 'flip':return 'flip '+(card.vals||[]).join(' and ');
+    case 'flex':return catalog?'plus or minus 1 or 2':(orient>0?'plus ':'minus ')+(varV||1);
+    default:return card.id||'card';
+  }
+}
 function slotOrient(sl){return sl&&sl.eff<0?-1:1;}
 function slotVarV(sl){return sl&&sl.card&&sl.card.kind==='flex'?Math.abs(sl.eff):1;}
 /** Full KOTOR2 side-deck roster (23 ids). */

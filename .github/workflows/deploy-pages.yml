@@ -3,6 +3,8 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [main]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -11,12 +13,14 @@ permissions:
   id-token: write
 
 concurrency:
-  group: pages
-  cancel-in-progress: false
+  group: ${{ github.event_name == 'pull_request' && format('pages-pr-{0}', github.event.pull_request.number) || 'pages-deploy' }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   verify:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -24,25 +28,38 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v4
         with:
-          node-version: 23
+          node-version: 22
 
       - name: Rebuild, test, check freshness
         run: bash scripts/check.sh
 
+      - name: Package Pages artifact
+        run: python3 scripts/package-pages.py --out "$RUNNER_TEMP/pages" --build-id "$GITHUB_SHA"
+
+      - name: Upload verified Pages package
+        uses: actions/upload-artifact@v4
+        with:
+          name: pages-package
+          path: ${{ runner.temp }}/pages
+
   deploy:
+    if: github.event_name != 'pull_request'
     needs: verify
     runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - name: Download verified Pages package
+        uses: actions/download-artifact@v4
+        with:
+          name: pages-package
+          path: pages
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: .            # no-build repos: upload repo root
+          path: pages
 
       - name: Deploy to GitHub Pages
         id: deployment

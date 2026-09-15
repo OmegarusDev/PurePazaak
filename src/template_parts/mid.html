@@ -3,7 +3,7 @@
 <body>
 <main id="app">
   <section id="scr-title" class="screen active">
-    <div class="kotor-lockup">
+    <h1 class="kotor-lockup">
       <div class="sw-mark">CARD WARS</div>
       <div class="kotor-gold">
         <div class="logo-main">PAZAAK</div>
@@ -14,7 +14,7 @@
         </div>
         <div class="logo-or">OLD REPUBLIC</div>
       </div>
-    </div>
+    </h1>
     <div class="kotor-menu-shell">
       <!-- Barrel traced from refs/menu/yt-68s-qgJjsv8-maxresdefault.jpg + user-k1-title.png -->
       <svg class="kotor-menu-svg" viewBox="0 0 200 100" preserveAspectRatio="none" aria-hidden="true">
@@ -44,7 +44,7 @@
   <section id="scr-circuit" class="screen">
     <div class="steel-console circuit-console">
       <div class="steel-headers steel-headers-2">
-        <div class="steel-hbadge" data-credits data-credits-after>0 CREDITS</div>
+        <div class="steel-hbadge" data-credits data-credits-after aria-live="polite">0 CREDITS</div>
         <div class="steel-hbadge">OUTER RIM CIRCUIT</div>
       </div>
       <div class="steel-well circuit-well">
@@ -97,9 +97,13 @@
   </section>
   <section id="scr-match" class="screen">
     <div class="match-wrap">
-      <div class="match-board"><canvas id="table"></canvas></div>
+      <div class="match-board">
+        <canvas id="table" aria-hidden="true"></canvas>
+        <div id="match-a11y" class="match-a11y" hidden></div>
+      </div>
     </div>
   </section>
 </main>
-<div id="modal" class="hidden"><div id="modalbox"></div></div>
+<div id="match-live" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+<div id="modal" class="hidden" role="dialog" aria-modal="true" aria-hidden="true" inert><div id="modalbox" role="document"></div></div>
 <script>

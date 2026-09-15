@@ -71,9 +71,9 @@ def watch():
         time.sleep(0.6)
         now = src_stamp()
         if now > last:
-            last = now
             print("src changed — rebuilding")
-            rebuild()
+            if rebuild():
+                last = now
 
 
 def port_open():
@@ -127,7 +127,8 @@ def main():
     )
     args = ap.parse_args()
     os.chdir(ROOT)
-    rebuild()
+    if not rebuild():
+        raise SystemExit("initial build failed; refusing to serve a stale bundle")
     if port_open():
         print(f"Already serving Pure Pazaak at {URL}")
         print("Leave that process running and refresh the tab after edits.")

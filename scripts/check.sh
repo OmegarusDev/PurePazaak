@@ -4,18 +4,22 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-JS_ORDER="util.js audio.js cards.js ai.js data.js layout.js textures.js geom.js draw.js chrome.js game.js render.js ui.js pwa.js main.js"
+JS_ORDER="$(python3 scripts/build.py --js-order)"
 
 python3 scripts/build.py
 
-TMP="$(pwd)/.pz-bundle-check.js"
-trap 'rm -f "$TMP"' EXIT
-: > "$TMP"
+TMP_DIR="$(mktemp -d)"
+TMP="$TMP_DIR/bundle.js"
+PAGES_TMP="$(mktemp -d)"
+trap 'rm -rf "$TMP_DIR" "$PAGES_TMP"' EXIT
 for f in $JS_ORDER; do cat "src/js/$f" >> "$TMP"; done
 
 node --check "$TMP"
+node --check sw.js
 echo "JS syntax OK"
 node scripts/logic-test.js "$TMP"
+node scripts/layout-test.js
+python3 scripts/package-pages.py --out "$PAGES_TMP" --build-id local
 
 if ! git diff --quiet -- index.html; then
   echo "FAIL: index.html is stale - commit the rebuilt bundle"

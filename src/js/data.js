@@ -2,6 +2,9 @@ const STARTER_COLLECTION={'+1':2,'+2':2,'+3':2,'-1':2,'-2':2,'-3':2};
 const START_CREDITS=400;
 const STORE_CAP=4;
 const CIRCUIT_LEN=9;
+const SAVE_SCHEMA=2;
+const SAVE_WRITER=(typeof crypto!=='undefined'&&crypto.randomUUID)?crypto.randomUUID():Math.random().toString(36).slice(2);
+let SAVE_CHANNEL=null,SAVE_CONFLICT=false,PERSIST_BLOCK=false;
 const OPP_POOLS={
   1:['+1','+1','+2','+2','+3','+3','-1','-1','-2','-2','-3','-3','+4','+4','+4','-4','-4','-4','+5','-5','+6','-6'],
   2:['+3','-3','+4','+4','-4','-4','+5','-5','+6','-6','\u00B11','\u00B12','\u00B13','\u00B11','\u00B12'],
@@ -77,48 +80,109 @@ function storeStock(){
     .sort((a,b)=>storeMinCircuit(a)-storeMinCircuit(b)||(CARD_PRICE[a]-CARD_PRICE[b]));
 }
 function isClutterId(id){return Object.prototype.hasOwnProperty.call(STARTER_COLLECTION,id);}
+function hasCardId(id){return typeof id==='string'&&Object.prototype.hasOwnProperty.call(CARD_DEFS,id);}
+function cleanName(value){
+  const s=String(value==null?'':value).replace(/[\u0000-\u001F\u007F]/g,' ').replace(/\s+/g,' ').trim().slice(0,40);
+  return s||'Unknown';
+}
 function addToCollection(id){
-  if(!CARD_DEFS[id])return false;
+  if(!hasCardId(id))return false;
   SAVE.unlocked[id]=(SAVE.unlocked[id]||0)+1;
   return true;
 }
 const SAVE_KEY='pazaak-outer-rim-save-v1';
-function defaultSave(){return {circuit:0,roster:null,unlocked:Object.assign({},STARTER_COLLECTION),lastDeck:[],credits:START_CREDITS,vol:0.6,muted:false};}
+function defaultSave(){return {schema:SAVE_SCHEMA,revision:0,writer:'',updatedAt:0,circuit:0,roster:null,unlocked:Object.assign({},STARTER_COLLECTION),lastDeck:[],credits:START_CREDITS,vol:0.6,muted:false,begun:false,activeMatch:null,recoveredMatch:false};}
 function normalizeRoster(save){
   if(!Array.isArray(save.roster)||save.roster.length!==CIRCUIT_LEN||
-     !save.roster.every(o=>o&&typeof o.name==='string'&&o.tier>=1&&o.tier<=3)){
+     !save.roster.every(o=>o&&typeof o.name==='string'&&cleanName(o.name)!=='Unknown'&&Number.isInteger(o.tier)&&o.tier>=1&&o.tier<=3)){
     save.roster=buildRoster();
+  }else{
+    save.roster=save.roster.map(o=>({name:cleanName(o.name),tier:o.tier,title:TIER_LABELS[o.tier]}));
   }
   return save;
 }
+function normalizeSave(raw,recover=true){
+  const out=defaultSave();
+  if(!raw||typeof raw!=='object')return normalizeRoster(out);
+  out.revision=Number.isSafeInteger(raw.revision)&&raw.revision>=0?raw.revision:0;
+  out.writer=typeof raw.writer==='string'?raw.writer:'';
+  out.updatedAt=Number.isFinite(raw.updatedAt)&&raw.updatedAt>=0?raw.updatedAt:0;
+  out.circuit=Number.isFinite(Number(raw.circuit))?Math.max(0,Math.min(CIRCUIT_LEN,Math.floor(Number(raw.circuit)))):0;
+  out.credits=Number.isFinite(Number(raw.credits))?Math.max(0,Math.min(999999999,Math.floor(Number(raw.credits)))):START_CREDITS;
+  out.vol=Number.isFinite(Number(raw.vol))?Math.max(0,Math.min(1,Number(raw.vol))):0.6;
+  out.muted=raw.muted===true;out.begun=raw.begun===true;
+  out.activeMatch=raw.activeMatch&&Number.isFinite(Number(raw.activeMatch.wager))&&Number(raw.activeMatch.wager)>0?{
+    wager:Math.floor(Number(raw.activeMatch.wager)),rung:Number.isInteger(raw.activeMatch.rung)?raw.activeMatch.rung:null,startedAt:Number(raw.activeMatch.startedAt)||0
+  }:null;
+  out.recoveredMatch=false;
+  if(recover&&out.activeMatch)out.recoveredMatch=true;
+  if(raw.unlocked&&typeof raw.unlocked==='object')for(const id of Object.keys(raw.unlocked)){
+    if(!hasCardId(id))continue;
+    const n=Number(raw.unlocked[id]);
+    if(Number.isFinite(n)&&n>0)out.unlocked[id]=Math.min(99,Math.floor(n));
+  }
+  const used={};
+  if(Array.isArray(raw.lastDeck))for(const id of raw.lastDeck){
+    if(out.lastDeck.length>=10||!hasCardId(id))continue;
+    used[id]=(used[id]||0)+1;
+    if(used[id]<=(out.unlocked[id]||0))out.lastDeck.push(id);
+  }
+  out.roster=raw.roster;
+  return normalizeRoster(out);
+}
 function loadSave(){
   try{
-    const s=JSON.parse(localStorage.getItem(SAVE_KEY));
-    if(s&&s.unlocked&&typeof s.unlocked==='object'){
-      const out=Object.assign(defaultSave(),s);
-      out.unlocked=Object.assign({},STARTER_COLLECTION,s.unlocked);
-      for(const id of Object.keys(out.unlocked)){
-        if(!CARD_DEFS[id]){delete out.unlocked[id];continue;}
-        const n=Number(out.unlocked[id]);
-        out.unlocked[id]=Number.isFinite(n)&&n>0?Math.min(99,Math.floor(n)):0;
-        if(!out.unlocked[id])delete out.unlocked[id];
-      }
-      out.credits=Number(out.credits);
-      if(!Number.isFinite(out.credits)||out.credits<0)out.credits=START_CREDITS;
-      out.credits=Math.floor(out.credits);
-      out.circuit=Number(out.circuit);
-      if(!Number.isFinite(out.circuit)||out.circuit<0)out.circuit=0;
-      out.circuit=Math.min(CIRCUIT_LEN,Math.floor(out.circuit));
-      if(!Array.isArray(out.lastDeck))out.lastDeck=[];
-      out.lastDeck=out.lastDeck.filter(id=>CARD_DEFS[id]&&(out.unlocked[id]||0)>0).slice(0,10);
-      if(typeof out.vol!=='number'||out.vol!==out.vol)out.vol=0.6;
-      out.muted=!!out.muted;
-      return normalizeRoster(out);
-    }
+    return normalizeSave(JSON.parse(localStorage.getItem(SAVE_KEY)));
   }catch(e){}
   return defaultSave();
 }
-function persist(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(SAVE));}catch(e){}refreshCredits();}
+function persist(){
+  if(PERSIST_BLOCK)return false;
+  try{
+    const old=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');
+    if(old&&Number.isSafeInteger(old.revision)&&(
+      old.revision>(SAVE.revision||0)||(old.revision===(SAVE.revision||0)&&old.updatedAt>(SAVE.updatedAt||0)))){
+      SAVE_CONFLICT=true;console.warn('Save changed in another tab; local changes were not written.');return false;
+    }
+    SAVE.schema=SAVE_SCHEMA;SAVE.revision=(SAVE.revision||0)+1;SAVE.writer=SAVE_WRITER;SAVE.updatedAt=Date.now();
+    localStorage.setItem(SAVE_KEY,JSON.stringify(SAVE));
+    if(SAVE_CHANNEL)SAVE_CHANNEL.postMessage({type:'save',payload:SAVE});
+    SAVE_CONFLICT=false;
+  }catch(e){return false;}
+  refreshCredits();return true;
+}
+function adoptExternalSave(raw){
+  const incoming=normalizeSave(raw,false);
+  if((incoming.revision||0)<=(SAVE.revision||0))return;
+  if(typeof M!=='undefined'&&M){SAVE_CONFLICT=true;console.warn('Save changed in another tab during a match.');return;}
+  SAVE=incoming;refreshCredits();
+  if(typeof refreshTitle==='function')refreshTitle();
+  if(typeof curScreen!=='undefined'&&curScreen==='circuit'&&typeof buildCircuit==='function')buildCircuit();
+  if(typeof curScreen!=='undefined'&&curScreen==='deck'&&typeof buildDeckUI==='function')buildDeckUI();
+  if(typeof curScreen!=='undefined'&&curScreen==='store'&&typeof buildStoreUI==='function')buildStoreUI();
+}
+function initSaveSync(){
+  if(typeof window==='undefined'||!window.addEventListener)return;
+  window.addEventListener('storage',e=>{if(e.key===SAVE_KEY&&e.newValue)try{adoptExternalSave(JSON.parse(e.newValue));}catch(_){} });
+  if(typeof BroadcastChannel==='function'){
+    SAVE_CHANNEL=new BroadcastChannel(SAVE_KEY);
+    SAVE_CHANNEL.onmessage=e=>{if(e.data&&e.data.type==='save')adoptExternalSave(e.data.payload);};
+  }
+}
+function applyRecoveredWager(){
+  if(!SAVE.recoveredMatch||!SAVE.activeMatch){SAVE.recoveredMatch=false;return true;}
+  const rec=SAVE.activeMatch;
+  const prevCredits=SAVE.credits;
+  SAVE.credits=Math.min(999999999,SAVE.credits+rec.wager);
+  SAVE.activeMatch=null;
+  SAVE.recoveredMatch=false;
+  if(persist())return true;
+  SAVE.credits=prevCredits;
+  SAVE.activeMatch=rec;
+  SAVE.recoveredMatch=true;
+  return false;
+}
+function resetSave(){SAVE=defaultSave();return persist();}
 function refreshCredits(){
   try{
     document.querySelectorAll('[data-credits]').forEach(el=>{

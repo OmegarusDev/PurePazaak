@@ -22,9 +22,11 @@ A tactical card duel inspired by the Pazaak minigame from *Knights of the Old Re
 
 | Key / Button | Action |
 | --- | --- |
-| `E` / `Space` / **END TURN** | End your turn (deals a card to the opponent) |
+| `E` / `Space` / **END TURN** | End your turn (deals a card to the opponent). Space activates the focused control if one is selected. |
 | `Enter` / `S` / **STAND** | Lock in your total and pass |
-| `Esc` | Cancel hand-card selection |
+| `F` | Flip the armed dual / tie / 1±2 card |
+| `Esc` | Cancel hand-card selection, or close a dialog |
+| Arrow keys / `Tab` | Move between menus, cards, and table actions |
 | Click / tap | Select a hand card, click again to play |
 
 ## How to play
@@ -33,7 +35,8 @@ Each turn you automatically draw a Main-Deck card (values 1–10) onto your 3×3
 You may then play **at most one** side-deck card from your 4-card hand, then END TURN or STAND.
 
 - **Over 20 = BUST** — but only at the end of your turn, so if a draw pushes you past 20
-  you can still play a minus card to recover.
+  you can still play a minus card to recover. A ninth draw fills the board and resolves
+  immediately, so there is no remaining slot for a rescue play.
 - **Exactly 20 auto-stands.** Fill all 9 slots without busting for an instant win.
 - First to win **3 sets** takes the match. Tied sets replay.
 
@@ -72,6 +75,7 @@ manifest.webmanifest  install metadata (standalone display)
 sw.js                 network-first shell; checks for updates on open only
 icons/                PWA / home-screen icons
 scripts/build.py      concatenates src/ -> index.html
+scripts/package-pages.py creates the allowlisted Pages artifact
 scripts/serve.py      local server + src/ watch (http://127.0.0.1:8765/)
 scripts/logic-test.js headless game-logic smoke test (node, no deps)
 ```
@@ -81,8 +85,12 @@ scripts/logic-test.js headless game-logic smoke test (node, no deps)
 On a supporting browser (Chrome/Edge/Android, or Add to Home Screen on iOS), open
 the live game and install it. The installed app opens without a URL bar
 (`display: standalone`). Each **cold open** asks the service worker for a fresh
-build and reloads once if GitHub Pages has a newer `index.html` — not on
-focus/visibility regain mid-session.
+build and reloads once if GitHub Pages has a newer build. Updates discovered
+during an active match wait until the match is left.
+
+GitHub Pages publishes only `index.html`, `manifest.webmanifest`, `sw.js`, the
+Orbitron font, and the three install icons. Development sources, scripts, and
+reference material stay out of the deployment artifact.
 
 ```bash
 bash scripts/check.sh            # rebuild + syntax + logic tests + freshness

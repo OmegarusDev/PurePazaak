@@ -1,14 +1,17 @@
+let fitQueued=false;
 async function init(){
   registerPwa();
   gameHooks.dialog=bindMatchDialog;
   gameHooks.closeModal=closeModal;
   gameHooks.spoils=showSpoilsModal;
   gameHooks.onEnterMatch=()=>{showScreen('match');fit();kickRender();};
-  gameHooks.onLeaveMatch=()=>{circuitSel=circuitDefaultSel();buildCircuit();showScreen('circuit');};
+  gameHooks.onLeaveMatch=()=>{circuitSel=circuitDefaultSel();buildCircuit();showScreen('circuit');if(globalThis.flushPwaReload)globalThis.flushPwaReload();};
   initTextures();
+  initSaveSync();
+  applyRecoveredWager();
   AUDIO.vol=SAVE.vol;AUDIO.muted=SAVE.muted;
   if(!SAVE.roster||SAVE.roster.length!==CIRCUIT_LEN){SAVE.roster=buildRoster();persist();}
-  else normalizeRoster(SAVE);
+  else{const before=JSON.stringify(SAVE.roster);normalizeRoster(SAVE);if(before!==JSON.stringify(SAVE.roster))persist();}
   const table=$('#table');
   cv=table;ctx=table.getContext('2d');
   fit();
@@ -20,17 +23,18 @@ async function init(){
   };
   $('#bt-cback').onclick=()=>{AUDIO.play('click');refreshTitle();showScreen('title');};
   $('#bt-how').onclick=()=>{AUDIO.play('click');openModal(
-    '<h2>HOW TO PLAY</h2><ul>'+
+    '<h2 id="modal-title">HOW TO PLAY</h2><ul>'+
     '<li>Get closer to 20 than your opponent without going over. First to win 3 sets takes the match.</li>'+
     '<li>Each turn you automatically draw a main deck card (values 1-10) onto your 3x3 board.</li>'+
     '<li>You may then play at most one side-deck card from your 4-card hand, then END TURN or STAND.</li>'+
     '<li>Over 20 is a BUST and loses the set. Exactly 20 auto-stands. Fill all 9 slots without busting for an instant win.</li>'+
+    '<li>A ninth draw fills the board and resolves immediately, so there is no remaining slot for a rescue play.</li>'+
     '<li>Tied sets award no point and replay. Your 4 hand cards last the entire match - spend them wisely.</li>'+
-    '<li>Click a hand card to arm it, click again to play. FLIP, F, or right-click cycles +/- on duals, tiebreakers, and the 1\u00B12 card.</li>'+
-    '<li>Keys: Space end turn, Enter stand, F or right-click flip, Esc cancel. Click a hand card twice to play it.</li>'+
+    '<li>Arrow keys move between menus and table controls. Tab also works. Click a hand card to arm it, click again to play. FLIP, F, or right-click cycles +/- on duals, tiebreakers, and the 1\u00B12 card.</li>'+
+    '<li>Keys: Space or E end turn, Enter or S stand, F or right-click flip, Esc cancel or close. Click a hand card twice to play it.</li>'+
     '<li>Matches are played for a credits wager. Win and you may take one card from their side deck, or skip if it is clutter.</li>'+
     '<li>The cantina store sells side-deck cards. Better stock unlocks as you climb the circuit.</li>'+
-    '</ul><div class="mrow"><button id="mclose" class="kbtn sel">CLOSE</button></div>');
+    '</ul><div class="mrow"><button type="button" id="mclose" class="kbtn sel">CLOSE</button></div>');
     $('#mclose').onclick=()=>{AUDIO.play('click');closeModal();};
   };
   $('#bt-store').onclick=()=>{AUDIO.play('click');openStore();};
@@ -49,31 +53,60 @@ async function init(){
   table.addEventListener('pointermove',onTableHover);
   table.addEventListener('contextmenu',onTableContext);
   window.addEventListener('keydown',e=>{
-    if(curScreen!=='match'||!M)return;
+    const modal=$('#modal');
+    const modalOpen=modal&&!modal.classList.contains('hidden');
+    const typing=isTypingTarget(e.target);
     const k=e.key.toLowerCase();
-    if(matchDlg){
-      if(k==='enter'){e.preventDefault();dialogOK();}
-      else if(k==='escape'&&matchDlg.onCancel){e.preventDefault();dialogCancel();}
+    if(modalOpen){
+      if(trapModalTab($('#modalbox'),e))return;
+      if(k==='escape'){
+        e.preventDefault();
+        if(matchDlg){if(matchDlg.onCancel)dialogCancel();else dialogOK();}
+        else closeModal();
+        return;
+      }
+      if(matchDlg&&k==='enter'&&!typing){e.preventDefault();dialogOK();return;}
+      if(!typing&&moveFocusArrow($('#modalbox'),e.key)){e.preventDefault();return;}
       return;
     }
+    if(!typing&&(e.key==='ArrowUp'||e.key==='ArrowDown'||e.key==='ArrowLeft'||e.key==='ArrowRight'||e.key==='Home'||e.key==='End')){
+      const root=curScreen==='match'?$('#match-a11y'):$('#scr-'+curScreen);
+      if(moveFocusArrow(root,e.key)){e.preventDefault();return;}
+    }
+    if(curScreen!=='match'||!M)return;
+    const fromBtn=e.target&&e.target.closest&&e.target.closest('button');
     if(M.phase!=='pAction')return;
-    if(k==='e'||k===' '){e.preventDefault();endPlayerTurn();}
-    else if(k==='enter'||k==='s'){e.preventDefault();playerStand();}
+    if((k==='e'||(k===' ' && !fromBtn))){e.preventDefault();endPlayerTurn();}
+    else if((k==='s')||(k==='enter'&&!fromBtn)){e.preventDefault();playerStand();}
     else if(k==='f'){e.preventDefault();flipArmed();}
-    else if(k==='escape'){e.preventDefault();M.sel=-1;}
+    else if(k==='escape'){e.preventDefault();M.sel=-1;syncMatchA11y();}
   });
-  window.addEventListener('resize',fit);
+  window.addEventListener('resize',scheduleFit,{passive:true});
+  window.addEventListener('orientationchange',scheduleFit,{passive:true});
+  if(window.visualViewport)window.visualViewport.addEventListener('resize',scheduleFit,{passive:true});
+  window.addEventListener('beforeunload',e=>{if(curScreen==='match'&&M&&M.phase!=='done'){e.preventDefault();e.returnValue='';}});
+  const board=document.querySelector('.match-board');
+  if(board&&typeof ResizeObserver==='function')new ResizeObserver(scheduleFit).observe(board);
   if(document.fonts&&document.fonts.load){
     try{await document.fonts.load('700 32px "Orbitron"');}catch(_){/* use the local fallback stack */}
   }
   renderStatic();
   refreshTitle();
+  showScreen('title');
 }
 function fit(){
-  DPR=Math.min(2,window.devicePixelRatio||1);
+  const rawDpr=Number(window.devicePixelRatio)||1;
   computeLayout();
-  if(cv){cv.width=W*DPR;cv.height=H*DPR;}
+  const budget=16000000/Math.max(1,W*H);
+  DPR=Math.max(0.5,Math.min(2,rawDpr,Math.sqrt(budget)));
+  if(cv){cv.width=Math.max(1,Math.round(W*DPR));cv.height=Math.max(1,Math.round(H*DPR));}
   if(M&&ctx){renderStatic();render(performance.now());kickRender();}
+  if(typeof syncMatchA11y==='function')syncMatchA11y();
+}
+function scheduleFit(){
+  if(fitQueued)return;
+  fitQueued=true;
+  requestAnimationFrame(()=>{fitQueued=false;fit();});
 }
 function canvasPoint(e){
   const r=cv.getBoundingClientRect();
@@ -84,7 +117,7 @@ function askForfeit(){
   presentDialog('FORFEIT THE MATCH?','THE WAGER WILL BE LOST',()=>{AUDIO.play('lose');leaveMatch();},{cancelText:'NO',onCancel(){}});
 }
 function hitTable(p){
-  if(!M||matchDlg)return null;
+  if(!M||matchDlg||L.fallback)return null;
   if(L.handP&&!M.sidePlayed){
     for(let i=0;i<4;i++){
       if(inRect(p,handSlot(L.handP,i))&&M.p.hand[i])return {kind:'hand',i};
@@ -127,11 +160,13 @@ function onTableContext(e){
   if(M.sel!==hit.i){M.sel=hit.i;M.orient=1;M.varV=1;}
   flipArmed();
 }
-globalThis.PZ={shuffle,buildMainDeck,boardScore,placeMain,placeSide,applyDouble,applyFlip,aiDecide,shouldStand,genSideDeck,generateOpponent,cardLabel,CARD_DEFS,SIDE_CARD_IDS,buildRoster,makeCard,faceVal,canFlip,playValue,lastMain,lastSlot,
+globalThis.PZ={shuffle,buildMainDeck,boardScore,placeMain,placeSide,applyDouble,applyFlip,aiDecide,shouldStand,genSideDeck,generateOpponent,cardLabel,cardSpeak,CARD_DEFS,SIDE_CARD_IDS,buildRoster,makeCard,faceVal,canFlip,playValue,lastMain,lastSlot,
   startSet,beginTurn,endPlayerTurn,playerStand,confirmPlay,endSet,resolveBoard,resolveStandoff,boardCount,dialogOK,
   newMatchForTest:(deckIds,opp)=>{SAVE.lastDeck=deckIds;newMatch(opp,null);},
   getM:()=>M,setSleepScale:v=>{SLEEP_SCALE=v;},chanState,fitCard,CARD_ASPECT,
-  matchWager,storeStock,storeMinCircuit,addToCollection,isClutterId,CARD_PRICE,getSave:()=>SAVE};
+  matchWager,storeStock,storeMinCircuit,addToCollection,isClutterId,CARD_PRICE,getSave:()=>SAVE,
+  persist,normalizeSave,applyRecoveredWager,startMatch,leaveMatch,matchEnd,defaultSave,START_CREDITS,SAVE_KEY,
+  blockPersist:v=>{PERSIST_BLOCK=!!v;}};
 if(typeof document!=='undefined'){
   document.addEventListener('DOMContentLoaded',init);
 }

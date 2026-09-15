@@ -2,23 +2,16 @@ let W=1024,H=768,L={},PORTRAIT=false;
 // Adaptive layout: the logical canvas matches the measured board box.
 // Landscape uses a modest K1 metal bezel, not 4:3 gutters and not edge-to-edge.
 function computeLayout(){
-  PORTRAIT=window.innerHeight>window.innerWidth;
+  const mq=window.matchMedia&&window.matchMedia('(orientation: portrait)');
+  PORTRAIT=mq?mq.matches:window.innerHeight>window.innerWidth;
   let aw=+window.innerWidth||0, ah=+window.innerHeight||0;
   try{
-    const b=document.querySelector('.match-board');
-    if(b&&b.clientWidth>10&&b.clientHeight>10){aw=b.clientWidth;ah=b.clientHeight;}
+    const b=document.querySelector('.match-board'),r=b&&b.getBoundingClientRect();
+    if(r&&r.width>1&&r.height>1){aw=r.width;ah=r.height;}
   }catch(e){}
-  if(!(aw>0&&ah>0)){aw=PORTRAIT?390:1024;ah=PORTRAIT?844:768;}
-  if(!PORTRAIT){
-    const a=Math.min(2.2,Math.max(1.05,aw/Math.max(1,ah)));
-    H=Math.max(360,Math.round(ah));
-    W=Math.round(H*a);
-    layoutLandscape();
-  }else{
-    W=Math.max(280,Math.round(aw));
-    H=Math.max(400,Math.round(ah));
-    layoutPortrait();
-  }
+  if(!(aw>1&&ah>1)){W=1;H=1;L={fallback:true,reason:'NO VIEWPORT'};return;}
+  W=Math.max(1,Math.round(aw));H=Math.max(1,Math.round(ah));
+  if(PORTRAIT)layoutPortrait();else layoutLandscape();
 }
 function layoutLandscape(){
   // Modest K1 metal bezel around the inner plate — not edge-to-edge, not 4:3 gutters.
@@ -65,7 +58,7 @@ function layoutLandscape(){
     return {sh,gridW,gridH,hw,hh,used,gapX,gapY};
   };
   let sw=Math.max(24,maxSwW), gapX=minGap, gapY=minGap, p=pack(sw,gapX,gapY);
-  for(let i=0;i<24&&p.used>stackH&&sw>26;i++){sw*=Math.min(0.97,stackH/Math.max(p.used,1));p=pack(sw,gapX,gapY);}
+  for(let i=0;i<32&&p.used>stackH&&sw>10;i++){sw*=Math.min(0.97,stackH/Math.max(p.used,1));p=pack(sw,gapX,gapY);}
   if(p.used<stackH-6){
     let lo=sw, hi=maxSwW;
     for(let i=0;i<18;i++){
@@ -108,6 +101,7 @@ function layoutLandscape(){
     fsName:Math.max(11,Math.round(barH*0.42)),
     fsLab:Math.max(10,Math.round(labelH*0.62))
   };
+  L.fallback=!layoutValid();
 }
 function layoutPortrait(){
   const fx=Math.round(W*0.04), fw=W-2*fx;
@@ -137,7 +131,7 @@ function layoutPortrait(){
   };
   let p=pack(sw);
   const budget=fh-(barY-fy)-bottomPad;
-  for(let i=0;i<28 && p.used>budget && sw>26;i++){
+  for(let i=0;i<36 && p.used>budget && sw>10;i++){
     sw*=Math.min(0.97,budget/Math.max(p.used,1));
     p=pack(sw);
   }
@@ -193,6 +187,22 @@ function layoutPortrait(){
     fsName:Math.max(9,Math.round(barH*0.42)),
     fsLab:Math.max(9,Math.round(labelH*0.58))
   };
+  L.fallback=!layoutValid();
+}
+function layoutRectInBounds(r){return !!(r&&Number.isFinite(r.x)&&Number.isFinite(r.y)&&Number.isFinite(r.w)&&Number.isFinite(r.h)&&r.w>0&&r.h>0&&r.x>=0&&r.y>=0&&r.x+r.w<=W+0.5&&r.y+r.h<=H+0.5);}
+function layoutValid(){
+  if(!(W>1&&H>1&&L&&L.frame&&layoutRectInBounds(L.frame)))return false;
+  const rects=[L.topP,L.topO,L.labP,L.labO,L.btnForf,L.btnFlip,L.btnEnd,L.btnStand,L.chanP,L.chanO];
+  if(!rects.every(layoutRectInBounds)||!(L.sw>0&&L.sh>0))return false;
+  for(const grid of [L.gridP,L.gridO]){
+    if(!grid||!Number.isFinite(grid.x)||!Number.isFinite(grid.y))return false;
+    for(let r=0;r<3;r++)for(let c=0;c<3;c++)if(!layoutRectInBounds(slotRect(grid,r,c)))return false;
+  }
+  for(const hand of [L.handP,L.handO]){
+    if(!hand||!Number.isFinite(hand.x)||!Number.isFinite(hand.y)||!(hand.sw>0&&hand.sh>0))return false;
+    for(let i=0;i<4;i++)if(!layoutRectInBounds(handSlot(hand,i)))return false;
+  }
+  return true;
 }
 function gapXY(){return {x:L.gapX!=null?L.gapX:L.gap, y:L.gapY!=null?L.gapY:L.gap};}
 function slotRect(grid,r,c){const g=gapXY();return {x:grid.x+c*(L.sw+g.x),y:grid.y+r*(L.sh+g.y),w:L.sw,h:L.sh};}

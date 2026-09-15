@@ -10,6 +10,7 @@ Game CSS/JS stay inline in index.html (no runtime network for play).
 Install/PWA chrome lives beside it: manifest.webmanifest, sw.js, icons/.
 """
 import pathlib
+import sys
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 SRC = ROOT / "src"
@@ -57,6 +58,9 @@ def bundle(names, subdir):
 
 
 def main():
+    if "--js-order" in sys.argv:
+        print(" ".join(JS_ORDER))
+        return
     top = (SRC / "template_parts" / "top.html").read_text()
     mid = (SRC / "template_parts" / "mid.html").read_text()
     bottom = (SRC / "template_parts" / "bottom.html").read_text()

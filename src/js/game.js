@@ -49,7 +49,10 @@ function startSet(){
   beginTurn(M.setStarter);
 }
 function drawTo(w){
-  const c=M.deck.pop(),i=placeMain(sideOf(w),c);
+  if(!M||!M.deck.length)return;
+  const c=M.deck.pop();if(!c)return;
+  const i=placeMain(sideOf(w),c);
+  if(i<0)return;
   AUDIO.play('draw');
   M.anims.deal={who:w,slot:i,t0:performance.now()};
 }
@@ -155,6 +158,9 @@ async function aiTurn(tk){
     const res=resolveBoard('o');
     if(res==='fill'||res==='bust')return;
     if(res==='stood'){if(M.p.stood)resolveStandoff();else beginTurn('p');return;}
+  }
+  if(M.o.score>20){bustFlash('o');endSet('p','bust');return;}
+  if(d.play){
     const after={...snap,score:M.o.score,board:M.o.board,hand:M.o.hand,bustRisk:bustRisk('o')};
     // Plus/side plays that raise the total: stand (human play). Exception: still
     // losing to a stood opponent — standing would concede, so keep going.
@@ -169,7 +175,6 @@ async function aiTurn(tk){
     if(M.p.stood)resolveStandoff();else beginTurn('p');
     return;
   }
-  if(M.o.score>20){bustFlash('o');endSet('p','bust');return;}
   beginTurn('p');
 }
 function resolveStandoff(){
@@ -205,6 +210,7 @@ function setEndText(winner,reason){
 }
 function matchEnd(winner){
   M.phase='done';
+  SAVE.activeMatch=null;
   if(winner==='p'){
     AUDIO.play('win');
     const rematch=M.replayRung!=null,wager=M.wager||0;
@@ -219,19 +225,28 @@ function matchEnd(winner){
   }
 }
 function leaveMatch(){
+  SAVE.activeMatch=null;
+  persist();
   if(M)M.token++;M=null;
   if(gameHooks.onLeaveMatch)gameHooks.onLeaveMatch();
 }
 function startMatch(rung){
-  const opp=SAVE.roster[rung];
+  const opp=Array.isArray(SAVE.roster)?SAVE.roster[rung]:null;
+  if(!opp||!Number.isInteger(opp.tier)||opp.tier<1||opp.tier>3){presentDialog('MATCH UNAVAILABLE','THE OPPONENT DATA IS INVALID',()=>{});return;}
   const wager=matchWager(opp.tier);
   if(SAVE.credits<wager){
     presentDialog('NOT ENOUGH CREDITS','THIS TABLE WANTS '+wager+' CR',()=>{});
     return;
   }
-  SAVE.credits-=wager;persist();
+  SAVE.credits-=wager;
   newMatch(opp,rung<SAVE.circuit?rung:null);
   M.wager=wager;
+  SAVE.activeMatch={wager,rung,startedAt:Date.now()};
+  if(!persist()){
+    SAVE.credits+=wager;SAVE.activeMatch=null;M=null;refreshCredits();
+    presentDialog('MATCH UNAVAILABLE','YOUR SAVE COULD NOT BE UPDATED',()=>{});
+    return;
+  }
   if(gameHooks.onEnterMatch)gameHooks.onEnterMatch();
   presentDialog('VS '+opp.name.toUpperCase(),'WAGER '+wager+' CR  \u00B7  TIER '+opp.tier+'  \u00B7  FIRST TO 3 SETS',()=>startSet());
 }

@@ -1,8 +1,15 @@
+function drawFallback(g){
+  g.fillStyle='#04050b';g.fillRect(0,0,W,H);
+  g.fillStyle='#c9d4e4';g.textAlign='center';g.textBaseline='middle';
+  g.font='700 '+Math.max(12,Math.round(Math.min(W,H)*0.045))+'px '+HUD_FONT;
+  g.fillText('ROTATE OR ENLARGE WINDOW',W/2,H/2);
+}
 function renderStatic(){
   if(!ctx)return;
   const sk=tableSkin();
   STATIC=document.createElement('canvas');STATIC.width=W*DPR;STATIC.height=H*DPR;
   const g=STATIC.getContext('2d');g.setTransform(DPR,0,0,DPR,0,0);
+  if(L.fallback){drawFallback(g);return;}
   drawFrame(g);
   for(const top of [L.topP, L.topO]){
     const rad=Math.max(6,top.h/2);
@@ -48,6 +55,7 @@ function render(now){
   if(curScreen!=='match'||!M||!ctx)return;
   ctx.setTransform(DPR,0,0,DPR,0,0);
   ctx.drawImage(STATIC,0,0,W,H);
+  if(L.fallback)return;
   if(M.p.score!==M.lastScores.p){M.flashBadge.p=now;M.lastScores.p=M.p.score;}
   if(M.o.score!==M.lastScores.o){M.flashBadge.o=now;M.lastScores.o=M.o.score;}
   drawChannel(ctx,L.chanP,chanState('p'),now);

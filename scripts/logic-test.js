@@ -4,8 +4,15 @@ const fs = require('fs');
 const path = require('path');
 
 globalThis.window = {}; // no AudioContext -> AUDIO.ensure() returns false, silent
+const memStore = {};
+globalThis.localStorage = {
+  getItem(k){ return Object.prototype.hasOwnProperty.call(memStore, k) ? memStore[k] : null; },
+  setItem(k, v){ memStore[k] = String(v); },
+  removeItem(k){ delete memStore[k]; },
+  clear(){ for (const k of Object.keys(memStore)) delete memStore[k]; }
+};
 function stubEl() {
-  return new Proxy({ classList: { add() {}, remove() {}, toggle() {} }, style: {}, dataset: {} },
+  return new Proxy({ classList: { add() {}, remove() {}, toggle() {}, contains() { return false; } }, style: {}, dataset: {} },
     { get(t, k) { return k in t ? t[k] : (() => stubEl()); }, set(t, k, v) { t[k] = v; return true; } });
 }
 globalThis.document = { querySelector: () => stubEl(), querySelectorAll: () => [], addEventListener() {} };
@@ -424,6 +431,52 @@ function prepPlay(deck, handIds) {
     const sl = { card: PZ.makeCard('1\u00B12'), eff: 2, isMain: false };
     return PZ.faceVal(sl) === 2;
   })());
+}
+
+{
+  t('cardSpeak-plus', PZ.cardSpeak(PZ.makeCard('+3')) === 'plus 3');
+  const save = PZ.getSave();
+  save.roster = PZ.buildRoster();
+  save.credits = PZ.START_CREDITS;
+  save.circuit = 0;
+  save.activeMatch = null;
+  save.recoveredMatch = false;
+  save.lastDeck = ['+1','-1','+2','-2','+3','-3','+4','-4','+5','-5'];
+  PZ.persist();
+  const before = save.credits;
+  const wager = PZ.matchWager(save.roster[0].tier);
+  PZ.startMatch(0);
+  t('start-debits', PZ.getSave().credits === before - wager && PZ.getSave().activeMatch && PZ.getSave().activeMatch.wager === wager && !!PZ.getM());
+  PZ.leaveMatch();
+  t('forfeit-no-refund', PZ.getSave().credits === before - wager && !PZ.getSave().activeMatch && !PZ.getM());
+
+  save.credits = before;
+  PZ.persist();
+  PZ.blockPersist(true);
+  PZ.startMatch(0);
+  t('start-persist-rollback', PZ.getSave().credits === before && !PZ.getM() && !PZ.getSave().activeMatch);
+  PZ.blockPersist(false);
+
+  PZ.startMatch(0);
+  const afterDebit = PZ.getSave().credits;
+  const circuit0 = PZ.getSave().circuit;
+  PZ.matchEnd('p');
+  t('win-pays-double', PZ.getSave().credits === afterDebit + wager * 2 && PZ.getSave().circuit === circuit0 + 1 && !PZ.getSave().activeMatch);
+
+  const n = PZ.normalizeSave({ credits: 300, activeMatch: { wager: 50, rung: 0, startedAt: 1 } }, true);
+  t('recover-flag-only', n.recoveredMatch === true && n.activeMatch && n.activeMatch.wager === 50 && n.credits === 300);
+
+  save.credits = 300;
+  save.activeMatch = { wager: 50, rung: 0, startedAt: 1 };
+  save.recoveredMatch = true;
+  t('recover-once', PZ.applyRecoveredWager() === true && PZ.getSave().credits === 350 && !PZ.getSave().activeMatch && !PZ.getSave().recoveredMatch);
+
+  save.credits = 300;
+  save.activeMatch = { wager: 50, rung: 0, startedAt: 1 };
+  save.recoveredMatch = true;
+  PZ.blockPersist(true);
+  t('recover-persist-fail', PZ.applyRecoveredWager() === false && PZ.getSave().credits === 300 && PZ.getSave().activeMatch && PZ.getSave().activeMatch.wager === 50);
+  PZ.blockPersist(false);
 }
 
 process.exit(fail ? 1 : 0);

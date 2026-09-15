@@ -2,6 +2,7 @@
 const $=s=>document.querySelector(s);
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const choice=a=>a[Math.floor(Math.random()*a.length)];
+function escapeHtml(value){return String(value==null?'':value).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));}
 // RefPlus 572x772. Every drawn card letterboxes into this aspect so wells,
 // badge, and plate stay in the measured places at catalog/hand/table sizes.
 const CARD_ASPECT=572/772;
@@ -38,6 +39,64 @@ function drawKeyHint(g,x,y,kind,col,btnH){
     g.fillText('\u2423',x,y+0.5);
   }
   g.restore();
+}
+function isTypingTarget(el){
+  if(!el||el===document.body||el===document.documentElement)return false;
+  const tag=el.tagName;
+  return tag==='INPUT'||tag==='TEXTAREA'||tag==='SELECT'||el.isContentEditable;
+}
+function focusablesIn(root){
+  if(!root)return [];
+  return [...root.querySelectorAll('button, input, select, textarea, [tabindex]:not([tabindex="-1"])')].filter(el=>{
+    if(el.disabled||el.hidden||el.getAttribute('aria-hidden')==='true')return false;
+    if(el.closest('[hidden]'))return false;
+    const tab=el.tabIndex;if(tab<0)return false;
+    const r=el.getBoundingClientRect();
+    return r.width>2&&r.height>2;
+  });
+}
+function arrowDelta(key){
+  if(key==='ArrowUp')return {x:0,y:-1};
+  if(key==='ArrowDown')return {x:0,y:1};
+  if(key==='ArrowLeft')return {x:-1,y:0};
+  if(key==='ArrowRight')return {x:1,y:0};
+  return null;
+}
+function moveFocusArrow(root,key){
+  const items=focusablesIn(root);
+  if(!items.length)return false;
+  const cur=items.includes(document.activeElement)?document.activeElement:null;
+  if(key==='Home'){items[0].focus();return true;}
+  if(key==='End'){items[items.length-1].focus();return true;}
+  const d=arrowDelta(key);if(!d)return false;
+  if(!cur){items[0].focus();return true;}
+  const cr=cur.getBoundingClientRect();
+  const cx=cr.left+cr.width/2,cy=cr.top+cr.height/2;
+  let best=null,bestScore=Infinity;
+  for(const el of items){
+    if(el===cur)continue;
+    const r=el.getBoundingClientRect();
+    const along=(r.left+r.width/2-cx)*d.x+(r.top+r.height/2-cy)*d.y;
+    if(along<=4)continue;
+    const across=Math.abs((r.left+r.width/2-cx)*d.y+(r.top+r.height/2-cy)*d.x);
+    const score=across*3+along;
+    if(score<bestScore){bestScore=score;best=el;}
+  }
+  if(!best)best=d.x+d.y>0?items[0]:items[items.length-1];
+  if(best&&best!==cur){best.focus();return true;}
+  return false;
+}
+function trapModalTab(box,e){
+  if(e.key!=='Tab'||!box)return false;
+  const items=focusablesIn(box);
+  if(!items.length){e.preventDefault();return true;}
+  const i=items.indexOf(document.activeElement);
+  if(e.shiftKey){
+    if(i<=0){e.preventDefault();items[items.length-1].focus();return true;}
+  }else if(i===items.length-1||i<0){
+    e.preventDefault();items[0].focus();return true;
+  }
+  return false;
 }
 function tText(g,text,x,y,size,color,spacing=1.4,align='center',bold=true,condense=1,initials=false){
   g.save();g.fillStyle=color;g.textBaseline='middle';g.textAlign='left';

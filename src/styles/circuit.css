@@ -31,6 +31,7 @@
 
 .rung{
   --row:var(--eq-cyan);
+  appearance:none;-webkit-appearance:none;
   display:grid;
   grid-template-columns:clamp(48px,12vw,58px) 1fr;
   gap:5px;
@@ -41,12 +42,14 @@
   border:0;
   min-width:0;
   box-shadow:none;
+  font:inherit;color:inherit;text-align:left;
 }
 .rung.next,.rung.done{cursor:pointer}
 .rung.locked{opacity:.55;cursor:default}
 .rung.pick{--row:var(--eq-gold)}
 .rung.next:hover:not(.pick),
 .rung.done:hover:not(.pick){--row:#6aa0d8}
+.rung:focus-visible{outline:2px solid var(--eq-gold-hi);outline-offset:2px}
 
 .ricon,.rbody{
   background:var(--eq-fill);
