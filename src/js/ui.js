@@ -188,7 +188,7 @@ function showSpoilsModal(wager,rematch){
       const id=list[i].id,prev=SAVE.unlocked[id]||0;
       if(!addToCollection(id)||!persist()){
         if(prev)SAVE.unlocked[id]=prev;else delete SAVE.unlocked[id];
-        presentDialog('SAVE FAILED','THAT CARD COULD NOT BE STORED',()=>{});
+        presentDialog('SAVE FAILED','THAT CARD COULD NOT BE STORED',()=>leaveMatch());
         return;
       }
       closeModal();leaveMatch();
@@ -422,7 +422,7 @@ function syncMatchA11y(){
     if(!b)continue;
     if(L&&L.fallback){b.hidden=true;continue;}
     if(kind==='flip')b.disabled=!ui.flipOk||!!matchDlg;
-    else if(kind==='forfeit')b.disabled=M.phase!=='pAction'||!!matchDlg||!!(L&&L.fallback);
+    else if(kind==='forfeit')b.disabled=!canForfeit()||!!matchDlg||!!(L&&L.fallback);
     else b.disabled=!canAct;
   }
   const sig=matchStatusText();

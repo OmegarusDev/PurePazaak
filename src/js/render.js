@@ -11,7 +11,8 @@ function renderStatic(){
   const g=STATIC.getContext('2d');g.setTransform(DPR,0,0,DPR,0,0);
   if(L.fallback){drawFallback(g);return;}
   drawFrame(g);
-  for(const top of [L.topP, L.topO]){
+  const rails=L.nameRail?[L.nameRail]:[L.topP,L.topO];
+  for(const top of rails){
     const rad=Math.max(6,top.h/2);
     rr(g,top.x,top.y,top.w,top.h,rad);
     g.fillStyle=sk.plate;g.fill();g.strokeStyle='#000';g.lineWidth=1;g.stroke();
@@ -21,14 +22,13 @@ function renderStatic(){
   const on=M;
   const nameCol=sk.name;
   const fsName=L.fsName||12;
-  const namePad=Math.max(6,Math.round(L.topP.h*0.18));
   g.save();
   rr(g,L.topP.x,L.topP.y,L.topP.w,L.topP.h,Math.max(6,L.topP.h/2));g.clip();
-  tName(g,'YOU',L.nameP.x,L.nameP.y,fsName,nameCol,'left',Math.max(24,L.topP.x+L.topP.w-namePad-L.nameP.x));
+  tName(g,'YOU',L.nameP.x,L.nameP.y,fsName,nameCol,'left',L.nameMaxP||24);
   g.restore();
   g.save();
   rr(g,L.topO.x,L.topO.y,L.topO.w,L.topO.h,Math.max(6,L.topO.h/2));g.clip();
-  tName(g,on?on.opp.name:'Opponent',L.nameO.x,L.nameO.y,fsName,nameCol,'right',Math.max(24,L.nameO.x-(L.topO.x+namePad)));
+  tName(g,on?on.opp.name:'Opponent',L.nameO.x,L.nameO.y,fsName,nameCol,'right',L.nameMaxO||24);
   g.restore();
   for(const grid of [L.gridP,L.gridO]){
     const gx=L.gapX!=null?L.gapX:L.gap, gy=L.gapY!=null?L.gapY:L.gap;
@@ -37,12 +37,11 @@ function renderStatic(){
     g.strokeStyle=`rgba(255,255,255,${0.04+sk.bevelHi*0.12})`;g.lineWidth=1;g.stroke();
     for(let r=0;r<3;r++)for(let c=0;c<3;c++)drawSlot(g,slotRect(grid,r,c));
   }
-  for(const lab of [L.labP,L.labO]){
-    rr(g,lab.x,lab.y,lab.w,lab.h,5);g.fillStyle=sk.plate;g.fill();
+  if(L.labP){
+    rr(g,L.labP.x,L.labP.y,L.labP.w,L.labP.h,5);g.fillStyle=sk.plate;g.fill();
     g.strokeStyle='#000';g.stroke();
+    tText(g,'Player Hand',L.labP.x+L.labP.w/2,L.labP.y+L.labP.h/2+1,L.fsLab||13,sk.lab,1.2,'center',true,1);
   }
-  tText(g,'Player Hand',L.labP.x+L.labP.w/2,L.labP.y+L.labP.h/2+1,L.fsLab||13,sk.lab,1.2,'center',true,1);
-  tText(g,'Opponent Hand',L.labO.x+L.labO.w/2,L.labO.y+L.labO.h/2+1,L.fsLab||13,sk.lab,1.2,'center',true,1);
   for(const h of [L.handP,L.handO]){
     if(!h)continue;
     for(let i=0;i<4;i++)drawSlot(g,handSlot(h,i));
@@ -60,8 +59,8 @@ function render(now){
   if(L.fallback)return;
   if(M.p.score!==M.lastScores.p){M.flashBadge.p=now;M.lastScores.p=M.p.score;}
   if(M.o.score!==M.lastScores.o){M.flashBadge.o=now;M.lastScores.o=M.o.score;}
-  drawChannel(ctx,L.chanP,chanState('p'),now);
-  drawChannel(ctx,L.chanO,chanState('o'),now);
+  drawChannel(ctx,L.chanP,chanState('p'));
+  drawChannel(ctx,L.chanO,chanState('o'));
   drawOrb(ctx,L.orbP,L.orbP.r,orbState('p'),now);
   drawOrb(ctx,L.orbO,L.orbO.r,orbState('o'),now);
   drawBadge(ctx,L.badges[0],M.p.score,M.flashBadge.p,now);
@@ -101,7 +100,7 @@ function render(now){
   drawTableButton(ctx,L.btnFlip,'FLIP',{dim:!ui.flipOk,lit:ui.flipOk});
   drawTableButton(ctx,L.btnEnd,'END TURN',{dim:!ui.act,lit:ui.act,hint:'space'});
   drawTableButton(ctx,L.btnStand,'STAND',{dim:!ui.act,hint:'return'});
-  drawTableButton(ctx,L.btnForf,'FORFEIT',{ghost:true,dim:!ui.act});
+  drawTableButton(ctx,L.btnForf,'FORFEIT',{ghost:true,dim:!canForfeit()});
   if(M.anims.flash){
     const p=(now-M.anims.flash.t0)/500;
     if(p<1){

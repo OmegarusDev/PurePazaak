@@ -40,10 +40,11 @@
   /* legacy names (kept for compat) */
   --amber:#e8c34a;
   --red:#e05555;
-  /* Odyssey GUI ≈ Bank Gothic (DIN Alternate is the installed square stand-in).
+  /* Odyssey GUI ≈ Bank Gothic. ITC Blair (BlairMdITC TT) is a close wide grotesque
+     but is not registered for apps on this Mac — DIN Alternate remains the public stand-in.
      Dialogue / roster names ≈ Arial with extra tracking. Cards keep bundled Orbitron. */
   --serif:"Trajan Pro",Trajan,Cinzel,"Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
-  --gui:"Bank Gothic","BankGothic Md BT","Bank Gothic Medium","DIN Alternate","Eurostile","Microgramma","Century Gothic",sans-serif;
+  --gui:"Bank Gothic","BankGothic Md BT","Bank Gothic Medium","BlairMdITC TT","ITC Blair","Blair Medium","DIN Alternate","Eurostile","Microgramma","Century Gothic",sans-serif;
   --dialog:Arial,Helvetica,"Helvetica Neue",sans-serif;
   --card:"Orbitron","DIN Alternate","Bank Gothic","Eurostile",sans-serif;
   --sans:var(--gui);

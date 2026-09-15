@@ -20,8 +20,8 @@ function drawCard(g,x,y,w,h,card,o={}){
   else if(isMinus){bandKey='red';bandKey2='red';}
   else{bandKey=orient>0?'blue':'red';bandKey2=orient>0?'red':'blue';}
   if(o.glow!==false){g.save();g.shadowColor=CARD_COLORS[key].b;g.shadowBlur=9;g.fillStyle='#000';g.fill(p);g.restore();}
-  paintBody(g,p,TEX.taupe,w,h);
-  paintInnerMetal(g,w,h,TEX.taupe);
+  paintBody(g,p,TEX.silver,w,h);
+  paintInnerMetal(g,w,h,TEX.silver);
   const tp=GEOM.topPanel,mp=GEOM.midPanel,bp=GEOM.blackPanel,b=GEOM.bottomStrip;
   const ch=cardChamfer(w,GEOM.chamfer),chS=cardChamfer(w,GEOM.stripChamfer);
   let topPath=vNotchedTopPath(tp.x*w,tp.y*h,tp.w*w,tp.h*h,ch,tp.nw,tp.nd);
@@ -35,7 +35,7 @@ function drawCard(g,x,y,w,h,card,o={}){
   recessShade(g,botPath,mp.x*w,mp.y*h,mp.w*w,mp.h*h);
   panelBevel(g,botPath,w,h);
   g.restore();
-  paintNumberPlate(g,bp.x*w,bp.y*h,bp.w*w,bp.h*h,Math.min(w,h)*bp.r,'#07070a',TEX.taupe);
+  paintNumberPlate(g,bp.x*w,bp.y*h,bp.w*w,bp.h*h,Math.min(w,h)*bp.r,'#07070a',TEX.silver);
   const lbl=cardLabel(card,orient,varV,!!o.catalog);
   const bh2=GEOM.numberTextH*h;
   g.fillStyle='#fff';g.textAlign='center';g.textBaseline='middle';

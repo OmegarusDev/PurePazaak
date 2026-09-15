@@ -457,6 +457,12 @@ function prepPlay(deck, handIds) {
   t('start-persist-rollback', PZ.getSave().credits === before && !PZ.getM() && !PZ.getSave().activeMatch);
   PZ.blockPersist(false);
 
+  const disk=JSON.parse(localStorage.getItem(PZ.SAVE_KEY));
+  disk.revision=(PZ.getSave().revision||0)+9;
+  disk.updatedAt=Date.now()+5000;
+  localStorage.setItem(PZ.SAVE_KEY,JSON.stringify(disk));
+  t('persist-rebase-stale', PZ.persist()===true && PZ.getSave().revision>disk.revision);
+
   PZ.startMatch(0);
   const afterDebit = PZ.getSave().credits;
   const circuit0 = PZ.getSave().circuit;

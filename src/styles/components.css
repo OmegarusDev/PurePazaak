@@ -76,11 +76,7 @@ h1.kotor-lockup,.kotor-lockup{display:flex;flex-direction:column;align-items:cen
   background:rgba(2,8,18,.94);
   border:2px solid #3a78d0;
   border-radius:14px;
-  box-shadow:
-    0 0 0 1px rgba(90,160,255,.25),
-    0 0 18px rgba(40,110,220,.55),
-    inset 0 0 0 1px rgba(60,120,200,.35),
-    0 18px 48px rgba(0,0,0,.55);
+  box-shadow:inset 0 0 0 1px rgba(60,120,200,.35),0 18px 48px rgba(0,0,0,.55);
 }
 #modalbox h2{
   position:relative;

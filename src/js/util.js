@@ -23,7 +23,7 @@ function shade(hex,amt){const n=parseInt(hex.slice(1),16);const r=clamp((n>>16)+
 function rr(g,x,y,w,h,r){g.beginPath();g.moveTo(x+r,y);g.arcTo(x+w,y,x+w,y+h,r);g.arcTo(x+w,y+h,x,y+h,r);g.arcTo(x,y+h,x,y,r);g.arcTo(x,y,x+w,y,r);g.closePath();}
 function rrPath(w,h,r){const p=new Path2D();p.moveTo(r,0);p.lineTo(w-r,0);p.quadraticCurveTo(w,0,w,r);p.lineTo(w,h-r);p.quadraticCurveTo(w,h,w-r,h);p.lineTo(r,h);p.quadraticCurveTo(0,h,0,h-r);p.lineTo(0,r);p.quadraticCurveTo(0,0,r,0);p.closePath();return p;}
 const CARD_FONT='"Orbitron","DIN Alternate","Bank Gothic","Eurostile",sans-serif';
-const GUI_FONT='"Bank Gothic","BankGothic Md BT","DIN Alternate","Eurostile","Microgramma","Century Gothic",sans-serif';
+const GUI_FONT='"Bank Gothic","BankGothic Md BT","BlairMdITC TT","ITC Blair","Blair Medium","DIN Alternate","Eurostile","Microgramma","Century Gothic",sans-serif';
 const DIALOG_FONT='Arial,Helvetica,"Helvetica Neue",sans-serif';
 const NAME_TRACK_EM=0.12;
 const HUD_FONT=CARD_FONT;

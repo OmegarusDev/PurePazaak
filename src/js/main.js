@@ -92,6 +92,8 @@ async function init(){
       await Promise.all([
         document.fonts.load('700 32px "Orbitron"'),
         document.fonts.load('700 32px "Bank Gothic"'),
+        document.fonts.load('500 32px "BlairMdITC TT"'),
+        document.fonts.load('500 32px "ITC Blair"'),
         document.fonts.load('700 32px "DIN Alternate"'),
         document.fonts.load('600 24px Arial')
       ]);
@@ -120,6 +122,7 @@ function canvasPoint(e){
   return {x:(e.clientX-r.left)/Math.max(1,r.width)*W, y:(e.clientY-r.top)/Math.max(1,r.height)*H};
 }
 function askForfeit(){
+  if(!canForfeit())return;
   AUDIO.play('click');
   presentDialog('FORFEIT THE MATCH?','THE WAGER WILL BE LOST',()=>{AUDIO.play('lose');leaveMatch();},{cancelText:'NO',onCancel(){}});
 }
@@ -134,7 +137,7 @@ function hitTable(p){
   if(inRect(p,L.btnEnd)&&ui.act)return {kind:'end'};
   if(inRect(p,L.btnStand)&&ui.act)return {kind:'stand'};
   if(inRect(p,L.btnFlip)&&ui.flipOk)return {kind:'flip'};
-  if(inRect(p,L.btnForf)&&M.phase==='pAction')return {kind:'forfeit'};
+  if(inRect(p,L.btnForf)&&canForfeit())return {kind:'forfeit'};
   return null;
 }
 function onTableHover(e){

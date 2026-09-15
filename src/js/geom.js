@@ -5,17 +5,24 @@
 // Symmetry: topPanel ↔ midPanel are vertical translations with V inverted; the black face is inset between them and the badge circle stays rotationally symmetric.
 const GEOM={
   outer:{x:0,y:0,w:1,h:0.996,r:0.045},
-  // RefPlus/RefMinus measured wells and the black face's metal separation.
-  topPanel:{x:0.136,y:0.122,w:0.732,h:0.158,nw:0.307,nd:0.443,tip:{x:0.5,y:0.210}},
-  midPanel:{x:0.136,y:0.575,w:0.732,h:0.160,nw:0.307,nd:0.544,tip:{x:0.5,y:0.662}},
-  // Inner face; paintNumberPlate expands this into a frame aligned with the colored wells.
-  blackPanel:{x:0.143,y:0.295,w:0.718,h:0.265,r:0.010},
-  numberTextH:0.182,
-  bottomStrip:{x:0.143,y:0.848,w:0.717,h:0.148},
-  // 45° clips, pixel-equal dx/dy. Wells ~18px @572w; bottom strip is a larger clip.
+  // Same metal-frame inset as the rear (GEOM_REAR.inset). Inner wells keep
+  // the plus-face shapes, just sitting in that shared border.
+  topPanel:{x:0.128,y:0.096,w:0.744,h:0.204,nw:0.274,nd:0.304,tip:{x:0.5,y:0.238}},
+  midPanel:{x:0.128,y:0.554,w:0.744,h:0.151,nw:0.274,nd:0.512,tip:{x:0.5,y:0.631}},
+  blackPanel:{x:0.135,y:0.309,w:0.729,h:0.238,r:0.010},
+  numberTextH:0.162,
+  bottomStrip:{x:0.135,y:0.797,w:0.729,h:0.137},
   chamfer:0.032,stripChamfer:0.055,
-  // Circular tab of the top color well. Glyph sizes from RefPlus/RefMinus yellow pixels.
-  badge:{cx:0.826,cy:0.150,r:0.092,plusW:0.093,plusH:0.070,plusT:0.013,minusW:0.093,minusH:0.014}
+  badge:{cx:0.830,cy:0.142,r:0.083,plusW:0.085,plusH:0.062,plusT:0.012,minusW:0.085,minusH:0.012}
+};
+/* RefRear: one dark inset. The bar+U is a hole in that inset so the card frame shows through. */
+const GEOM_REAR={
+  inset:{x:0.128,y:0.096,w:0.744,h:0.838,r:0.018},
+  topWell:{x:0.128,y:0.100,w:0.744,h:0.178,nw:0.376,nd:0.382},
+  plate:{x:0.172,y:0.278,w:0.656,h:0.278,topTip:0.210,botTip:0.618,topBase:0.28,botBase:0.24},
+  badge:{cx:0.825,cy:0.132,r:0.088},
+  bar:{x:0.128,y:0.748,w:0.744,h:0.038},
+  cup:{w:0.38,h:0.10}
 };
 function vNotchedTopPath(x,y,w,h,ch,nw,nd){
   const p=new Path2D();
@@ -156,25 +163,97 @@ function paintBadgeMark(g,w,h,mark){
   g.fillRect(bx-t/2,by-armH/2,t,armH);
   g.fillRect(bx-armW/2,by-t/2,armW,t);
 }
+function rearPlatePath(w,h){
+  const p=GEOM_REAR.plate,x=p.x*w,y=p.y*h,pw=p.w*w,ph=p.h*h,cx=w*0.5;
+  const tb=p.topBase*w,bb=p.botBase*w;
+  const path=new Path2D();
+  path.moveTo(cx,p.topTip*h);
+  path.lineTo(cx+tb/2,y);
+  path.lineTo(x+pw,y);
+  path.lineTo(x+pw,y+ph);
+  path.lineTo(cx+bb/2,y+ph);
+  path.lineTo(cx,p.botTip*h);
+  path.lineTo(cx-bb/2,y+ph);
+  path.lineTo(x,y+ph);
+  path.lineTo(x,y);
+  path.lineTo(cx-tb/2,y);
+  path.closePath();
+  return path;
+}
+function roundedRectPath(x,y,w,h,r){
+  const p=new Path2D();
+  p.moveTo(x+r,y);p.lineTo(x+w-r,y);p.quadraticCurveTo(x+w,y,x+w,y+r);
+  p.lineTo(x+w,y+h-r);p.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  p.lineTo(x+r,y+h);p.quadraticCurveTo(x,y+h,x,y+h-r);
+  p.lineTo(x,y+r);p.quadraticCurveTo(x,y,x+r,y);
+  p.closePath();return p;
+}
+function rearInsetOuterPath(w,h){
+  const i=GEOM_REAR.inset,p=roundedRectPath(i.x*w,i.y*h,i.w*w,i.h*h,Math.min(w,h)*i.r);
+  const bd=GEOM_REAR.badge,c=new Path2D();
+  c.arc(bd.cx*w,bd.cy*h,bd.r*Math.min(w,h),0,Math.PI*2);
+  p.addPath(c);
+  return p;
+}
+function rearFrameGapPath(w,h){
+  const b=GEOM_REAR.bar,cw=GEOM_REAR.cup.w*w,ch=GEOM_REAR.cup.h*h;
+  const x=b.x*w,y=b.y*h,bw=b.w*w,bh=b.h*h,cx=w*0.5;
+  const path=new Path2D();
+  path.moveTo(x,y);path.lineTo(x+bw,y);path.lineTo(x+bw,y+bh);
+  path.lineTo(cx+cw/2,y+bh);
+  path.ellipse(cx,y+bh,cw/2,ch,0,0,Math.PI,false);
+  path.lineTo(x,y+bh);path.closePath();
+  return path;
+}
+function rearWellWithDimple(base,w,h){
+  const p=new Path2D(base);
+  const bd=GEOM_REAR.badge,c=new Path2D();
+  c.arc(bd.cx*w,bd.cy*h,bd.r*Math.min(w,h),0,Math.PI*2);
+  p.addPath(c);
+  return p;
+}
+function paintRearDimple(g,w,h){
+  const bd=GEOM_REAR.badge,r=bd.r*Math.min(w,h),x=bd.cx*w,y=bd.cy*h;
+  g.beginPath();g.arc(x,y,r,0,7);
+  g.fillStyle='rgba(0,0,0,0.20)';g.fill();
+  g.strokeStyle='rgba(0,0,0,0.38)';g.lineWidth=Math.max(0.6,r*0.08);g.stroke();
+  g.beginPath();g.arc(x-r*0.2,y-r*0.24,r*0.52,0,7);
+  g.fillStyle='rgba(255,255,255,0.10)';g.fill();
+  g.beginPath();g.arc(x,y,r*0.72,0,7);
+  g.strokeStyle='rgba(255,255,255,0.12)';g.lineWidth=1;g.stroke();
+}
 function drawBack(g,w,h){
   const p=cardPath(w,h);
   g.save();g.shadowColor='rgba(0,0,0,0.45)';g.shadowBlur=5;g.fillStyle='#909098';g.fill(p);g.restore();
   paintBody(g,p,TEX.silver,w,h);
-  const tp=GEOM.topPanel,mp=GEOM.midPanel,b=GEOM.bottomStrip,bp=GEOM.blackPanel;
-  const ch=cardChamfer(w,GEOM.chamfer),chS=cardChamfer(w,GEOM.stripChamfer);
-  const topPath=wellWithBadge(vNotchedTopPath(tp.x*w,tp.y*h,tp.w*w,tp.h*h,ch,tp.nw,tp.nd),w,h);
-  const botPath=vNotchedMidPath(mp.x*w,mp.y*h,mp.w*w,mp.h*h,ch,mp.nw,mp.nd);
-  paintInnerMetal(g,w,h,TEX.silver);
+  const tw=GEOM_REAR.topWell,ch=cardChamfer(w,GEOM.chamfer);
+  const inset=rearInsetOuterPath(w,h);
+  const gap=rearFrameGapPath(w,h);
+  const topPath=rearWellWithDimple(vNotchedTopPath(tw.x*w,tw.y*h,tw.w*w,tw.h*h,ch,tw.nw,tw.nd),w,h);
+  const plate=rearPlatePath(w,h);
   g.save();g.clip(p);
-  g.save();g.clip(topPath);g.drawImage(TEX.silver,0,0,w,h);g.fillStyle='rgba(0,0,0,0.26)';g.fillRect(0,0,w,h);g.restore();
-  recessShade(g,topPath,tp.x*w,tp.y*h,tp.w*w,tp.h*h);
-  panelBevel(g,topPath,w,h);
-  g.save();g.clip(botPath);g.drawImage(TEX.silver,0,0,w,h);g.fillStyle='rgba(0,0,0,0.26)';g.fillRect(0,0,w,h);g.restore();
-  recessShade(g,botPath,mp.x*w,mp.y*h,mp.w*w,mp.h*h);
-  panelBevel(g,botPath,w,h);
-  const strip=stripPath(b.w*w,b.h*h,chS);
-  g.save();g.translate(b.x*w,b.y*h);g.clip(strip);g.drawImage(TEX.silver,-b.x*w,-b.y*h,w,h);g.fillStyle='rgba(0,0,0,0.24)';g.fillRect(0,0,b.w*w,b.h*h);g.restore();
-  g.save();g.translate(b.x*w,b.y*h);recessShade(g,strip,0,0,b.w*w,b.h*h);panelBevel(g,strip,w,h);g.restore();
+  g.save();g.clip(inset);
+  g.drawImage(TEX.silver,0,0,w,h);g.fillStyle='rgba(0,0,0,0.22)';g.fillRect(0,0,w,h);
   g.restore();
-  paintNumberPlate(g,bp.x*w,bp.y*h,bp.w*w,bp.h*h,Math.min(w,h)*bp.r,'#7e7e84',TEX.silver);
+  recessShade(g,inset,GEOM_REAR.inset.x*w,GEOM_REAR.inset.y*h,GEOM_REAR.inset.w*w,GEOM_REAR.inset.h*h);
+  panelBevel(g,inset,w,h);
+  g.save();g.clip(gap);
+  g.drawImage(TEX.silver,0,0,w,h);
+  const bodyHi=g.createLinearGradient(0,GEOM_REAR.bar.y*h,0,h);
+  bodyHi.addColorStop(0,'rgba(255,255,255,0.10)');bodyHi.addColorStop(0.55,'rgba(0,0,0,0)');bodyHi.addColorStop(1,'rgba(0,0,0,0.10)');
+  g.fillStyle=bodyHi;g.fillRect(0,0,w,h);
+  g.restore();
+  g.save();g.clip(topPath);g.drawImage(TEX.silver,0,0,w,h);g.fillStyle='rgba(0,0,0,0.30)';g.fillRect(0,0,w,h);g.restore();
+  recessShade(g,topPath,tw.x*w,tw.y*h,tw.w*w,tw.h*h);
+  panelBevel(g,topPath,w,h);
+  g.save();g.clip(plate);g.drawImage(TEX.silver,0,0,w,h);
+  g.fillStyle='rgba(255,255,255,0.16)';g.fillRect(0,0,w,h);
+  const hi=g.createLinearGradient(w*0.5,GEOM_REAR.plate.topTip*h,w*0.5,GEOM_REAR.plate.botTip*h);
+  hi.addColorStop(0,'rgba(255,255,255,0.22)');hi.addColorStop(0.45,'rgba(255,255,255,0.04)');
+  hi.addColorStop(1,'rgba(0,0,0,0.10)');
+  g.fillStyle=hi;g.fillRect(0,0,w,h);g.restore();
+  gemBevel(g,plate,Math.max(0.45,Math.min(w,h)*0.006));
+  g.strokeStyle='rgba(0,0,0,0.28)';g.lineWidth=Math.max(0.5,Math.min(w,h)*0.006);g.stroke(plate);
+  paintRearDimple(g,w,h);
+  g.restore();
 }

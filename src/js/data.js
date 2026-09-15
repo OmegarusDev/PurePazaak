@@ -142,7 +142,8 @@ function persist(){
     const old=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');
     if(old&&Number.isSafeInteger(old.revision)&&(
       old.revision>(SAVE.revision||0)||(old.revision===(SAVE.revision||0)&&old.updatedAt>(SAVE.updatedAt||0)))){
-      SAVE_CONFLICT=true;console.warn('Save changed in another tab; local changes were not written.');return false;
+      SAVE.revision=old.revision;
+      SAVE.updatedAt=old.updatedAt;
     }
     SAVE.schema=SAVE_SCHEMA;SAVE.revision=(SAVE.revision||0)+1;SAVE.writer=SAVE_WRITER;SAVE.updatedAt=Date.now();
     localStorage.setItem(SAVE_KEY,JSON.stringify(SAVE));

@@ -44,7 +44,7 @@ function newMatch(opp,replayRung){
 function startSet(){
   M.setNum++;M.deck=buildMainDeck();
   for(const w of ['p','o']){const S=sideOf(w);S.board=Array(9).fill(null);S.score=0;S.stood=false;S.bust=false;S.tiebreak=false;}
-  M.sel=-1;M.orient=1;M.varV=1;M.phase='turn';M.anims.deal=null;
+  M.sel=-1;M.orient=1;M.varV=1;M.sidePlayed=false;M.phase='turn';M.anims.deal=null;
   toast('SET '+M.setNum);
   beginTurn(M.setStarter);
 }
@@ -141,9 +141,13 @@ function bustRisk(w){
   let bad=0;for(const c of M.deck)if(S.score+c.v>20)bad++;
   return bad/rem;
 }
+async function aiLive(tk){
+  while(M&&M.token===tk&&M.phase==='oTurn'&&matchDlg)await sleep(50);
+  return !!(M&&M.token===tk&&M.phase==='oTurn');
+}
 async function aiTurn(tk){
-  await sleep(650);if(!M||tk!==M.token||M.phase!=='oTurn')return;
-  await sleep(520);if(!M||tk!==M.token||M.phase!=='oTurn')return;
+  await sleep(650);if(!await aiLive(tk))return;
+  await sleep(520);if(!await aiLive(tk))return;
   const snap={score:M.o.score,board:M.o.board,hand:M.o.hand,oppScore:M.p.score,oppStood:M.p.stood,tier:M.opp.tier,bustRisk:bustRisk('o'),setsO:M.setsO};
   const d=aiDecide(snap);
   if(d.play){
@@ -154,7 +158,7 @@ async function aiTurn(tk){
     else{const si=placeSide(M.o,card,d.play.orient,d.play.varV||1);if(si>=0)M.anims.deal={who:'o',slot:si,t0:performance.now()};}
     if(card.kind==='tie')M.o.tiebreak=true;
     M.o.hand[d.play.idx]=null;
-    await sleep(430);if(!M||tk!==M.token||M.phase!=='oTurn')return;
+    await sleep(430);if(!await aiLive(tk))return;
     const res=resolveBoard('o');
     if(res==='fill'||res==='bust')return;
     if(res==='stood'){if(M.p.stood)resolveStandoff();else beginTurn('p');return;}
@@ -214,8 +218,8 @@ function matchEnd(winner){
   if(winner==='p'){
     AUDIO.play('win');
     const rematch=M.replayRung!=null,wager=M.wager||0;
-    SAVE.credits+=wager*2;
-    if(!rematch)SAVE.circuit+=1;
+    SAVE.credits=Math.min(999999999,SAVE.credits+wager*2);
+    if(!rematch)SAVE.circuit=Math.min(CIRCUIT_LEN,SAVE.circuit+1);
     persist();
     if(gameHooks.spoils)gameHooks.spoils(wager,rematch);
   }else{
@@ -259,9 +263,11 @@ function orbState(w){
   const S=sideOf(w);
   if(S.bust)return 'red';
   if(S.stood)return 'amber';
-  if(M.turn===w&&M.phase!=='done')return 'green';
+  if(M.turn===w&&(M.phase==='pAction'||M.phase==='oTurn'||M.phase==='turn'))return 'red';
   return 'idle';
 }
+function matchLive(){return !!(M&&M.phase!=='done'&&M.phase!=='over');}
+function canForfeit(){return matchLive();}
 function chanState(w){
   const sets=w==='p'?M.setsP:M.setsO;
   return [sets>0?'red':'off',sets>1?'red':'off',sets>2?'red':'off'];
