@@ -156,12 +156,6 @@
         <path fill="none" stroke="#66717a" stroke-opacity=".13" stroke-width="1.1" d="M0,997 H571"/>
       </svg>
     </div>
-    <div class="title-smoke" aria-hidden="true">
-      <span class="sm sm-a"></span>
-      <span class="sm sm-b"></span>
-      <span class="sm sm-c"></span>
-      <span class="sm sm-d"></span>
-    </div>
     <div class="title-stage">
     <h1 class="kotor-lockup" aria-label="Card Wars Pazaak of the Old Republic">
       <div class="sw-mark" aria-hidden="true">card wars</div>
@@ -267,7 +261,7 @@
       </nav>
     </div>
     </div>
-    <p id="build-mark" class="build-mark">v0.9.3</p>
+    <p id="build-mark" class="build-mark">v0.9.4</p>
   </section>
   <section id="scr-versus" class="screen">
     <div class="steel-console vs-console">
@@ -276,6 +270,8 @@
         <div class="steel-hbadge">PASS AND PLAY</div>
       </div>
       <div class="steel-well vs-well">
+        <div class="kotor-scroll">
+          <div class="kotor-scroll-pane vs-pane">
         <label class="vs-field">PLAYER 1 NAME<input id="vs-name-p" type="text" maxlength="18" autocomplete="off" spellcheck="false" value="Player 1"></label>
         <label class="vs-field">PLAYER 2 NAME<input id="vs-name-o" type="text" maxlength="18" autocomplete="off" spellcheck="false" value="Player 2"></label>
         <p class="vs-label">DECK TIER</p>
@@ -285,6 +281,13 @@
           <button type="button" id="vs-t3" class="kplate">TIER III</button>
         </div>
         <p id="vs-tier-note" class="vs-tier-note">Plus and minus cards only. Two of every card.</p>
+          </div>
+          <div class="kotor-scrollbar" aria-hidden="true">
+            <button type="button" class="kotor-sb-up" tabindex="-1" aria-hidden="true"></button>
+            <div class="kotor-sb-track"><div class="kotor-sb-thumb"></div></div>
+            <button type="button" class="kotor-sb-dn" tabindex="-1" aria-hidden="true"></button>
+          </div>
+        </div>
       </div>
       <div class="steel-foot">
         <button type="button" id="bt-vback" class="kplate">TITLE</button>
@@ -299,7 +302,14 @@
         <div class="steel-hbadge">OUTER RIM CIRCUIT</div>
       </div>
       <div class="steel-well circuit-well">
-        <div id="rungs"></div>
+        <div class="kotor-scroll">
+          <div id="rungs" class="kotor-scroll-pane"></div>
+          <div class="kotor-scrollbar" aria-hidden="true">
+            <button type="button" class="kotor-sb-up" tabindex="-1" aria-hidden="true"></button>
+            <div class="kotor-sb-track"><div class="kotor-sb-thumb"></div></div>
+            <button type="button" class="kotor-sb-dn" tabindex="-1" aria-hidden="true"></button>
+          </div>
+        </div>
       </div>
       <div class="steel-foot circuit-actions">
         <button type="button" id="bt-cback" class="kplate">TITLE</button>
@@ -316,7 +326,14 @@
       </div>
       <p id="store-note" class="store-note">Stock improves as you climb the tournament.</p>
       <div class="steel-well store-well">
-        <div id="stock"></div>
+        <div class="kotor-scroll">
+          <div id="stock" class="kotor-scroll-pane"></div>
+          <div class="kotor-scrollbar" aria-hidden="true">
+            <button type="button" class="kotor-sb-up" tabindex="-1" aria-hidden="true"></button>
+            <div class="kotor-sb-track"><div class="kotor-sb-thumb"></div></div>
+            <button type="button" class="kotor-sb-dn" tabindex="-1" aria-hidden="true"></button>
+          </div>
+        </div>
       </div>
       <div class="steel-foot store-actions">
         <button type="button" id="bt-sback" class="kplate">TOURNAMENT</button>
@@ -332,7 +349,14 @@
       </div>
       <p id="sell-note" class="store-note">Cards sell for half their cantina price.</p>
       <div class="steel-well store-well">
-        <div id="sell-stock"></div>
+        <div class="kotor-scroll">
+          <div id="sell-stock" class="kotor-scroll-pane"></div>
+          <div class="kotor-scrollbar" aria-hidden="true">
+            <button type="button" class="kotor-sb-up" tabindex="-1" aria-hidden="true"></button>
+            <div class="kotor-sb-track"><div class="kotor-sb-thumb"></div></div>
+            <button type="button" class="kotor-sb-dn" tabindex="-1" aria-hidden="true"></button>
+          </div>
+        </div>
       </div>
       <div class="steel-foot store-actions">
         <button type="button" id="bt-sell-buy" class="kplate">BUY</button>
@@ -348,7 +372,16 @@
         <div class="steel-hbadge">SIDEDECK <span id="deckcount">0/10</span></div>
       </div>
       <div class="steel-well deck-body">
-        <div class="deck-collection"><div id="collection"></div></div>
+        <div class="deck-collection">
+          <div class="kotor-scroll">
+            <div id="collection" class="kotor-scroll-pane"></div>
+            <div class="kotor-scrollbar" aria-hidden="true">
+              <button type="button" class="kotor-sb-up" tabindex="-1" aria-hidden="true"></button>
+              <div class="kotor-sb-track"><div class="kotor-sb-thumb"></div></div>
+              <button type="button" class="kotor-sb-dn" tabindex="-1" aria-hidden="true"></button>
+            </div>
+          </div>
+        </div>
         <div class="deck-rail" aria-hidden="true"></div>
         <div class="deck-side"><div id="sidedeck"></div></div>
       </div>
@@ -373,5 +406,5 @@
   </section>
 </main>
 <div id="match-live" class="sr-only" aria-live="polite" aria-atomic="true"></div>
-<div id="modal" class="hidden" role="dialog" aria-modal="true" aria-hidden="true" inert><div id="modalbox" role="document"></div></div>
+<div id="modal" class="hidden" role="dialog" aria-modal="true" aria-hidden="true" inert><div id="modalbox" role="document"><div class="kotor-scroll"><div id="modal-pane" class="kotor-scroll-pane"></div><div class="kotor-scrollbar" aria-hidden="true"><button type="button" class="kotor-sb-up" tabindex="-1" aria-hidden="true"></button><div class="kotor-sb-track"><div class="kotor-sb-thumb"></div></div><button type="button" class="kotor-sb-dn" tabindex="-1" aria-hidden="true"></button></div></div></div></div>
 <script>

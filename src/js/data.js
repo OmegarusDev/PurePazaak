@@ -1,4 +1,4 @@
-const GAME_VERSION='0.9.3';
+const GAME_VERSION='0.9.4';
 const STARTER_COLLECTION={'+1':2,'+2':2,'+3':2,'-1':2,'-2':2,'-3':2};
 const START_CREDITS=400;
 const STORE_CAP=4;
@@ -98,9 +98,11 @@ function vsTierNote(tier){
   if(tier>=2)return 'Plus, minus, and \u00B1 duals. Two of every card.';
   return 'Plus and minus cards only. Two of every card.';
 }
+function storeOrder(a,b){
+  return storeMinCircuit(b)-storeMinCircuit(a)||(CARD_PRICE[b]||0)-(CARD_PRICE[a]||0);
+}
 function storeStock(){
-  return Object.keys(CARD_PRICE).filter(id=>storeMinCircuit(id)<=SAVE.circuit)
-    .sort((a,b)=>storeMinCircuit(a)-storeMinCircuit(b)||(CARD_PRICE[a]-CARD_PRICE[b]));
+  return Object.keys(CARD_PRICE).filter(id=>storeMinCircuit(id)<=SAVE.circuit).sort(storeOrder);
 }
 function isClutterId(id){return Object.prototype.hasOwnProperty.call(STARTER_COLLECTION,id);}
 function hasCardId(id){return typeof id==='string'&&Object.prototype.hasOwnProperty.call(CARD_DEFS,id);}

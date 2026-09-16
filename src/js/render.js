@@ -12,13 +12,8 @@ function forgetStatic(){
 function renderStatic(){
   if(!ctx||typeof document==='undefined'||typeof document.createElement!=='function')return;
   const sk=tableSkin();
-  const on=M;
-  const whoP=typeof viewWho==='function'?viewWho('p'):'p';
-  const whoO=typeof viewWho==='function'?viewWho('o'):'o';
-  const nameP=on?plateName(whoP):'YOU';
-  const nameO=on?plateName(whoO):'Opponent';
   const bw=Math.max(1,Math.round(W*DPR)),bh=Math.max(1,Math.round(H*DPR));
-  const sig=[bw,bh,L.fallback?1:0,tableSeed(),tableTier(),nameP,nameO].join('\t');
+  const sig=[bw,bh,L.fallback?1:0,tableSeed(),tableTier()].join('\t');
   if(STATIC&&STATIC.width===bw&&STATIC.height===bh&&staticSig===sig)return;
   if(!STATIC)STATIC=document.createElement('canvas');
   if(STATIC.width!==bw||STATIC.height!==bh){STATIC.width=bw;STATIC.height=bh;}
@@ -34,16 +29,6 @@ function renderStatic(){
     g.strokeStyle=`rgba(255,255,255,${0.05+sk.bevelHi*0.2})`;
     g.beginPath();g.moveTo(top.x+rad,top.y+1.2);g.lineTo(top.x+top.w-rad,top.y+1.2);g.stroke();
   }
-  const nameCol=sk.name;
-  const fsName=L.fsName||12;
-  g.save();
-  rr(g,L.topP.x,L.topP.y,L.topP.w,L.topP.h,Math.max(6,L.topP.h/2));g.clip();
-  tName(g,nameP,L.nameP.x,L.nameP.y,fsName,nameCol,'left',L.nameMaxP||24);
-  g.restore();
-  g.save();
-  rr(g,L.topO.x,L.topO.y,L.topO.w,L.topO.h,Math.max(6,L.topO.h/2));g.clip();
-  tName(g,nameO,L.nameO.x,L.nameO.y,fsName,nameCol,'right',L.nameMaxO||24);
-  g.restore();
   for(const grid of [L.gridP,L.gridO]){
     const gx=L.gapX!=null?L.gapX:L.gap, gy=L.gapY!=null?L.gapY:L.gap;
     rr(g,grid.x-10,grid.y-10,3*L.sw+2*gx+20,3*L.sh+2*gy+20,10);
@@ -54,12 +39,26 @@ function renderStatic(){
   if(L.labP){
     rr(g,L.labP.x,L.labP.y,L.labP.w,L.labP.h,5);g.fillStyle=sk.plate;g.fill();
     g.strokeStyle='#000';g.stroke();
-    tText(g,(on&&typeof plateName==='function'?plateName(whoP):'Player')+' Hand',L.labP.x+L.labP.w/2,L.labP.y+L.labP.h/2+1,L.fsLab||13,sk.lab,1.2,'center',true,1);
   }
   for(const h of [L.handP,L.handO]){
     if(!h)continue;
     for(let i=0;i<4;i++)drawSlot(g,handSlot(h,i));
   }
+}
+function drawTableNames(g){
+  if(!M||!L||L.fallback||!L.topP||!L.topO||!L.nameP||!L.nameO)return;
+  const sk=tableSkin();
+  const whoP=viewWho('p'),whoO=viewWho('o');
+  const fsName=L.fsName||12;
+  g.save();
+  rr(g,L.topP.x,L.topP.y,L.topP.w,L.topP.h,Math.max(6,L.topP.h/2));g.clip();
+  tName(g,plateName(whoP),L.nameP.x,L.nameP.y,fsName,sk.name,'left',L.nameMaxP||24);
+  g.restore();
+  g.save();
+  rr(g,L.topO.x,L.topO.y,L.topO.w,L.topO.h,Math.max(6,L.topO.h/2));g.clip();
+  tName(g,plateName(whoO),L.nameO.x,L.nameO.y,fsName,sk.name,'right',L.nameMaxO||24);
+  g.restore();
+  if(L.labP)tText(g,plateName(whoP)+' Hand',L.labP.x+L.labP.w/2,L.labP.y+L.labP.h/2+1,L.fsLab||13,sk.lab,1.2,'center',true,1);
 }
 function tableUI(){
   const act=!!(M&&M.phase==='pAction'&&(!M.vs||M.seat===M.turn));
@@ -86,6 +85,7 @@ function render(now){
   ctx.setTransform(DPR,0,0,DPR,0,0);
   ctx.drawImage(STATIC,0,0,W,H);
   if(L.fallback)return;
+  drawTableNames(ctx);
   if(M.p.score!==M.lastScores.p){M.flashBadge.p=now;M.lastScores.p=M.p.score;}
   if(M.o.score!==M.lastScores.o){M.flashBadge.o=now;M.lastScores.o=M.o.score;}
   const whoP=viewWho('p'),whoO=viewWho('o');

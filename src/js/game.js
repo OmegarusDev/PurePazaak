@@ -74,7 +74,6 @@ function acceptPass(){
   refreshVsView();
 }
 function refreshVsView(){
-  if(typeof renderStatic==='function')renderStatic();
   nudgeRender();
 }
 function queueHumanTurn(w){

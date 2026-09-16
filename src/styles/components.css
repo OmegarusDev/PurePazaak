@@ -47,7 +47,7 @@ h1.kotor-lockup,.kotor-lockup{display:flex;flex-direction:column;align-items:cen
 .kotor-menu:hover button.sel:not(:hover){color:#6ec8e8;text-shadow:0 0 8px rgba(60,170,230,.35);background:transparent}
 .kotor-menu button:disabled{opacity:.34;cursor:default;color:#6ec8e8;text-shadow:none}
 .kotor-menu button[hidden]{display:none}
-/* K1 title cavity: metal visor overlay, floor smoke, navy well. */
+/* K1 title cavity: metal visor overlay, navy well. */
 #scr-title{flex-direction:column;align-items:center;justify-content:flex-start;gap:0;padding:env(safe-area-inset-top) clamp(12px,4vw,64px) calc(clamp(20px,4vh,36px) + env(safe-area-inset-bottom));overflow:hidden;overflow-y:hidden;background:#02040c}
 #scr-title.active{display:flex}
 #scr-title::before{content:"";position:absolute;inset:0;background:
@@ -58,7 +58,6 @@ h1.kotor-lockup,.kotor-lockup{display:flex;flex-direction:column;align-items:cen
 #scr-title > .title-hood-bot{position:absolute;left:0;right:0;bottom:0;top:auto;height:13%;z-index:0;pointer-events:none;overflow:hidden;filter:none;opacity:.45}
 #scr-title > .title-hood-top{position:absolute;top:0;left:0;right:0;bottom:auto;height:21vh;z-index:3;pointer-events:none;overflow:hidden;filter:drop-shadow(0 16px 16px rgba(0,0,0,.7))}
 #scr-title > .title-hood-frame{display:none;position:absolute;inset:0;z-index:3;pointer-events:none;overflow:hidden}
-#scr-title > .title-smoke{position:absolute;inset:auto 0 0 0;height:48%;z-index:1;pointer-events:none;overflow:hidden}
 .title-stage{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:2.8vh;width:100%;z-index:2;flex:1 1 auto;min-height:0;padding-top:18.5vh;overflow:visible}
 #scr-title .sw-mark{font-size:clamp(24px,6.2vh,48px);margin-bottom:.22em}
 #scr-title .logo-main{font-size:clamp(34px,12.2vh,92px)}
@@ -72,18 +71,6 @@ h1.kotor-lockup,.kotor-lockup{display:flex;flex-direction:column;align-items:cen
 .title-hood-frame::after{content:"";position:absolute;inset:0;pointer-events:none;background:
   repeating-linear-gradient(180deg,rgba(255,255,255,.045) 0 1px,transparent 1px 3px);
   mix-blend-mode:overlay;opacity:.2;mask-image:linear-gradient(180deg,#000 0 16%,transparent 24%,transparent 82%,#000 90%);-webkit-mask-image:linear-gradient(180deg,#000 0 16%,transparent 24%,transparent 82%,#000 90%)}
-.title-smoke .sm{position:absolute;border-radius:50%;pointer-events:none;will-change:transform,opacity}
-.title-smoke::after{content:"";position:absolute;inset:auto -10% -18% -10%;height:58%;background:linear-gradient(180deg,transparent,rgba(70,70,76,.28) 40%,rgba(20,20,24,.55));filter:blur(22px);pointer-events:none}
-.sm-a{left:-18%;bottom:-48%;width:90%;height:120%;background:radial-gradient(ellipse at 50% 72%,rgba(160,160,166,.32),rgba(80,80,86,.1) 46%,transparent 72%);filter:blur(46px);animation:titleSmokeA 22s ease-in-out infinite}
-.sm-b{right:-22%;bottom:-44%;width:78%;height:110%;background:radial-gradient(ellipse at 45% 78%,rgba(150,150,156,.26),rgba(70,70,76,.1) 48%,transparent 72%);filter:blur(52px);animation:titleSmokeB 28s ease-in-out infinite}
-.sm-c{left:-8%;bottom:-58%;width:116%;height:88%;background:radial-gradient(ellipse at 50% 92%,rgba(120,120,126,.4),transparent 68%);filter:blur(40px);opacity:.7;animation:titleSmokeC 19s ease-in-out infinite}
-.sm-d{left:18%;bottom:-28%;width:58%;height:70%;background:radial-gradient(ellipse at 50% 60%,rgba(180,180,186,.14),transparent 70%);filter:blur(56px);opacity:.45;animation:titleSmokeA 26s ease-in-out infinite reverse}
-@keyframes titleSmokeA{0%,100%{transform:translate(0,4%) scale(1)}50%{transform:translate(5%,-7%) scale(1.08)}}
-@keyframes titleSmokeB{0%,100%{transform:translate(0,0) scale(1.04)}50%{transform:translate(-6%,-5%) scale(1.12)}}
-@keyframes titleSmokeC{0%,100%{transform:translate(0,2%) scaleX(1)}50%{transform:translate(3%,-4%) scaleX(1.06)}}
-@media (prefers-reduced-motion:reduce){
-  .title-smoke .sm{animation:none}
-}
 #scr-title > .build-mark{position:absolute;left:0;right:0;bottom:calc(18px + env(safe-area-inset-bottom));margin:0;text-align:center;font-family:var(--gui);font-size:clamp(9px,1.15vh,11px);font-weight:700;letter-spacing:.22em;text-indent:.11em;color:#7894aa;opacity:.56;pointer-events:none;user-select:none;z-index:5}
 /* In-game GUI panel: rounded teal-cyan rim, plain charcoal fill (modals use wager style) */
 .gui,.panel{
@@ -107,7 +94,7 @@ h1.kotor-lockup,.kotor-lockup{display:flex;flex-direction:column;align-items:cen
   --dlg-gold:#ffe14d;
   width:min(420px,92vw);
   max-height:86dvh;
-  overflow-y:auto;
+  overflow:hidden;
   padding:18px 20px 16px;
   display:flex;
   flex-direction:column;
@@ -119,6 +106,7 @@ h1.kotor-lockup,.kotor-lockup{display:flex;flex-direction:column;align-items:cen
   border-radius:14px;
   box-shadow:inset 0 0 0 1px rgba(60,120,200,.35),0 18px 48px rgba(0,0,0,.55);
 }
+#modalbox .kotor-scroll{flex:1 1 auto;min-height:0;width:100%}
 #modalbox h2{
   position:relative;
   font-family:var(--gui);

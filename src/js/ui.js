@@ -10,6 +10,7 @@ function showScreen(id){
   refreshCredits();
   if(id==='match'){syncMatchA11y();kickRender();}
   else focusActiveScreen();
+  refreshKotorScrolls();
 }
 function focusActiveScreen(){
   const modal=$('#modal');
@@ -65,6 +66,7 @@ function buildCircuit(){
     wrap.appendChild(btn);
   });
   if(keep)wrap.querySelector('.rung.pick')?.focus();
+  refreshKotorScrolls();
   const st=circuitSel<SAVE.circuit?'done':circuitSel===SAVE.circuit?'next':'locked';
   const bt=$('#bt-challenge');
   bt.disabled=st==='locked';
@@ -82,6 +84,78 @@ function drawMini(cvs,id,w=64,h,opts){
   const g=cvs.getContext('2d');g.setTransform(d,0,0,d,0,0);
   const back=!!(opts&&opts.back);
   drawCard(g,2,2,w-4,h-4,back?null:makeCard(id),{glow:false,catalog:true,back:back});
+}
+const KOTOR_SCROLLS=[];
+function paintKotorScroll(root){
+  const pane=root.querySelector('.kotor-scroll-pane');
+  const track=root.querySelector('.kotor-sb-track');
+  const thumb=root.querySelector('.kotor-sb-thumb');
+  if(!pane||!track||!thumb)return;
+  const sh=pane.scrollHeight,ch=pane.clientHeight,range=Math.max(0,sh-ch);
+  const overflow=ch>2&&range>1;
+  root.classList.toggle('is-overflow',overflow);
+  if(!overflow){
+    thumb.style.height='';
+    thumb.style.transform='';
+    return;
+  }
+  const trackH=track.clientHeight;
+  const th=Math.max(22,Math.round((ch/Math.max(1,sh))*trackH));
+  const max=Math.max(0,trackH-th);
+  const top=range&&max?Math.round((pane.scrollTop/range)*max):0;
+  thumb.style.height=th+'px';
+  thumb.style.transform='translateY('+top+'px)';
+}
+function refreshKotorScrolls(){
+  KOTOR_SCROLLS.forEach(root=>paintKotorScroll(root));
+  if(typeof requestAnimationFrame==='function')requestAnimationFrame(()=>KOTOR_SCROLLS.forEach(root=>paintKotorScroll(root)));
+}
+function bindKotorScroll(root){
+  if(!root||root._kotorBound)return;
+  const pane=root.querySelector('.kotor-scroll-pane');
+  const track=root.querySelector('.kotor-sb-track');
+  const thumb=root.querySelector('.kotor-sb-thumb');
+  const up=root.querySelector('.kotor-sb-up');
+  const dn=root.querySelector('.kotor-sb-dn');
+  if(!pane||!track||!thumb)return;
+  root._kotorBound=true;
+  KOTOR_SCROLLS.push(root);
+  pane.addEventListener('scroll',()=>paintKotorScroll(root),{passive:true});
+  if(typeof ResizeObserver==='function'){
+    const ro=new ResizeObserver(()=>paintKotorScroll(root));
+    ro.observe(pane);ro.observe(track);
+  }
+  function step(dir){pane.scrollBy(0,dir*Math.max(48,Math.round(pane.clientHeight*0.45)));}
+  if(up)up.addEventListener('click',()=>step(-1));
+  if(dn)dn.addEventListener('click',()=>step(1));
+  let drag=null;
+  thumb.addEventListener('pointerdown',e=>{
+    e.preventDefault();
+    thumb.setPointerCapture(e.pointerId);
+    drag={y:e.clientY,top:pane.scrollTop};
+  });
+  thumb.addEventListener('pointermove',e=>{
+    if(!drag)return;
+    const sh=pane.scrollHeight,ch=pane.clientHeight,range=Math.max(1,sh-ch);
+    const max=Math.max(1,track.clientHeight-thumb.offsetHeight);
+    pane.scrollTop=drag.top+((e.clientY-drag.y)/max)*range;
+  });
+  const endDrag=()=>{drag=null;};
+  thumb.addEventListener('pointerup',endDrag);
+  thumb.addEventListener('pointercancel',endDrag);
+  track.addEventListener('pointerdown',e=>{
+    if(e.target===thumb)return;
+    const rect=track.getBoundingClientRect();
+    const y=e.clientY-rect.top-thumb.offsetHeight/2;
+    const max=Math.max(1,track.clientHeight-thumb.offsetHeight);
+    const range=Math.max(1,pane.scrollHeight-pane.clientHeight);
+    pane.scrollTop=(y/max)*range;
+  });
+  paintKotorScroll(root);
+}
+function initKotorScrolls(){
+  document.querySelectorAll('.kotor-scroll').forEach(bindKotorScroll);
+  window.addEventListener('resize',refreshKotorScrolls,{passive:true});
 }
 function buildDeckUI(){
   const col=$('#collection');
@@ -166,6 +240,7 @@ function buildDeckUI(){
     begin.title=ready&&!broke?(wager===0?'PRACTICE - NO REWARDS':'WAGER '+wager+' CR'):'';
   }
   refreshCredits();
+  refreshKotorScrolls();
 }
 function validateDeck(deck){
   const out=[],counts={},u=currentUnlocked();
@@ -312,6 +387,58 @@ function showSpoilsModal(wager,rematch){
   });
   $('#mskip').onclick=()=>{AUDIO.play('click');closeModal();leaveMatch();};
 }
+function cantinaCardName(id){
+  const card=makeCard(id);
+  return (card?cardSpeak(card,1,1,true):id).toUpperCase();
+}
+function confirmStoreTrade(title,sub,okText,onOK){
+  openModal(
+    '<h2 id="modal-title">'+escapeHtml(title)+'</h2>'+
+    '<p>'+escapeHtml(sub)+'</p>'+
+    '<div class="mrow"><button type="button" id="mno" class="kbtn">CANCEL</button><button type="button" id="myes" class="kbtn sel">'+escapeHtml(okText)+'</button></div>');
+  $('#myes').onclick=()=>{AUDIO.play('click');closeModal();onOK();};
+  $('#mno').onclick=()=>{AUDIO.play('click');closeModal();};
+}
+function confirmStoreBuy(id){
+  const price=CARD_PRICE[id],owned=SAVE.unlocked[id]||0;
+  if(!price||owned>=STORE_CAP||SAVE.credits<price)return;
+  confirmStoreTrade(
+    'BUY '+cantinaCardName(id)+'?',
+    price+' CREDITS. YOU WILL OWN '+(owned+1)+'.',
+    'BUY',
+    ()=>completeStoreBuy(id));
+}
+function completeStoreBuy(id){
+  const price=CARD_PRICE[id],prev=SAVE.unlocked[id]||0;
+  if(!price||prev>=STORE_CAP||SAVE.credits<price){buildStoreUI();return;}
+  SAVE.credits-=price;
+  if(!addToCollection(id)||!persist()){
+    SAVE.credits+=price;
+    if(prev)SAVE.unlocked[id]=prev;else delete SAVE.unlocked[id];
+    refreshCredits();
+    presentDialog('SAVE FAILED','THE PURCHASE WAS NOT STORED',()=>{});
+    buildStoreUI();
+    return;
+  }
+  buildStoreUI();
+}
+function confirmStoreSell(id){
+  const owned=SAVE.unlocked[id]||0,value=cardSellPrice(id);
+  if(!value||owned<=0||collectionCount()<=10||SAVE.credits>=999999999)return;
+  confirmStoreTrade(
+    'SELL '+cantinaCardName(id)+'?',
+    value+' CREDITS. YOU WILL OWN '+(owned-1)+'.',
+    'SELL',
+    ()=>completeStoreSell(id));
+}
+function completeStoreSell(id){
+  if(!sellCard(id)){
+    presentDialog('SALE FAILED','THE CARD COULD NOT BE SOLD',()=>{});
+    buildSellUI();
+    return;
+  }
+  buildSellUI();
+}
 function buildStoreUI(){
   const wrap=$('#stock');if(!wrap)return;
   const keepId=document.activeElement&&wrap.contains(document.activeElement)&&document.activeElement.getAttribute('data-card');
@@ -333,25 +460,13 @@ function buildStoreUI(){
     cnt.textContent=maxed?'OWN '+owned:price+' CR'+(owned?' \u00B7 OWN '+owned:'');
     cell.appendChild(cnt);
     drawMini(cvs,id);
-    if(!maxed&&!broke)cell.onclick=()=>{
-      AUDIO.play('click');
-      const prev=SAVE.unlocked[id]||0;
-      SAVE.credits-=price;
-      if(!addToCollection(id)||!persist()){
-        SAVE.credits+=price;
-        if(prev)SAVE.unlocked[id]=prev;else delete SAVE.unlocked[id];
-        refreshCredits();
-        presentDialog('SAVE FAILED','THE PURCHASE WAS NOT STORED',()=>{});
-        buildStoreUI();
-        return;
-      }
-      buildStoreUI();
-    };
+    if(!maxed&&!broke)cell.onclick=()=>{AUDIO.play('click');confirmStoreBuy(id);};
     wrap.appendChild(cell);
   });
   if(keepId)wrap.querySelector('[data-card="'+CSS.escape(keepId)+'"]')?.focus();
   const note=$('#store-note');
   if(note)note.textContent=SAVE.circuit>=CIRCUIT_LEN?'Full cantina stock.':'Stock improves as you climb the tournament.';
+  refreshKotorScrolls();
 }
 function openStore(){
   buildStoreUI();
@@ -362,7 +477,7 @@ function buildSellUI(){
   const keepId=document.activeElement&&wrap.contains(document.activeElement)&&document.activeElement.getAttribute('data-card');
   const total=collectionCount(),atFloor=total<=10,atCreditCap=SAVE.credits>=999999999,blocked=atFloor||atCreditCap;
   wrap.innerHTML='';
-  DECK_ORDER.filter(id=>(SAVE.unlocked[id]||0)>0).forEach(id=>{
+  DECK_ORDER.filter(id=>(SAVE.unlocked[id]||0)>0).sort(storeOrder).forEach(id=>{
     const owned=SAVE.unlocked[id]||0,value=cardSellPrice(id);
     const cell=document.createElement('button');
     cell.type='button';
@@ -378,21 +493,14 @@ function buildSellUI(){
     cnt.className='cnt';cnt.textContent=value+' CR  \u00B7  OWN '+owned;
     cell.appendChild(cnt);
     drawMini(cvs,id);
-    if(!blocked)cell.onclick=()=>{
-      AUDIO.play('click');
-      if(!sellCard(id)){
-        presentDialog('SALE FAILED','THE CARD COULD NOT BE SOLD',()=>{});
-        buildSellUI();
-        return;
-      }
-      buildSellUI();
-    };
+    if(!blocked)cell.onclick=()=>{AUDIO.play('click');confirmStoreSell(id);};
     wrap.appendChild(cell);
   });
   const again=keepId?wrap.querySelector('[data-card="'+CSS.escape(keepId)+'"]'):null;
   (again||wrap.querySelector('button:not([disabled])')||wrap.querySelector('button'))?.focus();
   const note=$('#sell-note');
   if(note)note.textContent=atFloor?'KEEP AT LEAST 10 CARDS FOR A SIDE DECK.':atCreditCap?'CREDIT LIMIT REACHED.':'CARDS SELL FOR HALF THEIR CANTINA PRICE.';
+  refreshKotorScrolls();
 }
 function openSell(){
   buildSellUI();
@@ -404,7 +512,8 @@ function openModal(html){
   const app=$('#app');
   if(app)app.setAttribute('inert','');
   modal.classList.toggle('match-modal',curScreen==='match');
-  $('#modalbox').innerHTML=html;
+  const pane=$('#modal-pane')||$('#modalbox');
+  pane.innerHTML=html;
   const title=$('#modalbox h2');
   if(title){if(!title.id)title.id='modal-title';modal.setAttribute('aria-labelledby',title.id);}
   modal.classList.remove('hidden');
@@ -413,6 +522,7 @@ function openModal(html){
   const box=$('#modalbox');
   const items=focusablesIn(box);
   (items.find(el=>el.classList.contains('sel'))||items[0]||box).focus();
+  refreshKotorScrolls();
 }
 function closeModal(){
   if(typeof flushPersist==='function')flushPersist();

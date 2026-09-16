@@ -22,7 +22,7 @@ const PZ = globalThis.PZ;
 let fail = 0;
 const t = (name, cond) => { console.log((cond ? 'PASS' : 'FAIL') + ' ' + name); if (!cond) fail++; };
 
-t('game-version', PZ.GAME_VERSION === '0.9.3');
+t('game-version', PZ.GAME_VERSION === '0.9.4');
 
 t('main-deck-40', PZ.buildMainDeck().length === 40);
 t('boardScore', PZ.boardScore([{ eff: 10 }, { eff: -3 }, null]) === 7);
@@ -79,7 +79,11 @@ t('store-plus4-open', PZ.storeMinCircuit('+4')===0 && PZ.storeMinCircuit('-4')==
 t('store-t0', PZ.storeStock().every(id=>PZ.storeMinCircuit(id)===0));
 const save=PZ.getSave();
 save.circuit=9;
-t('store-unlocks-flex', PZ.storeStock().indexOf('1\u00B12')>=0);
+{
+  const stock=PZ.storeStock();
+  t('store-unlocks-flex', stock.indexOf('1\u00B12')===0);
+  t('store-newest-first', stock.every((id,i)=>i===0||PZ.storeMinCircuit(stock[i-1])>=PZ.storeMinCircuit(id)));
+}
 save.circuit=0;
 t('add-card', PZ.addToCollection('+4') && save.unlocked['+4']>=1);
 t('sell-price-half', PZ.cardSellPrice('+3')===22 && PZ.cardSellPrice('+4')===35 && PZ.cardSellPrice('1\u00B12')===200);

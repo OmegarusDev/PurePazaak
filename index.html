@@ -110,15 +110,13 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
 /* Shell: every screen is a centred column that can scroll internally.
    justify-content stays centered for tall viewports; min-height:0 + overflow
    keep short/landscape viewports reachable instead of clipped. */
-.screen{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:clamp(10px,2.4vh,22px);overflow-y:auto;min-height:0;padding:clamp(10px,2.5vh,24px) env(safe-area-inset-right) clamp(10px,2.5vh,24px) env(safe-area-inset-left);padding-top:calc(clamp(10px,2.5vh,24px) + env(safe-area-inset-top));padding-bottom:calc(clamp(10px,2.5vh,24px) + env(safe-area-inset-bottom))}
+.screen{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:clamp(10px,2.4vh,22px);overflow-y:auto;min-height:0;padding:clamp(10px,2.5vh,24px) env(safe-area-inset-right) clamp(10px,2.5vh,24px) env(safe-area-inset-left);padding-top:calc(clamp(10px,2.5vh,24px) + env(safe-area-inset-top));padding-bottom:calc(clamp(10px,2.5vh,24px) + env(safe-area-inset-bottom));scrollbar-width:none}
 .screen.active{display:flex}
 /* Children never squash (that causes overlap, not scroll); designated wells
    (.steel-console) re-enable shrink + internal scroll. */
 .screen > *{flex-shrink:0;min-width:0}
 .screen > .steel-console{flex:1 1 auto;min-height:0}
-::-webkit-scrollbar{width:10px;height:10px}
-::-webkit-scrollbar-track{background:#141416}
-::-webkit-scrollbar-thumb{background:var(--gui-edge-dim);border-radius:5px;border:2px solid #141416}
+::-webkit-scrollbar{width:0;height:0;display:none}
 /* KOTOR 1 main-menu bars: charcoal plate, cyan side rails, 2px black gaps.
    Idle text/rails = engine cyan #00A8FA. Hover/select = yellow. */
 .kbtn{display:block;position:relative;width:min(420px,92vw);padding:clamp(10px,1.8vmin,15px) clamp(18px,2.4vmin,26px);background:linear-gradient(180deg,#14161a,#0c0e10 50%,#08090a 100%);border:1px solid #000;border-radius:0;color:var(--k1);font-family:var(--gui);font-size:clamp(13px,2.1vmin,16px);font-weight:700;letter-spacing:.14em;text-indent:.04em;text-transform:uppercase;text-align:left;cursor:pointer;touch-action:manipulation;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:inset 4px 0 0 var(--k1),inset -4px 0 0 var(--k1)}
@@ -168,7 +166,7 @@ h1.kotor-lockup,.kotor-lockup{display:flex;flex-direction:column;align-items:cen
 .kotor-menu:hover button.sel:not(:hover){color:#6ec8e8;text-shadow:0 0 8px rgba(60,170,230,.35);background:transparent}
 .kotor-menu button:disabled{opacity:.34;cursor:default;color:#6ec8e8;text-shadow:none}
 .kotor-menu button[hidden]{display:none}
-/* K1 title cavity: metal visor overlay, floor smoke, navy well. */
+/* K1 title cavity: metal visor overlay, navy well. */
 #scr-title{flex-direction:column;align-items:center;justify-content:flex-start;gap:0;padding:env(safe-area-inset-top) clamp(12px,4vw,64px) calc(clamp(20px,4vh,36px) + env(safe-area-inset-bottom));overflow:hidden;overflow-y:hidden;background:#02040c}
 #scr-title.active{display:flex}
 #scr-title::before{content:"";position:absolute;inset:0;background:
@@ -179,7 +177,6 @@ h1.kotor-lockup,.kotor-lockup{display:flex;flex-direction:column;align-items:cen
 #scr-title > .title-hood-bot{position:absolute;left:0;right:0;bottom:0;top:auto;height:13%;z-index:0;pointer-events:none;overflow:hidden;filter:none;opacity:.45}
 #scr-title > .title-hood-top{position:absolute;top:0;left:0;right:0;bottom:auto;height:21vh;z-index:3;pointer-events:none;overflow:hidden;filter:drop-shadow(0 16px 16px rgba(0,0,0,.7))}
 #scr-title > .title-hood-frame{display:none;position:absolute;inset:0;z-index:3;pointer-events:none;overflow:hidden}
-#scr-title > .title-smoke{position:absolute;inset:auto 0 0 0;height:48%;z-index:1;pointer-events:none;overflow:hidden}
 .title-stage{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:2.8vh;width:100%;z-index:2;flex:1 1 auto;min-height:0;padding-top:18.5vh;overflow:visible}
 #scr-title .sw-mark{font-size:clamp(24px,6.2vh,48px);margin-bottom:.22em}
 #scr-title .logo-main{font-size:clamp(34px,12.2vh,92px)}
@@ -193,18 +190,6 @@ h1.kotor-lockup,.kotor-lockup{display:flex;flex-direction:column;align-items:cen
 .title-hood-frame::after{content:"";position:absolute;inset:0;pointer-events:none;background:
   repeating-linear-gradient(180deg,rgba(255,255,255,.045) 0 1px,transparent 1px 3px);
   mix-blend-mode:overlay;opacity:.2;mask-image:linear-gradient(180deg,#000 0 16%,transparent 24%,transparent 82%,#000 90%);-webkit-mask-image:linear-gradient(180deg,#000 0 16%,transparent 24%,transparent 82%,#000 90%)}
-.title-smoke .sm{position:absolute;border-radius:50%;pointer-events:none;will-change:transform,opacity}
-.title-smoke::after{content:"";position:absolute;inset:auto -10% -18% -10%;height:58%;background:linear-gradient(180deg,transparent,rgba(70,70,76,.28) 40%,rgba(20,20,24,.55));filter:blur(22px);pointer-events:none}
-.sm-a{left:-18%;bottom:-48%;width:90%;height:120%;background:radial-gradient(ellipse at 50% 72%,rgba(160,160,166,.32),rgba(80,80,86,.1) 46%,transparent 72%);filter:blur(46px);animation:titleSmokeA 22s ease-in-out infinite}
-.sm-b{right:-22%;bottom:-44%;width:78%;height:110%;background:radial-gradient(ellipse at 45% 78%,rgba(150,150,156,.26),rgba(70,70,76,.1) 48%,transparent 72%);filter:blur(52px);animation:titleSmokeB 28s ease-in-out infinite}
-.sm-c{left:-8%;bottom:-58%;width:116%;height:88%;background:radial-gradient(ellipse at 50% 92%,rgba(120,120,126,.4),transparent 68%);filter:blur(40px);opacity:.7;animation:titleSmokeC 19s ease-in-out infinite}
-.sm-d{left:18%;bottom:-28%;width:58%;height:70%;background:radial-gradient(ellipse at 50% 60%,rgba(180,180,186,.14),transparent 70%);filter:blur(56px);opacity:.45;animation:titleSmokeA 26s ease-in-out infinite reverse}
-@keyframes titleSmokeA{0%,100%{transform:translate(0,4%) scale(1)}50%{transform:translate(5%,-7%) scale(1.08)}}
-@keyframes titleSmokeB{0%,100%{transform:translate(0,0) scale(1.04)}50%{transform:translate(-6%,-5%) scale(1.12)}}
-@keyframes titleSmokeC{0%,100%{transform:translate(0,2%) scaleX(1)}50%{transform:translate(3%,-4%) scaleX(1.06)}}
-@media (prefers-reduced-motion:reduce){
-  .title-smoke .sm{animation:none}
-}
 #scr-title > .build-mark{position:absolute;left:0;right:0;bottom:calc(18px + env(safe-area-inset-bottom));margin:0;text-align:center;font-family:var(--gui);font-size:clamp(9px,1.15vh,11px);font-weight:700;letter-spacing:.22em;text-indent:.11em;color:#7894aa;opacity:.56;pointer-events:none;user-select:none;z-index:5}
 /* In-game GUI panel: rounded teal-cyan rim, plain charcoal fill (modals use wager style) */
 .gui,.panel{
@@ -228,7 +213,7 @@ h1.kotor-lockup,.kotor-lockup{display:flex;flex-direction:column;align-items:cen
   --dlg-gold:#ffe14d;
   width:min(420px,92vw);
   max-height:86dvh;
-  overflow-y:auto;
+  overflow:hidden;
   padding:18px 20px 16px;
   display:flex;
   flex-direction:column;
@@ -240,6 +225,7 @@ h1.kotor-lockup,.kotor-lockup{display:flex;flex-direction:column;align-items:cen
   border-radius:14px;
   box-shadow:inset 0 0 0 1px rgba(60,120,200,.35),0 18px 48px rgba(0,0,0,.55);
 }
+#modalbox .kotor-scroll{flex:1 1 auto;min-height:0;width:100%}
 #modalbox h2{
   position:relative;
   font-family:var(--gui);
@@ -519,12 +505,12 @@ button.mcard:hover,button.mcard:focus-visible{border-color:var(--select);box-sha
 .circuit-well{
   padding:8px;
 }
+.circuit-well .kotor-scroll{flex:1 1 auto;min-height:0;height:100%}
 #rungs{
   display:flex;
   flex-direction:column;
   gap:5px;
   width:100%;
-  overflow-y:auto;
   min-height:0;
   flex:1 1 auto;
   padding:6px 5px;
@@ -674,16 +660,85 @@ button.mcard:hover,button.mcard:focus-visible{border-color:var(--select);box-sha
 }
 .deck-collection{padding:clamp(8px,1.4cqh,12px)}
 .deck-side{padding:clamp(8px,1.4cqh,12px) clamp(8px,1.2cqw,12px)}
+.deck-collection .kotor-scroll{flex:1 1 auto;min-height:0;height:100%}
+
+.kotor-scroll{
+  display:grid;
+  grid-template-columns:minmax(0,1fr);
+  grid-template-rows:minmax(0,1fr);
+  min-height:0;
+  min-width:0;
+  gap:6px;
+}
+.kotor-scroll.is-overflow{grid-template-columns:minmax(0,1fr) 16px}
+.kotor-scroll-pane{
+  min-width:0;
+  min-height:0;
+  overflow-x:hidden;
+  overflow-y:auto;
+  scrollbar-width:none;
+  -webkit-overflow-scrolling:touch;
+}
+.kotor-scroll-pane::-webkit-scrollbar{width:0;height:0;display:none}
+.kotor-scrollbar{
+  display:none;
+  flex-direction:column;
+  width:16px;
+  min-height:0;
+  background:#070b12;
+  border:2px solid #3aa8e8;
+  box-shadow:inset 0 0 0 1px #102030;
+}
+.kotor-scroll.is-overflow .kotor-scrollbar{display:flex}
+.kotor-sb-up,.kotor-sb-dn{
+  appearance:none;-webkit-appearance:none;
+  flex:0 0 16px;
+  width:100%;
+  height:16px;
+  margin:0;
+  padding:0;
+  border:0;
+  background:#0a1018;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.kotor-sb-up::before,.kotor-sb-dn::before{
+  content:"";
+  width:0;
+  height:0;
+  border-left:5px solid transparent;
+  border-right:5px solid transparent;
+}
+.kotor-sb-up::before{border-bottom:7px solid #4dc5f0}
+.kotor-sb-dn::before{border-top:7px solid #4dc5f0}
+.kotor-sb-track{
+  flex:1 1 auto;
+  min-height:0;
+  position:relative;
+  background:linear-gradient(90deg,#05080e,#0c121c 55%,#05080e);
+}
+.kotor-sb-thumb{
+  position:absolute;
+  left:1px;
+  right:1px;
+  top:0;
+  min-height:22px;
+  background:linear-gradient(180deg,#6ad0ff,#2a9ee0 70%,#1a7ab8);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.35);
+  cursor:pointer;
+  touch-action:none;
+}
 
 #collection{
   display:grid;
   grid-template-columns:repeat(6,minmax(0,1fr));
+  grid-auto-rows:max-content;
   gap:clamp(4px,0.9cqh,8px);
   width:100%;
-  flex:1 1 auto;
-  min-height:0;
-  overflow-y:auto;
   align-content:start;
+  align-items:start;
   padding:2px;
 }
 .cell{
@@ -691,6 +746,7 @@ button.mcard:hover,button.mcard:focus-visible{border-color:var(--select);box-sha
   display:flex;
   flex-direction:column;
   align-items:center;
+  justify-content:flex-start;
   gap:2px;
   padding:4px 3px;
   background:linear-gradient(180deg,#14181e,#080a0e);
@@ -698,7 +754,6 @@ button.mcard:hover,button.mcard:focus-visible{border-color:var(--select);box-sha
   border-radius:4px;
   cursor:pointer;
   min-width:0;
-  min-height:0;
   box-shadow:inset 0 2px 5px rgba(0,0,0,.7);
   font:inherit;color:inherit;text-align:center;
 }
@@ -711,21 +766,24 @@ button.mcard:hover,button.mcard:focus-visible{border-color:var(--select);box-sha
 .cell.maxed,.cell:disabled{opacity:.4;cursor:default}
 .cell.maxed:hover,.cell:disabled:hover{border-color:#1a1e24;box-shadow:inset 0 2px 5px rgba(0,0,0,.7)}
 .cell canvas{
-  width:min(100%,15cqh);
+  display:block;
+  width:100%;
   max-width:72px;
   height:auto;
   aspect-ratio:572/772;
-  min-height:0;
+  object-fit:contain;
+  flex:0 0 auto;
 }
 .cell .cnt{
   font-family:var(--gui);
-  font-size:clamp(7px,1.2cqh,9px);
-  letter-spacing:.06em;
+  font-size:clamp(7px,1.15cqh,9px);
+  letter-spacing:.04em;
   color:#8a96a8;
   white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
   max-width:100%;
+  flex:0 0 auto;
 }
 
 #sidedeck{
@@ -821,17 +879,17 @@ button.mcard:hover,button.mcard:focus-visible{border-color:var(--select);box-sha
   padding:0 4px;
   text-transform:none;
 }
-.store-well{padding:8px}
+.store-well{padding:8px;min-height:0}
+.store-well .kotor-scroll,.circuit-well .kotor-scroll,.vs-well .kotor-scroll{flex:1 1 auto;min-height:0;height:100%}
 #stock,#sell-stock{
   display:grid;
   grid-template-columns:repeat(auto-fill,minmax(min(88px,100%),1fr));
+  grid-auto-rows:max-content;
   gap:10px;
   width:100%;
-  flex:1 1 auto;
-  min-height:0;
-  overflow-y:auto;
   padding:6px;
   align-content:start;
+  align-items:start;
   background:transparent;
   border:0;
   border-radius:0;
@@ -850,10 +908,12 @@ button.mcard:hover,button.mcard:focus-visible{border-color:var(--select);box-sha
   height:auto;
   max-height:100%;
 }
-.vs-well{
+.vs-well{overflow:hidden;padding:0}
+.vs-pane{
+  display:flex;
+  flex-direction:column;
   padding:clamp(16px,3vh,28px) clamp(16px,4vw,28px);
   gap:clamp(10px,1.8vh,16px);
-  overflow-y:auto;
 }
 .vs-field{
   display:flex;
@@ -927,11 +987,6 @@ button.mcard:hover,button.mcard:focus-visible{border-color:var(--select);box-sha
   #scr-title > .title-hood-top,#scr-title > .title-hood-bot{display:none}
   #scr-title > .title-hood-frame{display:block}
   #scr-title > .title-hood-frame::after{display:none}
-  #scr-title > .title-smoke{display:block;height:34%;opacity:.5;z-index:4}
-  #scr-title .title-smoke .sm-a{bottom:-18%}
-  #scr-title .title-smoke .sm-b{bottom:-18%}
-  #scr-title .title-smoke .sm-c{bottom:-4%}
-  #scr-title .title-smoke .sm-d{bottom:0}
   .title-stage{gap:3.45vh;padding:13vh 3vw 11vh;justify-content:flex-start;container-type:inline-size;container-name:title;flex-shrink:1;overflow:visible}
   .kotor-menu-shell{width:min(82.3vw,calc(54.7vh * 470 / 560));aspect-ratio:470/560;flex:0 0 auto;max-height:54.7vh}
   .kotor-menu-svg.km-land{display:none}
@@ -1046,7 +1101,6 @@ button.mcard:hover,button.mcard:focus-visible{border-color:var(--select);box-sha
   .steel-console{height:100%;padding:6px;gap:5px;border-radius:12px}
   .steel-hbadge{min-height:22px;font-size:9px}
   .kplate{padding:8px 10px;font-size:11px;min-height:36px}
-  .cell canvas{max-width:48px}
 }
 </style>
 </head>
@@ -1206,12 +1260,6 @@ button.mcard:hover,button.mcard:focus-visible{border-color:var(--select);box-sha
         <path fill="none" stroke="#66717a" stroke-opacity=".13" stroke-width="1.1" d="M0,997 H571"/>
       </svg>
     </div>
-    <div class="title-smoke" aria-hidden="true">
-      <span class="sm sm-a"></span>
-      <span class="sm sm-b"></span>
-      <span class="sm sm-c"></span>
-      <span class="sm sm-d"></span>
-    </div>
     <div class="title-stage">
     <h1 class="kotor-lockup" aria-label="Card Wars Pazaak of the Old Republic">
       <div class="sw-mark" aria-hidden="true">card wars</div>
@@ -1317,7 +1365,7 @@ button.mcard:hover,button.mcard:focus-visible{border-color:var(--select);box-sha
       </nav>
     </div>
     </div>
-    <p id="build-mark" class="build-mark">v0.9.3</p>
+    <p id="build-mark" class="build-mark">v0.9.4</p>
   </section>
   <section id="scr-versus" class="screen">
     <div class="steel-console vs-console">
@@ -1326,6 +1374,8 @@ button.mcard:hover,button.mcard:focus-visible{border-color:var(--select);box-sha
         <div class="steel-hbadge">PASS AND PLAY</div>
       </div>
       <div class="steel-well vs-well">
+        <div class="kotor-scroll">
+          <div class="kotor-scroll-pane vs-pane">
         <label class="vs-field">PLAYER 1 NAME<input id="vs-name-p" type="text" maxlength="18" autocomplete="off" spellcheck="false" value="Player 1"></label>
         <label class="vs-field">PLAYER 2 NAME<input id="vs-name-o" type="text" maxlength="18" autocomplete="off" spellcheck="false" value="Player 2"></label>
         <p class="vs-label">DECK TIER</p>
@@ -1335,6 +1385,13 @@ button.mcard:hover,button.mcard:focus-visible{border-color:var(--select);box-sha
           <button type="button" id="vs-t3" class="kplate">TIER III</button>
         </div>
         <p id="vs-tier-note" class="vs-tier-note">Plus and minus cards only. Two of every card.</p>
+          </div>
+          <div class="kotor-scrollbar" aria-hidden="true">
+            <button type="button" class="kotor-sb-up" tabindex="-1" aria-hidden="true"></button>
+            <div class="kotor-sb-track"><div class="kotor-sb-thumb"></div></div>
+            <button type="button" class="kotor-sb-dn" tabindex="-1" aria-hidden="true"></button>
+          </div>
+        </div>
       </div>
       <div class="steel-foot">
         <button type="button" id="bt-vback" class="kplate">TITLE</button>
@@ -1349,7 +1406,14 @@ button.mcard:hover,button.mcard:focus-visible{border-color:var(--select);box-sha
         <div class="steel-hbadge">OUTER RIM CIRCUIT</div>
       </div>
       <div class="steel-well circuit-well">
-        <div id="rungs"></div>
+        <div class="kotor-scroll">
+          <div id="rungs" class="kotor-scroll-pane"></div>
+          <div class="kotor-scrollbar" aria-hidden="true">
+            <button type="button" class="kotor-sb-up" tabindex="-1" aria-hidden="true"></button>
+            <div class="kotor-sb-track"><div class="kotor-sb-thumb"></div></div>
+            <button type="button" class="kotor-sb-dn" tabindex="-1" aria-hidden="true"></button>
+          </div>
+        </div>
       </div>
       <div class="steel-foot circuit-actions">
         <button type="button" id="bt-cback" class="kplate">TITLE</button>
@@ -1366,7 +1430,14 @@ button.mcard:hover,button.mcard:focus-visible{border-color:var(--select);box-sha
       </div>
       <p id="store-note" class="store-note">Stock improves as you climb the tournament.</p>
       <div class="steel-well store-well">
-        <div id="stock"></div>
+        <div class="kotor-scroll">
+          <div id="stock" class="kotor-scroll-pane"></div>
+          <div class="kotor-scrollbar" aria-hidden="true">
+            <button type="button" class="kotor-sb-up" tabindex="-1" aria-hidden="true"></button>
+            <div class="kotor-sb-track"><div class="kotor-sb-thumb"></div></div>
+            <button type="button" class="kotor-sb-dn" tabindex="-1" aria-hidden="true"></button>
+          </div>
+        </div>
       </div>
       <div class="steel-foot store-actions">
         <button type="button" id="bt-sback" class="kplate">TOURNAMENT</button>
@@ -1382,7 +1453,14 @@ button.mcard:hover,button.mcard:focus-visible{border-color:var(--select);box-sha
       </div>
       <p id="sell-note" class="store-note">Cards sell for half their cantina price.</p>
       <div class="steel-well store-well">
-        <div id="sell-stock"></div>
+        <div class="kotor-scroll">
+          <div id="sell-stock" class="kotor-scroll-pane"></div>
+          <div class="kotor-scrollbar" aria-hidden="true">
+            <button type="button" class="kotor-sb-up" tabindex="-1" aria-hidden="true"></button>
+            <div class="kotor-sb-track"><div class="kotor-sb-thumb"></div></div>
+            <button type="button" class="kotor-sb-dn" tabindex="-1" aria-hidden="true"></button>
+          </div>
+        </div>
       </div>
       <div class="steel-foot store-actions">
         <button type="button" id="bt-sell-buy" class="kplate">BUY</button>
@@ -1398,7 +1476,16 @@ button.mcard:hover,button.mcard:focus-visible{border-color:var(--select);box-sha
         <div class="steel-hbadge">SIDEDECK <span id="deckcount">0/10</span></div>
       </div>
       <div class="steel-well deck-body">
-        <div class="deck-collection"><div id="collection"></div></div>
+        <div class="deck-collection">
+          <div class="kotor-scroll">
+            <div id="collection" class="kotor-scroll-pane"></div>
+            <div class="kotor-scrollbar" aria-hidden="true">
+              <button type="button" class="kotor-sb-up" tabindex="-1" aria-hidden="true"></button>
+              <div class="kotor-sb-track"><div class="kotor-sb-thumb"></div></div>
+              <button type="button" class="kotor-sb-dn" tabindex="-1" aria-hidden="true"></button>
+            </div>
+          </div>
+        </div>
         <div class="deck-rail" aria-hidden="true"></div>
         <div class="deck-side"><div id="sidedeck"></div></div>
       </div>
@@ -1423,7 +1510,7 @@ button.mcard:hover,button.mcard:focus-visible{border-color:var(--select);box-sha
   </section>
 </main>
 <div id="match-live" class="sr-only" aria-live="polite" aria-atomic="true"></div>
-<div id="modal" class="hidden" role="dialog" aria-modal="true" aria-hidden="true" inert><div id="modalbox" role="document"></div></div>
+<div id="modal" class="hidden" role="dialog" aria-modal="true" aria-hidden="true" inert><div id="modalbox" role="document"><div class="kotor-scroll"><div id="modal-pane" class="kotor-scroll-pane"></div><div class="kotor-scrollbar" aria-hidden="true"><button type="button" class="kotor-sb-up" tabindex="-1" aria-hidden="true"></button><div class="kotor-sb-track"><div class="kotor-sb-thumb"></div></div><button type="button" class="kotor-sb-dn" tabindex="-1" aria-hidden="true"></button></div></div></div></div>
 <script>
 'use strict';
 const $=s=>document.querySelector(s);
@@ -1722,7 +1809,7 @@ function aiDecide(snap){
   const stand=shouldStand(score,snap);
   return {play,stand};
 }
-const GAME_VERSION='0.9.3';
+const GAME_VERSION='0.9.4';
 const STARTER_COLLECTION={'+1':2,'+2':2,'+3':2,'-1':2,'-2':2,'-3':2};
 const START_CREDITS=400;
 const STORE_CAP=4;
@@ -1822,9 +1909,11 @@ function vsTierNote(tier){
   if(tier>=2)return 'Plus, minus, and \u00B1 duals. Two of every card.';
   return 'Plus and minus cards only. Two of every card.';
 }
+function storeOrder(a,b){
+  return storeMinCircuit(b)-storeMinCircuit(a)||(CARD_PRICE[b]||0)-(CARD_PRICE[a]||0);
+}
 function storeStock(){
-  return Object.keys(CARD_PRICE).filter(id=>storeMinCircuit(id)<=SAVE.circuit)
-    .sort((a,b)=>storeMinCircuit(a)-storeMinCircuit(b)||(CARD_PRICE[a]-CARD_PRICE[b]));
+  return Object.keys(CARD_PRICE).filter(id=>storeMinCircuit(id)<=SAVE.circuit).sort(storeOrder);
 }
 function isClutterId(id){return Object.prototype.hasOwnProperty.call(STARTER_COLLECTION,id);}
 function hasCardId(id){return typeof id==='string'&&Object.prototype.hasOwnProperty.call(CARD_DEFS,id);}
@@ -3013,7 +3102,6 @@ function acceptPass(){
   refreshVsView();
 }
 function refreshVsView(){
-  if(typeof renderStatic==='function')renderStatic();
   nudgeRender();
 }
 function queueHumanTurn(w){
@@ -3349,13 +3437,8 @@ function forgetStatic(){
 function renderStatic(){
   if(!ctx||typeof document==='undefined'||typeof document.createElement!=='function')return;
   const sk=tableSkin();
-  const on=M;
-  const whoP=typeof viewWho==='function'?viewWho('p'):'p';
-  const whoO=typeof viewWho==='function'?viewWho('o'):'o';
-  const nameP=on?plateName(whoP):'YOU';
-  const nameO=on?plateName(whoO):'Opponent';
   const bw=Math.max(1,Math.round(W*DPR)),bh=Math.max(1,Math.round(H*DPR));
-  const sig=[bw,bh,L.fallback?1:0,tableSeed(),tableTier(),nameP,nameO].join('\t');
+  const sig=[bw,bh,L.fallback?1:0,tableSeed(),tableTier()].join('\t');
   if(STATIC&&STATIC.width===bw&&STATIC.height===bh&&staticSig===sig)return;
   if(!STATIC)STATIC=document.createElement('canvas');
   if(STATIC.width!==bw||STATIC.height!==bh){STATIC.width=bw;STATIC.height=bh;}
@@ -3371,16 +3454,6 @@ function renderStatic(){
     g.strokeStyle=`rgba(255,255,255,${0.05+sk.bevelHi*0.2})`;
     g.beginPath();g.moveTo(top.x+rad,top.y+1.2);g.lineTo(top.x+top.w-rad,top.y+1.2);g.stroke();
   }
-  const nameCol=sk.name;
-  const fsName=L.fsName||12;
-  g.save();
-  rr(g,L.topP.x,L.topP.y,L.topP.w,L.topP.h,Math.max(6,L.topP.h/2));g.clip();
-  tName(g,nameP,L.nameP.x,L.nameP.y,fsName,nameCol,'left',L.nameMaxP||24);
-  g.restore();
-  g.save();
-  rr(g,L.topO.x,L.topO.y,L.topO.w,L.topO.h,Math.max(6,L.topO.h/2));g.clip();
-  tName(g,nameO,L.nameO.x,L.nameO.y,fsName,nameCol,'right',L.nameMaxO||24);
-  g.restore();
   for(const grid of [L.gridP,L.gridO]){
     const gx=L.gapX!=null?L.gapX:L.gap, gy=L.gapY!=null?L.gapY:L.gap;
     rr(g,grid.x-10,grid.y-10,3*L.sw+2*gx+20,3*L.sh+2*gy+20,10);
@@ -3391,12 +3464,26 @@ function renderStatic(){
   if(L.labP){
     rr(g,L.labP.x,L.labP.y,L.labP.w,L.labP.h,5);g.fillStyle=sk.plate;g.fill();
     g.strokeStyle='#000';g.stroke();
-    tText(g,(on&&typeof plateName==='function'?plateName(whoP):'Player')+' Hand',L.labP.x+L.labP.w/2,L.labP.y+L.labP.h/2+1,L.fsLab||13,sk.lab,1.2,'center',true,1);
   }
   for(const h of [L.handP,L.handO]){
     if(!h)continue;
     for(let i=0;i<4;i++)drawSlot(g,handSlot(h,i));
   }
+}
+function drawTableNames(g){
+  if(!M||!L||L.fallback||!L.topP||!L.topO||!L.nameP||!L.nameO)return;
+  const sk=tableSkin();
+  const whoP=viewWho('p'),whoO=viewWho('o');
+  const fsName=L.fsName||12;
+  g.save();
+  rr(g,L.topP.x,L.topP.y,L.topP.w,L.topP.h,Math.max(6,L.topP.h/2));g.clip();
+  tName(g,plateName(whoP),L.nameP.x,L.nameP.y,fsName,sk.name,'left',L.nameMaxP||24);
+  g.restore();
+  g.save();
+  rr(g,L.topO.x,L.topO.y,L.topO.w,L.topO.h,Math.max(6,L.topO.h/2));g.clip();
+  tName(g,plateName(whoO),L.nameO.x,L.nameO.y,fsName,sk.name,'right',L.nameMaxO||24);
+  g.restore();
+  if(L.labP)tText(g,plateName(whoP)+' Hand',L.labP.x+L.labP.w/2,L.labP.y+L.labP.h/2+1,L.fsLab||13,sk.lab,1.2,'center',true,1);
 }
 function tableUI(){
   const act=!!(M&&M.phase==='pAction'&&(!M.vs||M.seat===M.turn));
@@ -3423,6 +3510,7 @@ function render(now){
   ctx.setTransform(DPR,0,0,DPR,0,0);
   ctx.drawImage(STATIC,0,0,W,H);
   if(L.fallback)return;
+  drawTableNames(ctx);
   if(M.p.score!==M.lastScores.p){M.flashBadge.p=now;M.lastScores.p=M.p.score;}
   if(M.o.score!==M.lastScores.o){M.flashBadge.o=now;M.lastScores.o=M.o.score;}
   const whoP=viewWho('p'),whoO=viewWho('o');
@@ -3498,6 +3586,7 @@ function showScreen(id){
   refreshCredits();
   if(id==='match'){syncMatchA11y();kickRender();}
   else focusActiveScreen();
+  refreshKotorScrolls();
 }
 function focusActiveScreen(){
   const modal=$('#modal');
@@ -3553,6 +3642,7 @@ function buildCircuit(){
     wrap.appendChild(btn);
   });
   if(keep)wrap.querySelector('.rung.pick')?.focus();
+  refreshKotorScrolls();
   const st=circuitSel<SAVE.circuit?'done':circuitSel===SAVE.circuit?'next':'locked';
   const bt=$('#bt-challenge');
   bt.disabled=st==='locked';
@@ -3570,6 +3660,78 @@ function drawMini(cvs,id,w=64,h,opts){
   const g=cvs.getContext('2d');g.setTransform(d,0,0,d,0,0);
   const back=!!(opts&&opts.back);
   drawCard(g,2,2,w-4,h-4,back?null:makeCard(id),{glow:false,catalog:true,back:back});
+}
+const KOTOR_SCROLLS=[];
+function paintKotorScroll(root){
+  const pane=root.querySelector('.kotor-scroll-pane');
+  const track=root.querySelector('.kotor-sb-track');
+  const thumb=root.querySelector('.kotor-sb-thumb');
+  if(!pane||!track||!thumb)return;
+  const sh=pane.scrollHeight,ch=pane.clientHeight,range=Math.max(0,sh-ch);
+  const overflow=ch>2&&range>1;
+  root.classList.toggle('is-overflow',overflow);
+  if(!overflow){
+    thumb.style.height='';
+    thumb.style.transform='';
+    return;
+  }
+  const trackH=track.clientHeight;
+  const th=Math.max(22,Math.round((ch/Math.max(1,sh))*trackH));
+  const max=Math.max(0,trackH-th);
+  const top=range&&max?Math.round((pane.scrollTop/range)*max):0;
+  thumb.style.height=th+'px';
+  thumb.style.transform='translateY('+top+'px)';
+}
+function refreshKotorScrolls(){
+  KOTOR_SCROLLS.forEach(root=>paintKotorScroll(root));
+  if(typeof requestAnimationFrame==='function')requestAnimationFrame(()=>KOTOR_SCROLLS.forEach(root=>paintKotorScroll(root)));
+}
+function bindKotorScroll(root){
+  if(!root||root._kotorBound)return;
+  const pane=root.querySelector('.kotor-scroll-pane');
+  const track=root.querySelector('.kotor-sb-track');
+  const thumb=root.querySelector('.kotor-sb-thumb');
+  const up=root.querySelector('.kotor-sb-up');
+  const dn=root.querySelector('.kotor-sb-dn');
+  if(!pane||!track||!thumb)return;
+  root._kotorBound=true;
+  KOTOR_SCROLLS.push(root);
+  pane.addEventListener('scroll',()=>paintKotorScroll(root),{passive:true});
+  if(typeof ResizeObserver==='function'){
+    const ro=new ResizeObserver(()=>paintKotorScroll(root));
+    ro.observe(pane);ro.observe(track);
+  }
+  function step(dir){pane.scrollBy(0,dir*Math.max(48,Math.round(pane.clientHeight*0.45)));}
+  if(up)up.addEventListener('click',()=>step(-1));
+  if(dn)dn.addEventListener('click',()=>step(1));
+  let drag=null;
+  thumb.addEventListener('pointerdown',e=>{
+    e.preventDefault();
+    thumb.setPointerCapture(e.pointerId);
+    drag={y:e.clientY,top:pane.scrollTop};
+  });
+  thumb.addEventListener('pointermove',e=>{
+    if(!drag)return;
+    const sh=pane.scrollHeight,ch=pane.clientHeight,range=Math.max(1,sh-ch);
+    const max=Math.max(1,track.clientHeight-thumb.offsetHeight);
+    pane.scrollTop=drag.top+((e.clientY-drag.y)/max)*range;
+  });
+  const endDrag=()=>{drag=null;};
+  thumb.addEventListener('pointerup',endDrag);
+  thumb.addEventListener('pointercancel',endDrag);
+  track.addEventListener('pointerdown',e=>{
+    if(e.target===thumb)return;
+    const rect=track.getBoundingClientRect();
+    const y=e.clientY-rect.top-thumb.offsetHeight/2;
+    const max=Math.max(1,track.clientHeight-thumb.offsetHeight);
+    const range=Math.max(1,pane.scrollHeight-pane.clientHeight);
+    pane.scrollTop=(y/max)*range;
+  });
+  paintKotorScroll(root);
+}
+function initKotorScrolls(){
+  document.querySelectorAll('.kotor-scroll').forEach(bindKotorScroll);
+  window.addEventListener('resize',refreshKotorScrolls,{passive:true});
 }
 function buildDeckUI(){
   const col=$('#collection');
@@ -3654,6 +3816,7 @@ function buildDeckUI(){
     begin.title=ready&&!broke?(wager===0?'PRACTICE - NO REWARDS':'WAGER '+wager+' CR'):'';
   }
   refreshCredits();
+  refreshKotorScrolls();
 }
 function validateDeck(deck){
   const out=[],counts={},u=currentUnlocked();
@@ -3800,6 +3963,58 @@ function showSpoilsModal(wager,rematch){
   });
   $('#mskip').onclick=()=>{AUDIO.play('click');closeModal();leaveMatch();};
 }
+function cantinaCardName(id){
+  const card=makeCard(id);
+  return (card?cardSpeak(card,1,1,true):id).toUpperCase();
+}
+function confirmStoreTrade(title,sub,okText,onOK){
+  openModal(
+    '<h2 id="modal-title">'+escapeHtml(title)+'</h2>'+
+    '<p>'+escapeHtml(sub)+'</p>'+
+    '<div class="mrow"><button type="button" id="mno" class="kbtn">CANCEL</button><button type="button" id="myes" class="kbtn sel">'+escapeHtml(okText)+'</button></div>');
+  $('#myes').onclick=()=>{AUDIO.play('click');closeModal();onOK();};
+  $('#mno').onclick=()=>{AUDIO.play('click');closeModal();};
+}
+function confirmStoreBuy(id){
+  const price=CARD_PRICE[id],owned=SAVE.unlocked[id]||0;
+  if(!price||owned>=STORE_CAP||SAVE.credits<price)return;
+  confirmStoreTrade(
+    'BUY '+cantinaCardName(id)+'?',
+    price+' CREDITS. YOU WILL OWN '+(owned+1)+'.',
+    'BUY',
+    ()=>completeStoreBuy(id));
+}
+function completeStoreBuy(id){
+  const price=CARD_PRICE[id],prev=SAVE.unlocked[id]||0;
+  if(!price||prev>=STORE_CAP||SAVE.credits<price){buildStoreUI();return;}
+  SAVE.credits-=price;
+  if(!addToCollection(id)||!persist()){
+    SAVE.credits+=price;
+    if(prev)SAVE.unlocked[id]=prev;else delete SAVE.unlocked[id];
+    refreshCredits();
+    presentDialog('SAVE FAILED','THE PURCHASE WAS NOT STORED',()=>{});
+    buildStoreUI();
+    return;
+  }
+  buildStoreUI();
+}
+function confirmStoreSell(id){
+  const owned=SAVE.unlocked[id]||0,value=cardSellPrice(id);
+  if(!value||owned<=0||collectionCount()<=10||SAVE.credits>=999999999)return;
+  confirmStoreTrade(
+    'SELL '+cantinaCardName(id)+'?',
+    value+' CREDITS. YOU WILL OWN '+(owned-1)+'.',
+    'SELL',
+    ()=>completeStoreSell(id));
+}
+function completeStoreSell(id){
+  if(!sellCard(id)){
+    presentDialog('SALE FAILED','THE CARD COULD NOT BE SOLD',()=>{});
+    buildSellUI();
+    return;
+  }
+  buildSellUI();
+}
 function buildStoreUI(){
   const wrap=$('#stock');if(!wrap)return;
   const keepId=document.activeElement&&wrap.contains(document.activeElement)&&document.activeElement.getAttribute('data-card');
@@ -3821,25 +4036,13 @@ function buildStoreUI(){
     cnt.textContent=maxed?'OWN '+owned:price+' CR'+(owned?' \u00B7 OWN '+owned:'');
     cell.appendChild(cnt);
     drawMini(cvs,id);
-    if(!maxed&&!broke)cell.onclick=()=>{
-      AUDIO.play('click');
-      const prev=SAVE.unlocked[id]||0;
-      SAVE.credits-=price;
-      if(!addToCollection(id)||!persist()){
-        SAVE.credits+=price;
-        if(prev)SAVE.unlocked[id]=prev;else delete SAVE.unlocked[id];
-        refreshCredits();
-        presentDialog('SAVE FAILED','THE PURCHASE WAS NOT STORED',()=>{});
-        buildStoreUI();
-        return;
-      }
-      buildStoreUI();
-    };
+    if(!maxed&&!broke)cell.onclick=()=>{AUDIO.play('click');confirmStoreBuy(id);};
     wrap.appendChild(cell);
   });
   if(keepId)wrap.querySelector('[data-card="'+CSS.escape(keepId)+'"]')?.focus();
   const note=$('#store-note');
   if(note)note.textContent=SAVE.circuit>=CIRCUIT_LEN?'Full cantina stock.':'Stock improves as you climb the tournament.';
+  refreshKotorScrolls();
 }
 function openStore(){
   buildStoreUI();
@@ -3850,7 +4053,7 @@ function buildSellUI(){
   const keepId=document.activeElement&&wrap.contains(document.activeElement)&&document.activeElement.getAttribute('data-card');
   const total=collectionCount(),atFloor=total<=10,atCreditCap=SAVE.credits>=999999999,blocked=atFloor||atCreditCap;
   wrap.innerHTML='';
-  DECK_ORDER.filter(id=>(SAVE.unlocked[id]||0)>0).forEach(id=>{
+  DECK_ORDER.filter(id=>(SAVE.unlocked[id]||0)>0).sort(storeOrder).forEach(id=>{
     const owned=SAVE.unlocked[id]||0,value=cardSellPrice(id);
     const cell=document.createElement('button');
     cell.type='button';
@@ -3866,21 +4069,14 @@ function buildSellUI(){
     cnt.className='cnt';cnt.textContent=value+' CR  \u00B7  OWN '+owned;
     cell.appendChild(cnt);
     drawMini(cvs,id);
-    if(!blocked)cell.onclick=()=>{
-      AUDIO.play('click');
-      if(!sellCard(id)){
-        presentDialog('SALE FAILED','THE CARD COULD NOT BE SOLD',()=>{});
-        buildSellUI();
-        return;
-      }
-      buildSellUI();
-    };
+    if(!blocked)cell.onclick=()=>{AUDIO.play('click');confirmStoreSell(id);};
     wrap.appendChild(cell);
   });
   const again=keepId?wrap.querySelector('[data-card="'+CSS.escape(keepId)+'"]'):null;
   (again||wrap.querySelector('button:not([disabled])')||wrap.querySelector('button'))?.focus();
   const note=$('#sell-note');
   if(note)note.textContent=atFloor?'KEEP AT LEAST 10 CARDS FOR A SIDE DECK.':atCreditCap?'CREDIT LIMIT REACHED.':'CARDS SELL FOR HALF THEIR CANTINA PRICE.';
+  refreshKotorScrolls();
 }
 function openSell(){
   buildSellUI();
@@ -3892,7 +4088,8 @@ function openModal(html){
   const app=$('#app');
   if(app)app.setAttribute('inert','');
   modal.classList.toggle('match-modal',curScreen==='match');
-  $('#modalbox').innerHTML=html;
+  const pane=$('#modal-pane')||$('#modalbox');
+  pane.innerHTML=html;
   const title=$('#modalbox h2');
   if(title){if(!title.id)title.id='modal-title';modal.setAttribute('aria-labelledby',title.id);}
   modal.classList.remove('hidden');
@@ -3901,6 +4098,7 @@ function openModal(html){
   const box=$('#modalbox');
   const items=focusablesIn(box);
   (items.find(el=>el.classList.contains('sel'))||items[0]||box).focus();
+  refreshKotorScrolls();
 }
 function closeModal(){
   if(typeof flushPersist==='function')flushPersist();
@@ -4211,6 +4409,7 @@ async function init(){
     if(globalThis.flushPwaReload)globalThis.flushPwaReload();
   };
   initTextures();
+  initKotorScrolls();
   initSaveSync();
   applyRecoveredWager();
   AUDIO.vol=SAVE.vol;AUDIO.muted=SAVE.muted;
@@ -4437,7 +4636,7 @@ globalThis.PZ={shuffle,buildMainDeck,boardScore,placeMain,placeSide,applyDouble,
   startSet,beginTurn,endPlayerTurn,playerStand,confirmPlay,endSet,resolveBoard,resolveStandoff,boardCount,dialogOK,
   newMatchForTest:(deckIds,opp,opts)=>{SAVE.lastDeck=deckIds;newMatch(opp,null,opts);},
   getM:()=>M,setSleepScale:v=>{SLEEP_SCALE=v;},chanState,fitCard,CARD_ASPECT,
-  matchWager,clampReplayWager,storeStock,storeMinCircuit,addToCollection,isClutterId,CARD_PRICE,cardSellPrice,collectionCount,trimDeckToCollection,sellCard,getSave:()=>SAVE,
+  matchWager,clampReplayWager,storeStock,storeMinCircuit,storeOrder,addToCollection,isClutterId,CARD_PRICE,cardSellPrice,collectionCount,trimDeckToCollection,sellCard,getSave:()=>SAVE,
   persist,persistSoon,flushPersist,normalizeSave,applyRecoveredWager,startMatch,leaveMatch,matchEnd,defaultSave,START_CREDITS,SAVE_KEY,
   blockPersist:v=>{PERSIST_BLOCK=!!v;},
   vsTierIds,vsCollection,startVsMatch,acceptPass,viewWho,plateName,isVs,GAME_VERSION,

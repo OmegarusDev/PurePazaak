@@ -13,6 +13,7 @@ async function init(){
     if(globalThis.flushPwaReload)globalThis.flushPwaReload();
   };
   initTextures();
+  initKotorScrolls();
   initSaveSync();
   applyRecoveredWager();
   AUDIO.vol=SAVE.vol;AUDIO.muted=SAVE.muted;
@@ -239,7 +240,7 @@ globalThis.PZ={shuffle,buildMainDeck,boardScore,placeMain,placeSide,applyDouble,
   startSet,beginTurn,endPlayerTurn,playerStand,confirmPlay,endSet,resolveBoard,resolveStandoff,boardCount,dialogOK,
   newMatchForTest:(deckIds,opp,opts)=>{SAVE.lastDeck=deckIds;newMatch(opp,null,opts);},
   getM:()=>M,setSleepScale:v=>{SLEEP_SCALE=v;},chanState,fitCard,CARD_ASPECT,
-  matchWager,clampReplayWager,storeStock,storeMinCircuit,addToCollection,isClutterId,CARD_PRICE,cardSellPrice,collectionCount,trimDeckToCollection,sellCard,getSave:()=>SAVE,
+  matchWager,clampReplayWager,storeStock,storeMinCircuit,storeOrder,addToCollection,isClutterId,CARD_PRICE,cardSellPrice,collectionCount,trimDeckToCollection,sellCard,getSave:()=>SAVE,
   persist,persistSoon,flushPersist,normalizeSave,applyRecoveredWager,startMatch,leaveMatch,matchEnd,defaultSave,START_CREDITS,SAVE_KEY,
   blockPersist:v=>{PERSIST_BLOCK=!!v;},
   vsTierIds,vsCollection,startVsMatch,acceptPass,viewWho,plateName,isVs,GAME_VERSION,

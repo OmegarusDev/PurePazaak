@@ -43,16 +43,85 @@
 }
 .deck-collection{padding:clamp(8px,1.4cqh,12px)}
 .deck-side{padding:clamp(8px,1.4cqh,12px) clamp(8px,1.2cqw,12px)}
+.deck-collection .kotor-scroll{flex:1 1 auto;min-height:0;height:100%}
+
+.kotor-scroll{
+  display:grid;
+  grid-template-columns:minmax(0,1fr);
+  grid-template-rows:minmax(0,1fr);
+  min-height:0;
+  min-width:0;
+  gap:6px;
+}
+.kotor-scroll.is-overflow{grid-template-columns:minmax(0,1fr) 16px}
+.kotor-scroll-pane{
+  min-width:0;
+  min-height:0;
+  overflow-x:hidden;
+  overflow-y:auto;
+  scrollbar-width:none;
+  -webkit-overflow-scrolling:touch;
+}
+.kotor-scroll-pane::-webkit-scrollbar{width:0;height:0;display:none}
+.kotor-scrollbar{
+  display:none;
+  flex-direction:column;
+  width:16px;
+  min-height:0;
+  background:#070b12;
+  border:2px solid #3aa8e8;
+  box-shadow:inset 0 0 0 1px #102030;
+}
+.kotor-scroll.is-overflow .kotor-scrollbar{display:flex}
+.kotor-sb-up,.kotor-sb-dn{
+  appearance:none;-webkit-appearance:none;
+  flex:0 0 16px;
+  width:100%;
+  height:16px;
+  margin:0;
+  padding:0;
+  border:0;
+  background:#0a1018;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.kotor-sb-up::before,.kotor-sb-dn::before{
+  content:"";
+  width:0;
+  height:0;
+  border-left:5px solid transparent;
+  border-right:5px solid transparent;
+}
+.kotor-sb-up::before{border-bottom:7px solid #4dc5f0}
+.kotor-sb-dn::before{border-top:7px solid #4dc5f0}
+.kotor-sb-track{
+  flex:1 1 auto;
+  min-height:0;
+  position:relative;
+  background:linear-gradient(90deg,#05080e,#0c121c 55%,#05080e);
+}
+.kotor-sb-thumb{
+  position:absolute;
+  left:1px;
+  right:1px;
+  top:0;
+  min-height:22px;
+  background:linear-gradient(180deg,#6ad0ff,#2a9ee0 70%,#1a7ab8);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.35);
+  cursor:pointer;
+  touch-action:none;
+}
 
 #collection{
   display:grid;
   grid-template-columns:repeat(6,minmax(0,1fr));
+  grid-auto-rows:max-content;
   gap:clamp(4px,0.9cqh,8px);
   width:100%;
-  flex:1 1 auto;
-  min-height:0;
-  overflow-y:auto;
   align-content:start;
+  align-items:start;
   padding:2px;
 }
 .cell{
@@ -60,6 +129,7 @@
   display:flex;
   flex-direction:column;
   align-items:center;
+  justify-content:flex-start;
   gap:2px;
   padding:4px 3px;
   background:linear-gradient(180deg,#14181e,#080a0e);
@@ -67,7 +137,6 @@
   border-radius:4px;
   cursor:pointer;
   min-width:0;
-  min-height:0;
   box-shadow:inset 0 2px 5px rgba(0,0,0,.7);
   font:inherit;color:inherit;text-align:center;
 }
@@ -80,21 +149,24 @@
 .cell.maxed,.cell:disabled{opacity:.4;cursor:default}
 .cell.maxed:hover,.cell:disabled:hover{border-color:#1a1e24;box-shadow:inset 0 2px 5px rgba(0,0,0,.7)}
 .cell canvas{
-  width:min(100%,15cqh);
+  display:block;
+  width:100%;
   max-width:72px;
   height:auto;
   aspect-ratio:572/772;
-  min-height:0;
+  object-fit:contain;
+  flex:0 0 auto;
 }
 .cell .cnt{
   font-family:var(--gui);
-  font-size:clamp(7px,1.2cqh,9px);
-  letter-spacing:.06em;
+  font-size:clamp(7px,1.15cqh,9px);
+  letter-spacing:.04em;
   color:#8a96a8;
   white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
   max-width:100%;
+  flex:0 0 auto;
 }
 
 #sidedeck{
@@ -190,17 +262,17 @@
   padding:0 4px;
   text-transform:none;
 }
-.store-well{padding:8px}
+.store-well{padding:8px;min-height:0}
+.store-well .kotor-scroll,.circuit-well .kotor-scroll,.vs-well .kotor-scroll{flex:1 1 auto;min-height:0;height:100%}
 #stock,#sell-stock{
   display:grid;
   grid-template-columns:repeat(auto-fill,minmax(min(88px,100%),1fr));
+  grid-auto-rows:max-content;
   gap:10px;
   width:100%;
-  flex:1 1 auto;
-  min-height:0;
-  overflow-y:auto;
   padding:6px;
   align-content:start;
+  align-items:start;
   background:transparent;
   border:0;
   border-radius:0;
@@ -219,10 +291,12 @@
   height:auto;
   max-height:100%;
 }
-.vs-well{
+.vs-well{overflow:hidden;padding:0}
+.vs-pane{
+  display:flex;
+  flex-direction:column;
   padding:clamp(16px,3vh,28px) clamp(16px,4vw,28px);
   gap:clamp(10px,1.8vh,16px);
-  overflow-y:auto;
 }
 .vs-field{
   display:flex;

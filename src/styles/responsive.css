@@ -5,11 +5,6 @@
   #scr-title > .title-hood-top,#scr-title > .title-hood-bot{display:none}
   #scr-title > .title-hood-frame{display:block}
   #scr-title > .title-hood-frame::after{display:none}
-  #scr-title > .title-smoke{display:block;height:34%;opacity:.5;z-index:4}
-  #scr-title .title-smoke .sm-a{bottom:-18%}
-  #scr-title .title-smoke .sm-b{bottom:-18%}
-  #scr-title .title-smoke .sm-c{bottom:-4%}
-  #scr-title .title-smoke .sm-d{bottom:0}
   .title-stage{gap:3.45vh;padding:13vh 3vw 11vh;justify-content:flex-start;container-type:inline-size;container-name:title;flex-shrink:1;overflow:visible}
   .kotor-menu-shell{width:min(82.3vw,calc(54.7vh * 470 / 560));aspect-ratio:470/560;flex:0 0 auto;max-height:54.7vh}
   .kotor-menu-svg.km-land{display:none}
@@ -124,5 +119,4 @@
   .steel-console{height:100%;padding:6px;gap:5px;border-radius:12px}
   .steel-hbadge{min-height:22px;font-size:9px}
   .kplate{padding:8px 10px;font-size:11px;min-height:36px}
-  .cell canvas{max-width:48px}
 }
