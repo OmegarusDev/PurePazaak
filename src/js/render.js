@@ -4,10 +4,25 @@ function drawFallback(g){
   g.font='700 '+Math.max(12,Math.round(Math.min(W,H)*0.045))+'px '+GUI_FONT;
   g.fillText('ROTATE OR ENLARGE WINDOW',W/2,H/2);
 }
+let staticSig='';
+function forgetStatic(){
+  if(STATIC){STATIC.width=1;STATIC.height=1;STATIC=null;}
+  staticSig='';
+}
 function renderStatic(){
-  if(!ctx)return;
+  if(!ctx||typeof document==='undefined'||typeof document.createElement!=='function')return;
   const sk=tableSkin();
-  STATIC=document.createElement('canvas');STATIC.width=W*DPR;STATIC.height=H*DPR;
+  const on=M;
+  const whoP=typeof viewWho==='function'?viewWho('p'):'p';
+  const whoO=typeof viewWho==='function'?viewWho('o'):'o';
+  const nameP=on?plateName(whoP):'YOU';
+  const nameO=on?plateName(whoO):'Opponent';
+  const bw=Math.max(1,Math.round(W*DPR)),bh=Math.max(1,Math.round(H*DPR));
+  const sig=[bw,bh,L.fallback?1:0,tableSeed(),tableTier(),nameP,nameO].join('\t');
+  if(STATIC&&STATIC.width===bw&&STATIC.height===bh&&staticSig===sig)return;
+  if(!STATIC)STATIC=document.createElement('canvas');
+  if(STATIC.width!==bw||STATIC.height!==bh){STATIC.width=bw;STATIC.height=bh;}
+  staticSig=sig;
   const g=STATIC.getContext('2d');g.setTransform(DPR,0,0,DPR,0,0);
   if(L.fallback){drawFallback(g);return;}
   drawFrame(g);
@@ -19,18 +34,15 @@ function renderStatic(){
     g.strokeStyle=`rgba(255,255,255,${0.05+sk.bevelHi*0.2})`;
     g.beginPath();g.moveTo(top.x+rad,top.y+1.2);g.lineTo(top.x+top.w-rad,top.y+1.2);g.stroke();
   }
-  const on=M;
   const nameCol=sk.name;
   const fsName=L.fsName||12;
-  const whoP=typeof viewWho==='function'?viewWho('p'):'p';
-  const whoO=typeof viewWho==='function'?viewWho('o'):'o';
   g.save();
   rr(g,L.topP.x,L.topP.y,L.topP.w,L.topP.h,Math.max(6,L.topP.h/2));g.clip();
-  tName(g,on?plateName(whoP):'YOU',L.nameP.x,L.nameP.y,fsName,nameCol,'left',L.nameMaxP||24);
+  tName(g,nameP,L.nameP.x,L.nameP.y,fsName,nameCol,'left',L.nameMaxP||24);
   g.restore();
   g.save();
   rr(g,L.topO.x,L.topO.y,L.topO.w,L.topO.h,Math.max(6,L.topO.h/2));g.clip();
-  tName(g,on?plateName(whoO):'Opponent',L.nameO.x,L.nameO.y,fsName,nameCol,'right',L.nameMaxO||24);
+  tName(g,nameO,L.nameO.x,L.nameO.y,fsName,nameCol,'right',L.nameMaxO||24);
   g.restore();
   for(const grid of [L.gridP,L.gridO]){
     const gx=L.gapX!=null?L.gapX:L.gap, gy=L.gapY!=null?L.gapY:L.gap;
@@ -70,7 +82,7 @@ function drawPassShutter(g){
   g.restore();
 }
 function render(now){
-  if(curScreen!=='match'||!M||!ctx)return;
+  if(curScreen!=='match'||!M||!ctx||!STATIC)return;
   ctx.setTransform(DPR,0,0,DPR,0,0);
   ctx.drawImage(STATIC,0,0,W,H);
   if(L.fallback)return;

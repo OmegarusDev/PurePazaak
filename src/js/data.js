@@ -1,11 +1,11 @@
-const GAME_VERSION='0.9.2';
+const GAME_VERSION='0.9.3';
 const STARTER_COLLECTION={'+1':2,'+2':2,'+3':2,'-1':2,'-2':2,'-3':2};
 const START_CREDITS=400;
 const STORE_CAP=4;
 const CIRCUIT_LEN=9;
 const SAVE_SCHEMA=2;
 const SAVE_WRITER=(typeof crypto!=='undefined'&&crypto.randomUUID)?crypto.randomUUID():Math.random().toString(36).slice(2);
-let SAVE_CHANNEL=null,SAVE_CONFLICT=false,PERSIST_BLOCK=false;
+let SAVE_CHANNEL=null,SAVE_CONFLICT=false,PERSIST_BLOCK=false,persistTimer=0;
 const OPP_POOLS={
   1:['+1','+1','+2','+2','+3','+3','-1','-1','-2','-2','-3','-3','+4','+4','+4','-4','-4','-4','+5','-5','+6','-6'],
   2:['+3','-3','+4','+4','-4','-4','+5','-5','+6','-6','\u00B11','\u00B12','\u00B13','\u00B11','\u00B12'],
@@ -159,8 +159,18 @@ function loadSave(){
   }catch(e){}
   return defaultSave();
 }
+function persistSoon(ms){
+  if(persistTimer)clearTimeout(persistTimer);
+  persistTimer=setTimeout(()=>{persistTimer=0;persist();},Math.max(0,ms==null?200:ms));
+}
+function flushPersist(){
+  if(!persistTimer)return true;
+  clearTimeout(persistTimer);persistTimer=0;
+  return persist();
+}
 function persist(){
   if(PERSIST_BLOCK)return false;
+  if(persistTimer){clearTimeout(persistTimer);persistTimer=0;}
   try{
     const old=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');
     if(old&&Number.isSafeInteger(old.revision)&&(

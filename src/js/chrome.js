@@ -176,7 +176,7 @@ function drawOrb(g,c,r,state,now){
   const cols={green:['#c8ffc8','#3fae4a','#0c3a14'],amber:['#ffe8b0','#e8a41f','#4a3008'],red:['#ff7a7a','#e01414','#5a0808'],idle:['#7a7a82','#2c2c34','#0c0c10']};
   const cc=cols[state]||cols.idle,active=state==='red'||state==='green'||state==='amber';
   g.save();
-  if(active){g.shadowColor=cc[1];g.shadowBlur=Math.min(r*0.9,10+4*Math.sin(now/280));}
+  if(active){g.shadowColor=cc[1];g.shadowBlur=Math.min(r*0.9,12);}
   const gr=g.createRadialGradient(c.x-r*0.32,c.y-r*0.38,r*0.12,c.x,c.y,r);
   gr.addColorStop(0,cc[0]);gr.addColorStop(0.45,cc[1]);gr.addColorStop(1,cc[2]);
   g.beginPath();g.arc(c.x,c.y,r,0,7);g.fillStyle=gr;g.fill();

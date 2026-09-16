@@ -415,6 +415,7 @@ function openModal(html){
   (items.find(el=>el.classList.contains('sel'))||items[0]||box).focus();
 }
 function closeModal(){
+  if(typeof flushPersist==='function')flushPersist();
   const modal=$('#modal');
   modal.classList.add('hidden');
   modal.classList.remove('match-modal');
@@ -459,7 +460,8 @@ function openOptions(){
     '<h2 id="modal-title">OPTIONS</h2>'+
     '<div class="volrow"><span id="vol-lab">VOLUME</span><input id="vol" type="range" min="0" max="100" value="'+Math.round(AUDIO.vol*100)+'" aria-labelledby="vol-lab"><button type="button" id="bt-mute" class="kbtn sm">MUTE</button></div>'+
     '<div class="mrow"><button type="button" id="bt-reset" class="kbtn danger">RESET PROGRESS</button><button type="button" id="oclose" class="kbtn sel">CLOSE</button></div>');
-  $('#vol').oninput=e=>{AUDIO.setVol(e.target.value/100);SAVE.vol=AUDIO.vol;persist();};
+  $('#vol').oninput=e=>{AUDIO.setVol(e.target.value/100);SAVE.vol=AUDIO.vol;persistSoon(200);};
+  $('#vol').onchange=()=>{SAVE.vol=AUDIO.vol;flushPersist();};
   $('#bt-mute').textContent=AUDIO.muted?'UNMUTE':'MUTE';
   $('#bt-mute').onclick=()=>{AUDIO.setMuted(!AUDIO.muted);SAVE.muted=AUDIO.muted;persist();$('#bt-mute').textContent=AUDIO.muted?'UNMUTE':'MUTE';};
   $('#bt-reset').onclick=confirmReset;
@@ -617,12 +619,14 @@ function syncMatchA11y(){
 let rafOn=false;
 function kickRender(){
   if(rafOn)return;
+  if(typeof requestAnimationFrame!=='function')return;
   rafOn=true;
   requestAnimationFrame(loop);
 }
 function loop(t){
   render(t);
   if(typeof syncMatchA11y==='function')syncMatchA11y();
-  if(curScreen==='match'&&M)requestAnimationFrame(loop);
+  const hidden=typeof document!=='undefined'&&document.hidden;
+  if(curScreen==='match'&&M&&!hidden&&matchBusy(t))requestAnimationFrame(loop);
   else rafOn=false;
 }

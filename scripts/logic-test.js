@@ -22,7 +22,7 @@ const PZ = globalThis.PZ;
 let fail = 0;
 const t = (name, cond) => { console.log((cond ? 'PASS' : 'FAIL') + ' ' + name); if (!cond) fail++; };
 
-t('game-version', PZ.GAME_VERSION === '0.9.2');
+t('game-version', PZ.GAME_VERSION === '0.9.3');
 
 t('main-deck-40', PZ.buildMainDeck().length === 40);
 t('boardScore', PZ.boardScore([{ eff: 10 }, { eff: -3 }, null]) === 7);
@@ -543,6 +543,39 @@ function prepPlay(deck, handIds) {
   const setsO0=M.setsO;
   PZ.playerStand();
   t('vs-p2-stand-resolves', PZ.getM().setsO===setsO0+1);
+}
+
+{
+  const mm=PZ.getM();
+  mm.anims.deal=null;mm.anims.flash=null;mm.toasts=[];mm.flashBadge={p:0,o:0};
+  t('match-idle', PZ.matchBusy(1e12)===false);
+  mm.anims.deal={who:'p',slot:0,t0:1000};
+  t('match-busy-deal', PZ.matchBusy(1100)===true && PZ.matchBusy(1400)===false);
+  mm.anims.deal=null;
+  mm.toasts=[{t:'X',t0:1000}];
+  t('match-busy-toast', PZ.matchBusy(1500)===true && PZ.matchBusy(2500)===false);
+  mm.toasts=[];
+  t('match-busy-none', PZ.matchBusy()===false);
+
+  const rev0=PZ.getSave().revision;
+  PZ.getSave().vol=0.37;
+  PZ.persistSoon(30000);
+  const disk1=JSON.parse(localStorage.getItem(PZ.SAVE_KEY));
+  t('persist-soon-defers', disk1.vol!==0.37 && disk1.revision===rev0);
+  t('persist-soon-flush', PZ.flushPersist()===true && JSON.parse(localStorage.getItem(PZ.SAVE_KEY)).vol===0.37);
+  PZ.getSave().vol=0.21;
+  PZ.persistSoon(30000);
+  PZ.persist();
+  t('persist-cancels-soon', JSON.parse(localStorage.getItem(PZ.SAVE_KEY)).vol===0.21);
+
+  t('pixel-budget', PZ.PIXEL_BUDGET===8000000);
+  const pPhone=PZ.backingSize(390,844,3);
+  const p1080=PZ.backingSize(1920,1080,2);
+  const p4k=PZ.backingSize(3840,2160,3);
+  t('backing-phone-dpr2', pPhone.dpr===2);
+  t('backing-1080-near-dpr2', p1080.dpr>1.9 && p1080.dpr<=2);
+  t('backing-4k-under-budget', p4k.w*p4k.h<=PZ.PIXEL_BUDGET*1.02);
+  t('backing-two-canvas-cap', p4k.w*p4k.h*4*2<70*1024*1024);
 }
 
 process.exit(fail ? 1 : 0);

@@ -5,7 +5,6 @@
 const BUILD_ID = "__PURE_PAZAAK_BUILD_ID__";
 const CACHE = `pure-pazaak-shell-${BUILD_ID}`;
 const SHELL = [
-  "./",
   "./index.html",
   "./manifest.webmanifest",
   "./fonts/Orbitron-latin.woff2",
@@ -50,7 +49,8 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return;
 
-  const isNavigation=req.mode==='navigate'||url.pathname.endsWith('.html')||url.pathname.endsWith('.webmanifest');
+  const isDoc=req.mode==='navigate'||url.pathname.endsWith('.html')||url.pathname==='/'||url.pathname.endsWith('/');
+  const isShell=isDoc||url.pathname.endsWith('.webmanifest');
   const isStatic=url.pathname.includes('/fonts/')||url.pathname.includes('/icons/');
   event.respondWith((async()=>{
     const cache=await caches.open(CACHE);
@@ -59,14 +59,14 @@ self.addEventListener("fetch", (event) => {
     }
     try{
       const fresh=await fetch(req,{cache:'no-store'});
-      if(fresh&&fresh.ok&&(isNavigation||isStatic)){
-        const key=isNavigation&&req.mode==='navigate'?new URL('./index.html',self.location).href:req;
+      if(fresh&&fresh.ok&&(isShell||isStatic)){
+        const key=isDoc?new URL('./index.html',self.location).href:req;
         cache.put(key,fresh.clone()).catch(()=>{});
       }
       return fresh;
     }catch(_){
       const cached=await cache.match(req);if(cached)return cached;
-      if(req.mode==='navigate'){const shell=await cache.match('./index.html');if(shell)return shell;}
+      if(isDoc){const shell=await cache.match('./index.html');if(shell)return shell;}
       return Response.error();
     }
   })());

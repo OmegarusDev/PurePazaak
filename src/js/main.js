@@ -7,6 +7,7 @@ async function init(){
   gameHooks.onEnterMatch=()=>{showScreen('match');fit();kickRender();};
   gameHooks.onLeaveMatch=vs=>{
     resetDeckMode();
+    releaseMatchBuffers();
     if(vs){refreshTitle();showScreen('title');}
     else{circuitSel=circuitDefaultSel();buildCircuit();showScreen('circuit');}
     if(globalThis.flushPwaReload)globalThis.flushPwaReload();
@@ -113,12 +114,20 @@ async function init(){
     if((k==='e'||(k===' ' && !fromBtn))){e.preventDefault();endPlayerTurn();}
     else if((k==='s')||(k==='enter'&&!fromBtn)){e.preventDefault();playerStand();}
     else if(k==='f'){e.preventDefault();flipArmed();}
-    else if(k==='escape'){e.preventDefault();M.sel=-1;syncMatchA11y();}
+    else if(k==='escape'){e.preventDefault();M.sel=-1;syncMatchA11y();kickRender();}
   });
   window.addEventListener('resize',scheduleFit,{passive:true});
   window.addEventListener('orientationchange',scheduleFit,{passive:true});
   if(window.visualViewport)window.visualViewport.addEventListener('resize',scheduleFit,{passive:true});
-  window.addEventListener('beforeunload',e=>{if(curScreen==='match'&&M&&M.phase!=='done'){e.preventDefault();e.returnValue='';}});
+  window.addEventListener('beforeunload',e=>{
+    if(typeof flushPersist==='function')flushPersist();
+    if(curScreen==='match'&&M&&M.phase!=='done'){e.preventDefault();e.returnValue='';}
+  });
+  document.addEventListener('visibilitychange',()=>{
+    if(document.hidden){if(typeof flushPersist==='function')flushPersist();return;}
+    if(curScreen==='match'&&M)kickRender();
+  });
+  window.addEventListener('pagehide',()=>{if(typeof flushPersist==='function')flushPersist();});
   const board=document.querySelector('.match-board');
   if(board&&typeof ResizeObserver==='function')new ResizeObserver(scheduleFit).observe(board);
   if(document.fonts&&document.fonts.load){
@@ -135,16 +144,29 @@ async function init(){
       ]);
     }catch(_){/* use the local fallback stack */}
   }
-  renderStatic();
   refreshTitle();
   showScreen('title');
+}
+const PIXEL_BUDGET=8000000;
+function backingDpr(cssW,cssH,rawDpr){
+  const area=Math.max(1,cssW*cssH);
+  return Math.max(0.5,Math.min(2,Number(rawDpr)||1,Math.sqrt(PIXEL_BUDGET/area)));
+}
+function backingSize(cssW,cssH,rawDpr){
+  const dpr=backingDpr(cssW,cssH,rawDpr);
+  return {dpr,w:Math.max(1,Math.round(cssW*dpr)),h:Math.max(1,Math.round(cssH*dpr))};
+}
+function releaseMatchBuffers(){
+  if(cv&&(cv.width>1||cv.height>1)){cv.width=1;cv.height=1;}
+  if(typeof forgetStatic==='function')forgetStatic();
 }
 function fit(){
   const rawDpr=Number(window.devicePixelRatio)||1;
   computeLayout();
-  const budget=16000000/Math.max(1,W*H);
-  DPR=Math.max(0.5,Math.min(2,rawDpr,Math.sqrt(budget)));
-  if(cv){cv.width=Math.max(1,Math.round(W*DPR));cv.height=Math.max(1,Math.round(H*DPR));}
+  if(curScreen!=='match'||!cv){releaseMatchBuffers();return;}
+  const next=backingSize(W,H,rawDpr);
+  DPR=next.dpr;
+  if(cv.width!==next.w||cv.height!==next.h){cv.width=next.w;cv.height=next.h;}
   if(M&&ctx){renderStatic();render(performance.now());kickRender();}
   if(typeof syncMatchA11y==='function')syncMatchA11y();
 }
@@ -195,7 +217,7 @@ function onTablePointer(e){
   if(hit.kind==='hand'){
     if(!acting())return;
     if(M.sel===hit.i)confirmPlay(hit.i);
-    else{AUDIO.play('click');M.sel=hit.i;M.orient=1;M.varV=1;}
+    else{AUDIO.play('click');M.sel=hit.i;M.orient=1;M.varV=1;kickRender();}
   }else if(hit.kind==='end')endPlayerTurn();
   else if(hit.kind==='stand')playerStand();
   else if(hit.kind==='flip')flipArmed();
@@ -218,9 +240,10 @@ globalThis.PZ={shuffle,buildMainDeck,boardScore,placeMain,placeSide,applyDouble,
   newMatchForTest:(deckIds,opp,opts)=>{SAVE.lastDeck=deckIds;newMatch(opp,null,opts);},
   getM:()=>M,setSleepScale:v=>{SLEEP_SCALE=v;},chanState,fitCard,CARD_ASPECT,
   matchWager,clampReplayWager,storeStock,storeMinCircuit,addToCollection,isClutterId,CARD_PRICE,cardSellPrice,collectionCount,trimDeckToCollection,sellCard,getSave:()=>SAVE,
-  persist,normalizeSave,applyRecoveredWager,startMatch,leaveMatch,matchEnd,defaultSave,START_CREDITS,SAVE_KEY,
+  persist,persistSoon,flushPersist,normalizeSave,applyRecoveredWager,startMatch,leaveMatch,matchEnd,defaultSave,START_CREDITS,SAVE_KEY,
   blockPersist:v=>{PERSIST_BLOCK=!!v;},
-  vsTierIds,vsCollection,startVsMatch,acceptPass,viewWho,plateName,isVs,GAME_VERSION};
+  vsTierIds,vsCollection,startVsMatch,acceptPass,viewWho,plateName,isVs,GAME_VERSION,
+  matchBusy,PIXEL_BUDGET,backingSize};
 if(typeof document!=='undefined'){
   document.addEventListener('DOMContentLoaded',init);
 }

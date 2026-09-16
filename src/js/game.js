@@ -4,7 +4,24 @@ let cv=null,ctx=null;
 const gameHooks={dialog:null,spoils:null,onEnterMatch:null,onLeaveMatch:null};
 function sideOf(w){return w==='p'?M.p:M.o;}
 function other(w){return w==='p'?'o':'p';}
-function toast(t){M.toasts.push({t,t0:performance.now()});}
+function toast(t){M.toasts.push({t,t0:performance.now()});nudgeRender();}
+function nudgeRender(){
+  if(typeof kickRender==='function')kickRender();
+}
+function matchBusy(now){
+  if(!M)return false;
+  now=now||0;
+  const deal=M.anims&&M.anims.deal;
+  if(deal&&now-deal.t0<220)return true;
+  const flash=M.anims&&M.anims.flash;
+  if(flash&&now-flash.t0<520)return true;
+  if(M.toasts&&M.toasts.some(t=>now-t.t0<1320))return true;
+  if(M.flashBadge){
+    if((M.flashBadge.p||0)>0&&now-M.flashBadge.p<470)return true;
+    if((M.flashBadge.o||0)>0&&now-M.flashBadge.o<470)return true;
+  }
+  return false;
+}
 let matchDlg=null;
 function presentDialog(title,sub,onOK,opts){
   const o=opts||{};
@@ -58,12 +75,13 @@ function acceptPass(){
 }
 function refreshVsView(){
   if(typeof renderStatic==='function')renderStatic();
-  if(typeof kickRender==='function'&&typeof requestAnimationFrame==='function')kickRender();
+  nudgeRender();
 }
 function queueHumanTurn(w){
   M.sidePlayed=false;M.sel=-1;M.orient=1;M.varV=1;
-  if(M.vs&&M.seat!==w){M.phase='pass';return;}
+  if(M.vs&&M.seat!==w){M.phase='pass';nudgeRender();return;}
   M.phase='pAction';
+  nudgeRender();
 }
 function vsPlayerName(raw,fallback){
   const n=cleanName(raw);
@@ -108,11 +126,13 @@ function drawTo(w){
   if(i<0)return;
   AUDIO.play('draw');
   M.anims.deal={who:w,slot:i,t0:performance.now()};
+  nudgeRender();
 }
 function bustFlash(w){
   sideOf(w).bust=true;
   M.anims.flash={who:w,t0:performance.now()};
   AUDIO.play('bust');
+  nudgeRender();
 }
 /** Shared post-draw / post-play checks. Fill wins only at ≤20. */
 function resolveBoard(w){
@@ -132,7 +152,7 @@ function beginTurn(w){
     beginTurn(other(w));
     return;
   }
-  if(M.vs&&M.seat!==w){M.phase='pass';return;}
+  if(M.vs&&M.seat!==w){M.phase='pass';nudgeRender();return;}
   drawTo(w);
   const res=resolveAfterDraw(w);
   if(res==='fill'||res==='bust')return;
@@ -150,6 +170,7 @@ function endPlayerTurn(){
   const w=M.turn;
   if(sideOf(w).score>20){bustFlash(w);endSet(other(w),'bust');return;}
   beginTurn(other(w));
+  nudgeRender();
 }
 function playerStand(){
   if(!acting())return;AUDIO.play('click');
@@ -157,6 +178,7 @@ function playerStand(){
   if(S.score>20){bustFlash(w);endSet(other(w),'bust');return;}
   S.stood=true;M.sel=-1;toast(plateName(w).toUpperCase()+' STANDS');
   if(sideOf(other(w)).stood)resolveStandoff();else beginTurn(other(w));
+  nudgeRender();
 }
 function cycleFlex(){
   if(M.orient>0&&M.varV===1)M.varV=2;
@@ -171,6 +193,7 @@ function flipArmed(){
   AUDIO.play('click');
   if(card.kind==='flex')cycleFlex();
   else M.orient*=-1;
+  nudgeRender();
 }
 function confirmPlay(i){
   if(!acting()||M.sidePlayed)return;
@@ -190,6 +213,7 @@ function confirmPlay(i){
   if(card.kind==='tie')S.tiebreak=true;
   S.hand[i]=null;M.sel=-1;M.sidePlayed=true;
   const res=resolveBoard(w);
+  nudgeRender();
   if(res==='fill'||res==='bust')return;
   if(res==='stood'){if(sideOf(other(w)).stood)resolveStandoff();else beginTurn(other(w));}
 }
@@ -213,9 +237,10 @@ async function aiTurn(tk){
     AUDIO.play('place');
     if(d.play.tag==='dbl')applyDouble(M.o.board);
     else if(d.play.tag==='flip')applyFlip(M.o.board,card.vals);
-    else{const si=placeSide(M.o,card,d.play.orient,d.play.varV||1);if(si>=0)M.anims.deal={who:'o',slot:si,t0:performance.now()};}
+    else{const si=placeSide(M.o,card,d.play.orient,d.play.varV||1);if(si>=0){M.anims.deal={who:'o',slot:si,t0:performance.now()};nudgeRender();}}
     if(card.kind==='tie')M.o.tiebreak=true;
     M.o.hand[d.play.idx]=null;
+    nudgeRender();
     await sleep(430);if(!await aiLive(tk))return;
     const res=resolveBoard('o');
     if(res==='fill'||res==='bust')return;
@@ -247,6 +272,7 @@ function resolveStandoff(){
   else if(M.o.tiebreak&&!M.p.tiebreak)winner='o';
   if(winner){endSet(winner,'score');return;}
   M.phase='over';
+  nudgeRender();
   presentDialog('THE SET IS TIED.','NO POINT AWARDED',()=>{
     M.setStarter=other(M.setStarter);
     if(M.vs)M.seat=null;
@@ -256,6 +282,7 @@ function resolveStandoff(){
 function endSet(winner,reason){
   M.phase='over';M.sel=-1;
   if(winner==='p')M.setsP++;else M.setsO++;
+  nudgeRender();
   if(M.vs)AUDIO.play(reason==='bust'?'bust':'win');
   else if(winner==='p')AUDIO.play('win');
   else AUDIO.play(reason==='bust'?'bust':'lose');
@@ -288,6 +315,7 @@ function setEndText(winner,reason){
 function matchEnd(winner){
   M.phase='done';
   SAVE.activeMatch=null;
+  nudgeRender();
   if(M.vs){
     AUDIO.play('win');
     presentDialog(plateName(winner).toUpperCase()+' WINS.','FIRST TO 3 SETS',()=>leaveMatch());
@@ -352,7 +380,7 @@ function startMatch(rung,requestedWager){
 }
 function dealProgress(who,slot,now){
   const a=M&&M.anims.deal;
-  if(a&&a.who===who&&a.slot===slot){const p=(now-a.t0)/190;if(p<1)return p;}
+  if(a&&a.who===who&&a.slot===slot){const p=(now-a.t0)/190;if(p<1)return p;M.anims.deal=null;}
   return 1;
 }
 function orbState(w){

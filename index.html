@@ -1317,7 +1317,7 @@ button.mcard:hover,button.mcard:focus-visible{border-color:var(--select);box-sha
       </nav>
     </div>
     </div>
-    <p id="build-mark" class="build-mark">v0.9.2</p>
+    <p id="build-mark" class="build-mark">v0.9.3</p>
   </section>
   <section id="scr-versus" class="screen">
     <div class="steel-console vs-console">
@@ -1722,14 +1722,14 @@ function aiDecide(snap){
   const stand=shouldStand(score,snap);
   return {play,stand};
 }
-const GAME_VERSION='0.9.2';
+const GAME_VERSION='0.9.3';
 const STARTER_COLLECTION={'+1':2,'+2':2,'+3':2,'-1':2,'-2':2,'-3':2};
 const START_CREDITS=400;
 const STORE_CAP=4;
 const CIRCUIT_LEN=9;
 const SAVE_SCHEMA=2;
 const SAVE_WRITER=(typeof crypto!=='undefined'&&crypto.randomUUID)?crypto.randomUUID():Math.random().toString(36).slice(2);
-let SAVE_CHANNEL=null,SAVE_CONFLICT=false,PERSIST_BLOCK=false;
+let SAVE_CHANNEL=null,SAVE_CONFLICT=false,PERSIST_BLOCK=false,persistTimer=0;
 const OPP_POOLS={
   1:['+1','+1','+2','+2','+3','+3','-1','-1','-2','-2','-3','-3','+4','+4','+4','-4','-4','-4','+5','-5','+6','-6'],
   2:['+3','-3','+4','+4','-4','-4','+5','-5','+6','-6','\u00B11','\u00B12','\u00B13','\u00B11','\u00B12'],
@@ -1883,8 +1883,18 @@ function loadSave(){
   }catch(e){}
   return defaultSave();
 }
+function persistSoon(ms){
+  if(persistTimer)clearTimeout(persistTimer);
+  persistTimer=setTimeout(()=>{persistTimer=0;persist();},Math.max(0,ms==null?200:ms));
+}
+function flushPersist(){
+  if(!persistTimer)return true;
+  clearTimeout(persistTimer);persistTimer=0;
+  return persist();
+}
 function persist(){
   if(PERSIST_BLOCK)return false;
+  if(persistTimer){clearTimeout(persistTimer);persistTimer=0;}
   try{
     const old=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');
     if(old&&Number.isSafeInteger(old.revision)&&(
@@ -2818,7 +2828,7 @@ function drawOrb(g,c,r,state,now){
   const cols={green:['#c8ffc8','#3fae4a','#0c3a14'],amber:['#ffe8b0','#e8a41f','#4a3008'],red:['#ff7a7a','#e01414','#5a0808'],idle:['#7a7a82','#2c2c34','#0c0c10']};
   const cc=cols[state]||cols.idle,active=state==='red'||state==='green'||state==='amber';
   g.save();
-  if(active){g.shadowColor=cc[1];g.shadowBlur=Math.min(r*0.9,10+4*Math.sin(now/280));}
+  if(active){g.shadowColor=cc[1];g.shadowBlur=Math.min(r*0.9,12);}
   const gr=g.createRadialGradient(c.x-r*0.32,c.y-r*0.38,r*0.12,c.x,c.y,r);
   gr.addColorStop(0,cc[0]);gr.addColorStop(0.45,cc[1]);gr.addColorStop(1,cc[2]);
   g.beginPath();g.arc(c.x,c.y,r,0,7);g.fillStyle=gr;g.fill();
@@ -2933,7 +2943,24 @@ let cv=null,ctx=null;
 const gameHooks={dialog:null,spoils:null,onEnterMatch:null,onLeaveMatch:null};
 function sideOf(w){return w==='p'?M.p:M.o;}
 function other(w){return w==='p'?'o':'p';}
-function toast(t){M.toasts.push({t,t0:performance.now()});}
+function toast(t){M.toasts.push({t,t0:performance.now()});nudgeRender();}
+function nudgeRender(){
+  if(typeof kickRender==='function')kickRender();
+}
+function matchBusy(now){
+  if(!M)return false;
+  now=now||0;
+  const deal=M.anims&&M.anims.deal;
+  if(deal&&now-deal.t0<220)return true;
+  const flash=M.anims&&M.anims.flash;
+  if(flash&&now-flash.t0<520)return true;
+  if(M.toasts&&M.toasts.some(t=>now-t.t0<1320))return true;
+  if(M.flashBadge){
+    if((M.flashBadge.p||0)>0&&now-M.flashBadge.p<470)return true;
+    if((M.flashBadge.o||0)>0&&now-M.flashBadge.o<470)return true;
+  }
+  return false;
+}
 let matchDlg=null;
 function presentDialog(title,sub,onOK,opts){
   const o=opts||{};
@@ -2987,12 +3014,13 @@ function acceptPass(){
 }
 function refreshVsView(){
   if(typeof renderStatic==='function')renderStatic();
-  if(typeof kickRender==='function'&&typeof requestAnimationFrame==='function')kickRender();
+  nudgeRender();
 }
 function queueHumanTurn(w){
   M.sidePlayed=false;M.sel=-1;M.orient=1;M.varV=1;
-  if(M.vs&&M.seat!==w){M.phase='pass';return;}
+  if(M.vs&&M.seat!==w){M.phase='pass';nudgeRender();return;}
   M.phase='pAction';
+  nudgeRender();
 }
 function vsPlayerName(raw,fallback){
   const n=cleanName(raw);
@@ -3037,11 +3065,13 @@ function drawTo(w){
   if(i<0)return;
   AUDIO.play('draw');
   M.anims.deal={who:w,slot:i,t0:performance.now()};
+  nudgeRender();
 }
 function bustFlash(w){
   sideOf(w).bust=true;
   M.anims.flash={who:w,t0:performance.now()};
   AUDIO.play('bust');
+  nudgeRender();
 }
 /** Shared post-draw / post-play checks. Fill wins only at ≤20. */
 function resolveBoard(w){
@@ -3061,7 +3091,7 @@ function beginTurn(w){
     beginTurn(other(w));
     return;
   }
-  if(M.vs&&M.seat!==w){M.phase='pass';return;}
+  if(M.vs&&M.seat!==w){M.phase='pass';nudgeRender();return;}
   drawTo(w);
   const res=resolveAfterDraw(w);
   if(res==='fill'||res==='bust')return;
@@ -3079,6 +3109,7 @@ function endPlayerTurn(){
   const w=M.turn;
   if(sideOf(w).score>20){bustFlash(w);endSet(other(w),'bust');return;}
   beginTurn(other(w));
+  nudgeRender();
 }
 function playerStand(){
   if(!acting())return;AUDIO.play('click');
@@ -3086,6 +3117,7 @@ function playerStand(){
   if(S.score>20){bustFlash(w);endSet(other(w),'bust');return;}
   S.stood=true;M.sel=-1;toast(plateName(w).toUpperCase()+' STANDS');
   if(sideOf(other(w)).stood)resolveStandoff();else beginTurn(other(w));
+  nudgeRender();
 }
 function cycleFlex(){
   if(M.orient>0&&M.varV===1)M.varV=2;
@@ -3100,6 +3132,7 @@ function flipArmed(){
   AUDIO.play('click');
   if(card.kind==='flex')cycleFlex();
   else M.orient*=-1;
+  nudgeRender();
 }
 function confirmPlay(i){
   if(!acting()||M.sidePlayed)return;
@@ -3119,6 +3152,7 @@ function confirmPlay(i){
   if(card.kind==='tie')S.tiebreak=true;
   S.hand[i]=null;M.sel=-1;M.sidePlayed=true;
   const res=resolveBoard(w);
+  nudgeRender();
   if(res==='fill'||res==='bust')return;
   if(res==='stood'){if(sideOf(other(w)).stood)resolveStandoff();else beginTurn(other(w));}
 }
@@ -3142,9 +3176,10 @@ async function aiTurn(tk){
     AUDIO.play('place');
     if(d.play.tag==='dbl')applyDouble(M.o.board);
     else if(d.play.tag==='flip')applyFlip(M.o.board,card.vals);
-    else{const si=placeSide(M.o,card,d.play.orient,d.play.varV||1);if(si>=0)M.anims.deal={who:'o',slot:si,t0:performance.now()};}
+    else{const si=placeSide(M.o,card,d.play.orient,d.play.varV||1);if(si>=0){M.anims.deal={who:'o',slot:si,t0:performance.now()};nudgeRender();}}
     if(card.kind==='tie')M.o.tiebreak=true;
     M.o.hand[d.play.idx]=null;
+    nudgeRender();
     await sleep(430);if(!await aiLive(tk))return;
     const res=resolveBoard('o');
     if(res==='fill'||res==='bust')return;
@@ -3176,6 +3211,7 @@ function resolveStandoff(){
   else if(M.o.tiebreak&&!M.p.tiebreak)winner='o';
   if(winner){endSet(winner,'score');return;}
   M.phase='over';
+  nudgeRender();
   presentDialog('THE SET IS TIED.','NO POINT AWARDED',()=>{
     M.setStarter=other(M.setStarter);
     if(M.vs)M.seat=null;
@@ -3185,6 +3221,7 @@ function resolveStandoff(){
 function endSet(winner,reason){
   M.phase='over';M.sel=-1;
   if(winner==='p')M.setsP++;else M.setsO++;
+  nudgeRender();
   if(M.vs)AUDIO.play(reason==='bust'?'bust':'win');
   else if(winner==='p')AUDIO.play('win');
   else AUDIO.play(reason==='bust'?'bust':'lose');
@@ -3217,6 +3254,7 @@ function setEndText(winner,reason){
 function matchEnd(winner){
   M.phase='done';
   SAVE.activeMatch=null;
+  nudgeRender();
   if(M.vs){
     AUDIO.play('win');
     presentDialog(plateName(winner).toUpperCase()+' WINS.','FIRST TO 3 SETS',()=>leaveMatch());
@@ -3281,7 +3319,7 @@ function startMatch(rung,requestedWager){
 }
 function dealProgress(who,slot,now){
   const a=M&&M.anims.deal;
-  if(a&&a.who===who&&a.slot===slot){const p=(now-a.t0)/190;if(p<1)return p;}
+  if(a&&a.who===who&&a.slot===slot){const p=(now-a.t0)/190;if(p<1)return p;M.anims.deal=null;}
   return 1;
 }
 function orbState(w){
@@ -3303,10 +3341,25 @@ function drawFallback(g){
   g.font='700 '+Math.max(12,Math.round(Math.min(W,H)*0.045))+'px '+GUI_FONT;
   g.fillText('ROTATE OR ENLARGE WINDOW',W/2,H/2);
 }
+let staticSig='';
+function forgetStatic(){
+  if(STATIC){STATIC.width=1;STATIC.height=1;STATIC=null;}
+  staticSig='';
+}
 function renderStatic(){
-  if(!ctx)return;
+  if(!ctx||typeof document==='undefined'||typeof document.createElement!=='function')return;
   const sk=tableSkin();
-  STATIC=document.createElement('canvas');STATIC.width=W*DPR;STATIC.height=H*DPR;
+  const on=M;
+  const whoP=typeof viewWho==='function'?viewWho('p'):'p';
+  const whoO=typeof viewWho==='function'?viewWho('o'):'o';
+  const nameP=on?plateName(whoP):'YOU';
+  const nameO=on?plateName(whoO):'Opponent';
+  const bw=Math.max(1,Math.round(W*DPR)),bh=Math.max(1,Math.round(H*DPR));
+  const sig=[bw,bh,L.fallback?1:0,tableSeed(),tableTier(),nameP,nameO].join('\t');
+  if(STATIC&&STATIC.width===bw&&STATIC.height===bh&&staticSig===sig)return;
+  if(!STATIC)STATIC=document.createElement('canvas');
+  if(STATIC.width!==bw||STATIC.height!==bh){STATIC.width=bw;STATIC.height=bh;}
+  staticSig=sig;
   const g=STATIC.getContext('2d');g.setTransform(DPR,0,0,DPR,0,0);
   if(L.fallback){drawFallback(g);return;}
   drawFrame(g);
@@ -3318,18 +3371,15 @@ function renderStatic(){
     g.strokeStyle=`rgba(255,255,255,${0.05+sk.bevelHi*0.2})`;
     g.beginPath();g.moveTo(top.x+rad,top.y+1.2);g.lineTo(top.x+top.w-rad,top.y+1.2);g.stroke();
   }
-  const on=M;
   const nameCol=sk.name;
   const fsName=L.fsName||12;
-  const whoP=typeof viewWho==='function'?viewWho('p'):'p';
-  const whoO=typeof viewWho==='function'?viewWho('o'):'o';
   g.save();
   rr(g,L.topP.x,L.topP.y,L.topP.w,L.topP.h,Math.max(6,L.topP.h/2));g.clip();
-  tName(g,on?plateName(whoP):'YOU',L.nameP.x,L.nameP.y,fsName,nameCol,'left',L.nameMaxP||24);
+  tName(g,nameP,L.nameP.x,L.nameP.y,fsName,nameCol,'left',L.nameMaxP||24);
   g.restore();
   g.save();
   rr(g,L.topO.x,L.topO.y,L.topO.w,L.topO.h,Math.max(6,L.topO.h/2));g.clip();
-  tName(g,on?plateName(whoO):'Opponent',L.nameO.x,L.nameO.y,fsName,nameCol,'right',L.nameMaxO||24);
+  tName(g,nameO,L.nameO.x,L.nameO.y,fsName,nameCol,'right',L.nameMaxO||24);
   g.restore();
   for(const grid of [L.gridP,L.gridO]){
     const gx=L.gapX!=null?L.gapX:L.gap, gy=L.gapY!=null?L.gapY:L.gap;
@@ -3369,7 +3419,7 @@ function drawPassShutter(g){
   g.restore();
 }
 function render(now){
-  if(curScreen!=='match'||!M||!ctx)return;
+  if(curScreen!=='match'||!M||!ctx||!STATIC)return;
   ctx.setTransform(DPR,0,0,DPR,0,0);
   ctx.drawImage(STATIC,0,0,W,H);
   if(L.fallback)return;
@@ -3853,6 +3903,7 @@ function openModal(html){
   (items.find(el=>el.classList.contains('sel'))||items[0]||box).focus();
 }
 function closeModal(){
+  if(typeof flushPersist==='function')flushPersist();
   const modal=$('#modal');
   modal.classList.add('hidden');
   modal.classList.remove('match-modal');
@@ -3897,7 +3948,8 @@ function openOptions(){
     '<h2 id="modal-title">OPTIONS</h2>'+
     '<div class="volrow"><span id="vol-lab">VOLUME</span><input id="vol" type="range" min="0" max="100" value="'+Math.round(AUDIO.vol*100)+'" aria-labelledby="vol-lab"><button type="button" id="bt-mute" class="kbtn sm">MUTE</button></div>'+
     '<div class="mrow"><button type="button" id="bt-reset" class="kbtn danger">RESET PROGRESS</button><button type="button" id="oclose" class="kbtn sel">CLOSE</button></div>');
-  $('#vol').oninput=e=>{AUDIO.setVol(e.target.value/100);SAVE.vol=AUDIO.vol;persist();};
+  $('#vol').oninput=e=>{AUDIO.setVol(e.target.value/100);SAVE.vol=AUDIO.vol;persistSoon(200);};
+  $('#vol').onchange=()=>{SAVE.vol=AUDIO.vol;flushPersist();};
   $('#bt-mute').textContent=AUDIO.muted?'UNMUTE':'MUTE';
   $('#bt-mute').onclick=()=>{AUDIO.setMuted(!AUDIO.muted);SAVE.muted=AUDIO.muted;persist();$('#bt-mute').textContent=AUDIO.muted?'UNMUTE':'MUTE';};
   $('#bt-reset').onclick=confirmReset;
@@ -4055,13 +4107,15 @@ function syncMatchA11y(){
 let rafOn=false;
 function kickRender(){
   if(rafOn)return;
+  if(typeof requestAnimationFrame!=='function')return;
   rafOn=true;
   requestAnimationFrame(loop);
 }
 function loop(t){
   render(t);
   if(typeof syncMatchA11y==='function')syncMatchA11y();
-  if(curScreen==='match'&&M)requestAnimationFrame(loop);
+  const hidden=typeof document!=='undefined'&&document.hidden;
+  if(curScreen==='match'&&M&&!hidden&&matchBusy(t))requestAnimationFrame(loop);
   else rafOn=false;
 }
 /**
@@ -4129,13 +4183,7 @@ function registerPwa(){
   window.addEventListener('load',async()=>{
     try{
       const reg=await navigator.serviceWorker.register('./sw.js',{scope:'./',updateViaCache:'none'});
-      reg.addEventListener('updatefound',()=>{
-        const sw=reg.installing;if(!sw)return;
-        sw.addEventListener('statechange',()=>{if(sw.state==='installed'&&!navigator.serviceWorker.controller)sw.postMessage({type:'SKIP_WAITING'});});
-      });
-      try{await reg.update();}catch(_){/* ignore */}
-
-      if(reg.waiting)reg.waiting.postMessage({type:'SKIP_WAITING'});
+      if(reg.waiting&&navigator.serviceWorker.controller)reg.waiting.postMessage({type:'SKIP_WAITING'});
     }catch(err){
       console.warn('PWA register failed:',err);
     }
@@ -4157,6 +4205,7 @@ async function init(){
   gameHooks.onEnterMatch=()=>{showScreen('match');fit();kickRender();};
   gameHooks.onLeaveMatch=vs=>{
     resetDeckMode();
+    releaseMatchBuffers();
     if(vs){refreshTitle();showScreen('title');}
     else{circuitSel=circuitDefaultSel();buildCircuit();showScreen('circuit');}
     if(globalThis.flushPwaReload)globalThis.flushPwaReload();
@@ -4263,12 +4312,20 @@ async function init(){
     if((k==='e'||(k===' ' && !fromBtn))){e.preventDefault();endPlayerTurn();}
     else if((k==='s')||(k==='enter'&&!fromBtn)){e.preventDefault();playerStand();}
     else if(k==='f'){e.preventDefault();flipArmed();}
-    else if(k==='escape'){e.preventDefault();M.sel=-1;syncMatchA11y();}
+    else if(k==='escape'){e.preventDefault();M.sel=-1;syncMatchA11y();kickRender();}
   });
   window.addEventListener('resize',scheduleFit,{passive:true});
   window.addEventListener('orientationchange',scheduleFit,{passive:true});
   if(window.visualViewport)window.visualViewport.addEventListener('resize',scheduleFit,{passive:true});
-  window.addEventListener('beforeunload',e=>{if(curScreen==='match'&&M&&M.phase!=='done'){e.preventDefault();e.returnValue='';}});
+  window.addEventListener('beforeunload',e=>{
+    if(typeof flushPersist==='function')flushPersist();
+    if(curScreen==='match'&&M&&M.phase!=='done'){e.preventDefault();e.returnValue='';}
+  });
+  document.addEventListener('visibilitychange',()=>{
+    if(document.hidden){if(typeof flushPersist==='function')flushPersist();return;}
+    if(curScreen==='match'&&M)kickRender();
+  });
+  window.addEventListener('pagehide',()=>{if(typeof flushPersist==='function')flushPersist();});
   const board=document.querySelector('.match-board');
   if(board&&typeof ResizeObserver==='function')new ResizeObserver(scheduleFit).observe(board);
   if(document.fonts&&document.fonts.load){
@@ -4285,16 +4342,29 @@ async function init(){
       ]);
     }catch(_){/* use the local fallback stack */}
   }
-  renderStatic();
   refreshTitle();
   showScreen('title');
+}
+const PIXEL_BUDGET=8000000;
+function backingDpr(cssW,cssH,rawDpr){
+  const area=Math.max(1,cssW*cssH);
+  return Math.max(0.5,Math.min(2,Number(rawDpr)||1,Math.sqrt(PIXEL_BUDGET/area)));
+}
+function backingSize(cssW,cssH,rawDpr){
+  const dpr=backingDpr(cssW,cssH,rawDpr);
+  return {dpr,w:Math.max(1,Math.round(cssW*dpr)),h:Math.max(1,Math.round(cssH*dpr))};
+}
+function releaseMatchBuffers(){
+  if(cv&&(cv.width>1||cv.height>1)){cv.width=1;cv.height=1;}
+  if(typeof forgetStatic==='function')forgetStatic();
 }
 function fit(){
   const rawDpr=Number(window.devicePixelRatio)||1;
   computeLayout();
-  const budget=16000000/Math.max(1,W*H);
-  DPR=Math.max(0.5,Math.min(2,rawDpr,Math.sqrt(budget)));
-  if(cv){cv.width=Math.max(1,Math.round(W*DPR));cv.height=Math.max(1,Math.round(H*DPR));}
+  if(curScreen!=='match'||!cv){releaseMatchBuffers();return;}
+  const next=backingSize(W,H,rawDpr);
+  DPR=next.dpr;
+  if(cv.width!==next.w||cv.height!==next.h){cv.width=next.w;cv.height=next.h;}
   if(M&&ctx){renderStatic();render(performance.now());kickRender();}
   if(typeof syncMatchA11y==='function')syncMatchA11y();
 }
@@ -4345,7 +4415,7 @@ function onTablePointer(e){
   if(hit.kind==='hand'){
     if(!acting())return;
     if(M.sel===hit.i)confirmPlay(hit.i);
-    else{AUDIO.play('click');M.sel=hit.i;M.orient=1;M.varV=1;}
+    else{AUDIO.play('click');M.sel=hit.i;M.orient=1;M.varV=1;kickRender();}
   }else if(hit.kind==='end')endPlayerTurn();
   else if(hit.kind==='stand')playerStand();
   else if(hit.kind==='flip')flipArmed();
@@ -4368,9 +4438,10 @@ globalThis.PZ={shuffle,buildMainDeck,boardScore,placeMain,placeSide,applyDouble,
   newMatchForTest:(deckIds,opp,opts)=>{SAVE.lastDeck=deckIds;newMatch(opp,null,opts);},
   getM:()=>M,setSleepScale:v=>{SLEEP_SCALE=v;},chanState,fitCard,CARD_ASPECT,
   matchWager,clampReplayWager,storeStock,storeMinCircuit,addToCollection,isClutterId,CARD_PRICE,cardSellPrice,collectionCount,trimDeckToCollection,sellCard,getSave:()=>SAVE,
-  persist,normalizeSave,applyRecoveredWager,startMatch,leaveMatch,matchEnd,defaultSave,START_CREDITS,SAVE_KEY,
+  persist,persistSoon,flushPersist,normalizeSave,applyRecoveredWager,startMatch,leaveMatch,matchEnd,defaultSave,START_CREDITS,SAVE_KEY,
   blockPersist:v=>{PERSIST_BLOCK=!!v;},
-  vsTierIds,vsCollection,startVsMatch,acceptPass,viewWho,plateName,isVs,GAME_VERSION};
+  vsTierIds,vsCollection,startVsMatch,acceptPass,viewWho,plateName,isVs,GAME_VERSION,
+  matchBusy,PIXEL_BUDGET,backingSize};
 if(typeof document!=='undefined'){
   document.addEventListener('DOMContentLoaded',init);
 }
