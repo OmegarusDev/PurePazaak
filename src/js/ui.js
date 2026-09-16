@@ -226,8 +226,14 @@ function paintVsSetup(){
   const note=$('#vs-tier-note');
   if(note)note.textContent=vsTierNote(t);
 }
-function openVersus(){
-  vsSetup={tier:vsSetup.tier||1,names:vsSetup.names||['Player 1','Player 2'],decks:[null,null],who:0};
+function openVersus(opts){
+  const keep=opts&&opts.keepDecks;
+  vsSetup={
+    tier:vsSetup.tier||1,
+    names:vsSetup.names||['Player 1','Player 2'],
+    decks:keep&&vsSetup.decks?vsSetup.decks:[null,null],
+    who:keep&&vsSetup.who||0
+  };
   resetDeckMode();
   const p=$('#vs-name-p'),o=$('#vs-name-o');
   if(p)p.value=vsSetup.names[0]||'Player 1';
@@ -410,6 +416,8 @@ function refreshTitle(){
   document.querySelectorAll('.kotor-menu button').forEach(b=>b.classList.remove('sel'));
   (hasSave()?load:$('#bt-new')).classList.add('sel');
   if(typeof refreshInstallUi==='function')refreshInstallUi();
+  const ver=$('#build-mark');
+  if(ver)ver.textContent='v'+GAME_VERSION;
   refreshCredits();
 }
 function placeA11yHit(btn,rect){

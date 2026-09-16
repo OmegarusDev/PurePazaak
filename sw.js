@@ -9,6 +9,8 @@ const SHELL = [
   "./index.html",
   "./manifest.webmanifest",
   "./fonts/Orbitron-latin.woff2",
+  "./fonts/StarJedi-latin.woff2",
+  "./fonts/ScienceGothic-latin.woff2",
   "./icons/icon-192.png",
   "./icons/icon-512.png",
   "./icons/apple-touch-icon.png",

@@ -98,8 +98,9 @@ Portrait and landscape both work. The manifest uses `display: fullscreen` with
 `standalone` as fallback — that display mode applies only after install.
 
 GitHub Pages publishes only `index.html`, `manifest.webmanifest`, `sw.js`, the
-Orbitron font, and the three install icons. Development sources, scripts, and
-reference material stay out of the deployment artifact.
+bundled fonts (Orbitron, Star Jedi, Science Gothic), and the three install icons.
+Development sources, scripts, and reference material stay out of the deployment
+artifact.
 
 ```bash
 bash scripts/check.sh            # rebuild + syntax + logic tests + freshness

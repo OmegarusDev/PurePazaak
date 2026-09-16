@@ -9,42 +9,82 @@
 .kbtn.sm{width:auto;min-width:72px;padding:6px 14px;font-size:11px;letter-spacing:.1em;text-indent:.06em}
 /* Title lockup. CARD WARS is a single text node — per-letter transforms
    break background-clip on WebKit (letters vanish). */
-h1.kotor-lockup,.kotor-lockup{display:flex;flex-direction:column;align-items:center;flex:0 0 auto;width:min(100%,92vw);max-width:92vw;text-align:center;position:relative;box-sizing:border-box;padding:0 2vw;font-size:inherit;font-weight:inherit;margin:0}
-.sw-mark{display:block;width:max-content;max-width:100%;box-sizing:border-box;font-family:"Arial Black","Helvetica Neue",sans-serif;font-weight:900;font-size:clamp(26px,9.5vw,68px);line-height:1;letter-spacing:.06em;text-indent:.06em;text-align:center;white-space:nowrap;margin:0 0 .12em;user-select:none;
+h1.kotor-lockup,.kotor-lockup{display:flex;flex-direction:column;align-items:center;flex:0 0 auto;width:min(100%,92vw);max-width:92vw;text-align:center;position:relative;box-sizing:border-box;padding:.12em 2vw 0;font-size:inherit;font-weight:inherit;margin:0;overflow:visible}
+.sw-mark{display:block;width:max-content;max-width:100%;box-sizing:border-box;font-family:var(--sw);font-weight:400;font-size:clamp(28px,8.4vw,62px);line-height:1.18;letter-spacing:0;text-indent:0;text-align:center;text-transform:none;white-space:nowrap;margin:0 0 .3em;padding:.12em 0 .04em;overflow:visible;user-select:none;
   background:linear-gradient(180deg,#ffffff 0%,#f8f6f1 40%,#efe9da 75%,#e6dfcc 100%);
   -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;
   filter:drop-shadow(0 0 .5px rgba(20,18,14,.95)) drop-shadow(0 1px 0 rgba(0,0,0,.4)) drop-shadow(0 3px 4px rgba(0,0,0,.5))}
 /* Gold stack shrink-wraps to PAZAAK / OLD REPUBLIC so the OF THE bars match that width. */
-.kotor-gold{display:flex;flex-direction:column;align-items:center;width:max-content;max-width:100%;box-sizing:border-box}
-.logo-main,.logo-or{font-family:var(--serif);font-weight:400;text-transform:uppercase;line-height:.92;background:linear-gradient(180deg,#fff8d0 0%,#f2d468 28%,#c9a030 64%,#7a5a14 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;filter:drop-shadow(0 2px 0 #2a1c08) drop-shadow(0 0 16px rgba(232,195,74,.28));white-space:nowrap;max-width:100%}
-.logo-main{font-size:clamp(40px,16.5vw,120px);letter-spacing:.08em;padding-left:.08em}
-.logo-or{font-size:clamp(16px,5.6vw,46px);letter-spacing:.16em;padding-left:.16em;margin-top:.08em}
-/* OF THE: gold plaque + gold taper bars — width follows .kotor-gold. */
-.logo-mid{display:flex;align-items:center;gap:clamp(6px,1.2vw,12px);width:100%;margin:.18em auto .06em;box-sizing:border-box}
-.logo-ofthe{flex:0 0 auto;font-family:var(--serif);font-size:clamp(9px,2.4vw,15px);letter-spacing:.24em;text-indent:.24em;padding:.16em .65em .14em;color:#e8c34a;border:1px solid #c4a048;background:linear-gradient(180deg,#3a3014,#161008);text-shadow:0 1px 0 #000;white-space:nowrap;text-align:center;box-sizing:border-box}
-.logo-bar{flex:1 1 auto;min-width:0;height:clamp(6px,1.1vh,11px);background:linear-gradient(180deg,#ead080,#a07828 48%,#5a4010);box-shadow:0 1px 0 #1a1204,inset 0 1px 0 rgba(255,240,180,.35)}
-.logo-bar:first-child{clip-path:polygon(6% 0,100% 0,92% 100%,0 100%)}
-.logo-bar:last-child{clip-path:polygon(0 0,94% 0,100% 100%,8% 100%)}
-/* Menu barrel — leave as-is for now (passable). */
-.kotor-menu-shell{position:relative;width:min(340px,42vw);flex:0 0 auto;isolation:isolate}
+.kotor-gold{display:flex;flex-direction:column;align-items:stretch;width:max-content;max-width:100%;box-sizing:border-box;gap:clamp(2px,.4vh,6px)}
+.logo-gold{background:linear-gradient(180deg,#fff8d0 0%,#f2d468 28%,#c9a030 64%,#7a5a14 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
+.logo-main,.logo-or{font-family:var(--serif);font-weight:400;text-transform:uppercase;line-height:1;white-space:nowrap;max-width:100%;overflow:visible;filter:drop-shadow(0 2px 0 #2a1c08) drop-shadow(0 0 16px rgba(232,195,74,.28))}
+.logo-or{font-size:clamp(16px,5.6vw,46px);letter-spacing:0;margin:0;width:100%;box-sizing:border-box;display:flex;justify-content:space-between;align-items:baseline;padding:0}
+.logo-or > span{background:linear-gradient(180deg,#fff8d0 0%,#f2d468 28%,#c9a030 64%,#7a5a14 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
+.logo-or > i{display:block;width:.35em;flex:0 0 .35em}
+.logo-pazaak{position:relative;width:100%}
+.logo-main{display:flex;align-items:flex-start;justify-content:center;font-size:clamp(40px,16.5vw,120px);letter-spacing:0;padding:0;background:none;-webkit-text-fill-color:unset}
+.logo-pk,.logo-core{background:linear-gradient(180deg,#fff8d0 0%,#f2d468 28%,#c9a030 64%,#7a5a14 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
+.logo-pk{font-size:1em;line-height:1;display:inline-block;transform:scale(1.38);transform-origin:top center;margin:0 -.02em;padding-top:.04em}
+.logo-core{font-size:1em;letter-spacing:.06em;line-height:1;padding:.08em .02em .28em}
+.logo-mid{position:absolute;left:7%;right:7%;bottom:.04em;z-index:2;display:flex;align-items:flex-end;gap:clamp(4px,.8vw,8px);width:auto;margin:0;box-sizing:border-box;pointer-events:none}
+.logo-ofthe{flex:0 0 auto;font-family:var(--serif);font-size:clamp(12px,3.1vw,20px);letter-spacing:.2em;text-indent:.2em;padding:.12em .55em .02em;color:#e8c34a;border:0;background:linear-gradient(180deg,#5a4818,#2a1e08 70%,#1a1406);text-shadow:0 1px 0 #000;white-space:nowrap;text-align:center;box-sizing:border-box;line-height:1;clip-path:polygon(8% 0,92% 0,100% 100%,0 100%)}
+.logo-bar{flex:1 1 auto;min-width:0;height:3px;background:linear-gradient(180deg,#ead080,#a07828 48%,#5a4010);box-shadow:0 1px 0 #1a1204,inset 0 1px 0 rgba(255,240,180,.35);align-self:flex-end}
+.logo-bar:first-child{clip-path:polygon(10% 0,100% 0,92% 100%,0 100%)}
+.logo-bar:last-child{clip-path:polygon(0 0,90% 0,100% 100%,8% 100%)}
+/* Barrel well + filled cyan C-brackets. */
+.kotor-menu-shell{position:relative;width:min(520px,56vw,calc(42vh * 500 / 296));aspect-ratio:500/296;height:auto;flex:0 0 auto;isolation:isolate}
 .kotor-menu-svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible;z-index:0}
-.km-fill{fill:#071018;fill-opacity:.92}
-.km-sec{fill:#123a58;fill-opacity:.55;stroke:none}
-.km-rail{fill:none;stroke:#7ec8e8;stroke-width:2.15;stroke-linecap:round;filter:drop-shadow(0 0 2.5px rgba(90,190,230,.55))}
-.km-rail-in{fill:none;stroke:#2a6a88;stroke-width:1.05;stroke-linecap:round;opacity:.75}
-.km-div{fill:none;stroke:#000;stroke-width:1.1;opacity:.82}
-.kotor-menu{position:relative;z-index:1;display:flex;flex-direction:column;padding:4% 12% 4%}
-.kotor-menu button{appearance:none;-webkit-appearance:none;display:flex;align-items:center;justify-content:center;width:100%;margin:0;padding:clamp(8px,1.55vh,13px) 4px;background:transparent;border:0;border-bottom:0;color:#5eb4dc;font-family:var(--gui);font-size:clamp(12px,1.85vh,15px);font-weight:700;letter-spacing:.18em;word-spacing:.28em;text-indent:.09em;text-transform:uppercase;text-align:center;cursor:pointer;text-shadow:0 0 7px rgba(60,170,230,.3)}
+.kotor-menu-svg.km-port{display:none}
+.km-fill{fill:#033152;fill-opacity:.98}
+.km-c{fill:#4aa3c2}
+.km-channel{fill:#000316}
+.km-port .km-fill{fill:url(#menuFillPort);fill-opacity:1;filter:saturate(1.35)}
+.km-port .km-c{fill:#004052;filter:saturate(1.55)}
+.kotor-menu{position:relative;z-index:1;display:flex;flex-direction:column;height:100%;padding:2.2% 17.5% 2.2%;gap:0;background:transparent;overflow:hidden;clip-path:url(#barrelClip)}
+.kotor-menu button{appearance:none;-webkit-appearance:none;display:flex;align-items:center;justify-content:center;width:100%;margin:0;min-height:0;flex:1 1 0;padding:0 .12em 0 .26em;background:transparent;border:0;border-bottom:2px solid #000;border-radius:0;color:#6ec8e8;font-family:var(--menu);font-size:clamp(13px,1.85vh,17px);font-weight:400;font-synthesis:none;letter-spacing:.08em;word-spacing:.04em;text-indent:0;text-transform:none;font-variant-caps:small-caps;-webkit-font-feature-settings:"smcp" 1;font-feature-settings:"smcp" 1;text-align:center;cursor:pointer;touch-action:manipulation;text-shadow:0 0 8px rgba(60,170,230,.35);white-space:nowrap}
 .kotor-menu button:last-child{border-bottom:0}
-.kotor-menu button:hover,.kotor-menu button:focus-visible,.kotor-menu button.sel{color:#cce666;text-shadow:0 0 8px rgba(200,220,70,.5);outline:none}
-.kotor-menu:hover button.sel:not(:hover){color:#5eb4dc;text-shadow:0 0 7px rgba(60,170,230,.3)}
-.kotor-menu button:disabled{opacity:.34;cursor:default;color:#5eb4dc;text-shadow:none}
+.kotor-menu button:hover,.kotor-menu button:focus-visible,.kotor-menu button.sel{color:#cce666;text-shadow:0 0 8px rgba(200,220,70,.5);outline:none;background:rgba(0,40,70,.35)}
+.kotor-menu:hover button.sel:not(:hover){color:#6ec8e8;text-shadow:0 0 8px rgba(60,170,230,.35);background:transparent}
+.kotor-menu button:disabled{opacity:.34;cursor:default;color:#6ec8e8;text-shadow:none}
 .kotor-menu button[hidden]{display:none}
-/* Soft title haze on the full screen so it never hard-crops above the lockup. */
-#scr-title{flex-direction:column;align-items:center;justify-content:center;gap:clamp(18px,4.2vh,44px);padding:calc(clamp(16px,4vh,48px) + env(safe-area-inset-top)) clamp(12px,4vw,64px) calc(clamp(16px,4vh,36px) + env(safe-area-inset-bottom));overflow-x:hidden}
+/* K1 title cavity: metal visor overlay, floor smoke, navy well. */
+#scr-title{flex-direction:column;align-items:center;justify-content:flex-start;gap:0;padding:env(safe-area-inset-top) clamp(12px,4vw,64px) calc(clamp(20px,4vh,36px) + env(safe-area-inset-bottom));overflow:hidden;overflow-y:hidden;background:#02040c}
 #scr-title.active{display:flex}
-#scr-title::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse 90% 55% at 50% 26%,rgba(48,90,160,.3),rgba(20,40,80,.1) 42%,transparent 72%);pointer-events:none;z-index:0}
+#scr-title::before{content:"";position:absolute;inset:0;background:
+  radial-gradient(ellipse 80% 42% at 50% 22%,rgba(70,95,140,.28),transparent 68%),
+  radial-gradient(ellipse 55% 28% at 50% 36%,rgba(18,36,80,.35),transparent 70%);
+  pointer-events:none;z-index:0}
 #scr-title > *{position:relative;z-index:1}
+#scr-title > .title-hood-bot{position:absolute;left:0;right:0;bottom:0;top:auto;height:13%;z-index:0;pointer-events:none;overflow:hidden;filter:none;opacity:.45}
+#scr-title > .title-hood-top{position:absolute;top:0;left:0;right:0;bottom:auto;height:21vh;z-index:3;pointer-events:none;overflow:hidden;filter:drop-shadow(0 16px 16px rgba(0,0,0,.7))}
+#scr-title > .title-hood-frame{display:none;position:absolute;inset:0;z-index:3;pointer-events:none;overflow:hidden}
+#scr-title > .title-smoke{position:absolute;inset:auto 0 0 0;height:48%;z-index:1;pointer-events:none;overflow:hidden}
+.title-stage{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:2.8vh;width:100%;z-index:2;flex:1 1 auto;min-height:0;padding-top:18.5vh;overflow:visible}
+#scr-title .sw-mark{font-size:clamp(24px,6.2vh,48px);margin-bottom:.22em}
+#scr-title .logo-main{font-size:clamp(34px,12.2vh,92px)}
+#scr-title .logo-or{width:100%;font-size:clamp(17px,4.8vh,38px);letter-spacing:0;padding:0}
+.title-hood-svg{display:block;width:100%;height:100%;margin:0}
+.title-hood-top::after{content:"";position:absolute;inset:0;pointer-events:none;background:
+  repeating-linear-gradient(180deg,rgba(255,255,255,.06) 0 1px,transparent 1px 2px),
+  repeating-linear-gradient(95deg,transparent 0 18px,rgba(255,255,255,.04) 18px 19px,transparent 19px 31px);
+  mix-blend-mode:overlay;opacity:.42;mask-image:linear-gradient(180deg,#000 0 62%,transparent 100%);-webkit-mask-image:linear-gradient(180deg,#000 0 62%,transparent 100%)}
+.title-hood-bot::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(0,0,0,.55),rgba(8,8,12,.15) 40%,transparent);mix-blend-mode:multiply;opacity:.9}
+.title-hood-frame::after{content:"";position:absolute;inset:0;pointer-events:none;background:
+  repeating-linear-gradient(180deg,rgba(255,255,255,.045) 0 1px,transparent 1px 3px);
+  mix-blend-mode:overlay;opacity:.2;mask-image:linear-gradient(180deg,#000 0 16%,transparent 24%,transparent 82%,#000 90%);-webkit-mask-image:linear-gradient(180deg,#000 0 16%,transparent 24%,transparent 82%,#000 90%)}
+.title-smoke .sm{position:absolute;border-radius:50%;pointer-events:none;will-change:transform,opacity}
+.title-smoke::after{content:"";position:absolute;inset:auto -10% -18% -10%;height:58%;background:linear-gradient(180deg,transparent,rgba(70,70,76,.28) 40%,rgba(20,20,24,.55));filter:blur(22px);pointer-events:none}
+.sm-a{left:-18%;bottom:-48%;width:90%;height:120%;background:radial-gradient(ellipse at 50% 72%,rgba(160,160,166,.32),rgba(80,80,86,.1) 46%,transparent 72%);filter:blur(46px);animation:titleSmokeA 22s ease-in-out infinite}
+.sm-b{right:-22%;bottom:-44%;width:78%;height:110%;background:radial-gradient(ellipse at 45% 78%,rgba(150,150,156,.26),rgba(70,70,76,.1) 48%,transparent 72%);filter:blur(52px);animation:titleSmokeB 28s ease-in-out infinite}
+.sm-c{left:-8%;bottom:-58%;width:116%;height:88%;background:radial-gradient(ellipse at 50% 92%,rgba(120,120,126,.4),transparent 68%);filter:blur(40px);opacity:.7;animation:titleSmokeC 19s ease-in-out infinite}
+.sm-d{left:18%;bottom:-28%;width:58%;height:70%;background:radial-gradient(ellipse at 50% 60%,rgba(180,180,186,.14),transparent 70%);filter:blur(56px);opacity:.45;animation:titleSmokeA 26s ease-in-out infinite reverse}
+@keyframes titleSmokeA{0%,100%{transform:translate(0,4%) scale(1)}50%{transform:translate(5%,-7%) scale(1.08)}}
+@keyframes titleSmokeB{0%,100%{transform:translate(0,0) scale(1.04)}50%{transform:translate(-6%,-5%) scale(1.12)}}
+@keyframes titleSmokeC{0%,100%{transform:translate(0,2%) scaleX(1)}50%{transform:translate(3%,-4%) scaleX(1.06)}}
+@media (prefers-reduced-motion:reduce){
+  .title-smoke .sm{animation:none}
+}
+#scr-title > .build-mark{position:absolute;left:0;right:0;bottom:calc(18px + env(safe-area-inset-bottom));margin:0;text-align:center;font-family:var(--gui);font-size:clamp(9px,1.15vh,11px);font-weight:700;letter-spacing:.22em;text-indent:.11em;color:#7894aa;opacity:.56;pointer-events:none;user-select:none;z-index:5}
 /* In-game GUI panel: rounded teal-cyan rim, plain charcoal fill (modals use wager style) */
 .gui,.panel{
   background:var(--gui-fill);

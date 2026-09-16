@@ -22,6 +22,8 @@ const PZ = globalThis.PZ;
 let fail = 0;
 const t = (name, cond) => { console.log((cond ? 'PASS' : 'FAIL') + ' ' + name); if (!cond) fail++; };
 
+t('game-version', PZ.GAME_VERSION === '0.9.1');
+
 t('main-deck-40', PZ.buildMainDeck().length === 40);
 t('boardScore', PZ.boardScore([{ eff: 10 }, { eff: -3 }, null]) === 7);
 

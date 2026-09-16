@@ -5,6 +5,20 @@
   font-display:swap;
   src:url("fonts/Orbitron-latin.woff2") format("woff2");
 }
+@font-face{
+  font-family:"Star Jedi";
+  font-style:normal;
+  font-weight:400;
+  font-display:swap;
+  src:url("fonts/StarJedi-latin.woff2") format("woff2");
+}
+@font-face{
+  font-family:"Science Gothic";
+  font-style:normal;
+  font-weight:400;
+  font-display:swap;
+  src:url("fonts/ScienceGothic-latin.woff2") format("woff2");
+}
 :root{
   /* KOTOR 1 engine GUI — KotOR.js / PyKotor defaults:
      text/rails RGB(0, 0.658824, 0.980392), highlight RGB(1,1,0).
@@ -40,11 +54,13 @@
   /* legacy names (kept for compat) */
   --amber:#e8c34a;
   --red:#e05555;
-  /* Odyssey GUI ≈ Bank Gothic. ITC Blair (BlairMdITC TT) is a close wide grotesque
-     but is not registered for apps on this Mac — DIN Alternate remains the public stand-in.
+  /* Odyssey GUI ≈ Bank Gothic / Deluxe Gothic SC. Those faces cannot be redistributed.
+     Science Gothic (SIL OFL) is the bundled Bank Gothic analog, with real smcp.
      Dialogue / roster names ≈ Arial with extra tracking. Cards keep bundled Orbitron. */
+  --sw:"Star Jedi","Arial Black","Helvetica Neue",sans-serif;
   --serif:"Trajan Pro",Trajan,Cinzel,"Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
   --gui:"Bank Gothic","BankGothic Md BT","Bank Gothic Medium","BlairMdITC TT","ITC Blair","Blair Medium","DIN Alternate","Eurostile","Microgramma","Century Gothic",sans-serif;
+  --menu:"Science Gothic","Bank Gothic","BankGothic Md BT","DIN Alternate","Eurostile",sans-serif;
   --dialog:Arial,Helvetica,"Helvetica Neue",sans-serif;
   --card:"Orbitron","DIN Alternate","Bank Gothic","Eurostile",sans-serif;
   --sans:var(--gui);

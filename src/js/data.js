@@ -1,3 +1,4 @@
+const GAME_VERSION='0.9.1';
 const STARTER_COLLECTION={'+1':2,'+2':2,'+3':2,'-1':2,'-2':2,'-3':2};
 const START_CREDITS=400;
 const STORE_CAP=4;

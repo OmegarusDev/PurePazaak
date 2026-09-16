@@ -23,6 +23,20 @@
   font-display:swap;
   src:url("fonts/Orbitron-latin.woff2") format("woff2");
 }
+@font-face{
+  font-family:"Star Jedi";
+  font-style:normal;
+  font-weight:400;
+  font-display:swap;
+  src:url("fonts/StarJedi-latin.woff2") format("woff2");
+}
+@font-face{
+  font-family:"Science Gothic";
+  font-style:normal;
+  font-weight:400;
+  font-display:swap;
+  src:url("fonts/ScienceGothic-latin.woff2") format("woff2");
+}
 :root{
   /* KOTOR 1 engine GUI — KotOR.js / PyKotor defaults:
      text/rails RGB(0, 0.658824, 0.980392), highlight RGB(1,1,0).
@@ -58,11 +72,13 @@
   /* legacy names (kept for compat) */
   --amber:#e8c34a;
   --red:#e05555;
-  /* Odyssey GUI ≈ Bank Gothic. ITC Blair (BlairMdITC TT) is a close wide grotesque
-     but is not registered for apps on this Mac — DIN Alternate remains the public stand-in.
+  /* Odyssey GUI ≈ Bank Gothic / Deluxe Gothic SC. Those faces cannot be redistributed.
+     Science Gothic (SIL OFL) is the bundled Bank Gothic analog, with real smcp.
      Dialogue / roster names ≈ Arial with extra tracking. Cards keep bundled Orbitron. */
+  --sw:"Star Jedi","Arial Black","Helvetica Neue",sans-serif;
   --serif:"Trajan Pro",Trajan,Cinzel,"Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
   --gui:"Bank Gothic","BankGothic Md BT","Bank Gothic Medium","BlairMdITC TT","ITC Blair","Blair Medium","DIN Alternate","Eurostile","Microgramma","Century Gothic",sans-serif;
+  --menu:"Science Gothic","Bank Gothic","BankGothic Md BT","DIN Alternate","Eurostile",sans-serif;
   --dialog:Arial,Helvetica,"Helvetica Neue",sans-serif;
   --card:"Orbitron","DIN Alternate","Bank Gothic","Eurostile",sans-serif;
   --sans:var(--gui);
@@ -114,42 +130,82 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
 .kbtn.sm{width:auto;min-width:72px;padding:6px 14px;font-size:11px;letter-spacing:.1em;text-indent:.06em}
 /* Title lockup. CARD WARS is a single text node — per-letter transforms
    break background-clip on WebKit (letters vanish). */
-h1.kotor-lockup,.kotor-lockup{display:flex;flex-direction:column;align-items:center;flex:0 0 auto;width:min(100%,92vw);max-width:92vw;text-align:center;position:relative;box-sizing:border-box;padding:0 2vw;font-size:inherit;font-weight:inherit;margin:0}
-.sw-mark{display:block;width:max-content;max-width:100%;box-sizing:border-box;font-family:"Arial Black","Helvetica Neue",sans-serif;font-weight:900;font-size:clamp(26px,9.5vw,68px);line-height:1;letter-spacing:.06em;text-indent:.06em;text-align:center;white-space:nowrap;margin:0 0 .12em;user-select:none;
+h1.kotor-lockup,.kotor-lockup{display:flex;flex-direction:column;align-items:center;flex:0 0 auto;width:min(100%,92vw);max-width:92vw;text-align:center;position:relative;box-sizing:border-box;padding:.12em 2vw 0;font-size:inherit;font-weight:inherit;margin:0;overflow:visible}
+.sw-mark{display:block;width:max-content;max-width:100%;box-sizing:border-box;font-family:var(--sw);font-weight:400;font-size:clamp(28px,8.4vw,62px);line-height:1.18;letter-spacing:0;text-indent:0;text-align:center;text-transform:none;white-space:nowrap;margin:0 0 .3em;padding:.12em 0 .04em;overflow:visible;user-select:none;
   background:linear-gradient(180deg,#ffffff 0%,#f8f6f1 40%,#efe9da 75%,#e6dfcc 100%);
   -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;
   filter:drop-shadow(0 0 .5px rgba(20,18,14,.95)) drop-shadow(0 1px 0 rgba(0,0,0,.4)) drop-shadow(0 3px 4px rgba(0,0,0,.5))}
 /* Gold stack shrink-wraps to PAZAAK / OLD REPUBLIC so the OF THE bars match that width. */
-.kotor-gold{display:flex;flex-direction:column;align-items:center;width:max-content;max-width:100%;box-sizing:border-box}
-.logo-main,.logo-or{font-family:var(--serif);font-weight:400;text-transform:uppercase;line-height:.92;background:linear-gradient(180deg,#fff8d0 0%,#f2d468 28%,#c9a030 64%,#7a5a14 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;filter:drop-shadow(0 2px 0 #2a1c08) drop-shadow(0 0 16px rgba(232,195,74,.28));white-space:nowrap;max-width:100%}
-.logo-main{font-size:clamp(40px,16.5vw,120px);letter-spacing:.08em;padding-left:.08em}
-.logo-or{font-size:clamp(16px,5.6vw,46px);letter-spacing:.16em;padding-left:.16em;margin-top:.08em}
-/* OF THE: gold plaque + gold taper bars — width follows .kotor-gold. */
-.logo-mid{display:flex;align-items:center;gap:clamp(6px,1.2vw,12px);width:100%;margin:.18em auto .06em;box-sizing:border-box}
-.logo-ofthe{flex:0 0 auto;font-family:var(--serif);font-size:clamp(9px,2.4vw,15px);letter-spacing:.24em;text-indent:.24em;padding:.16em .65em .14em;color:#e8c34a;border:1px solid #c4a048;background:linear-gradient(180deg,#3a3014,#161008);text-shadow:0 1px 0 #000;white-space:nowrap;text-align:center;box-sizing:border-box}
-.logo-bar{flex:1 1 auto;min-width:0;height:clamp(6px,1.1vh,11px);background:linear-gradient(180deg,#ead080,#a07828 48%,#5a4010);box-shadow:0 1px 0 #1a1204,inset 0 1px 0 rgba(255,240,180,.35)}
-.logo-bar:first-child{clip-path:polygon(6% 0,100% 0,92% 100%,0 100%)}
-.logo-bar:last-child{clip-path:polygon(0 0,94% 0,100% 100%,8% 100%)}
-/* Menu barrel — leave as-is for now (passable). */
-.kotor-menu-shell{position:relative;width:min(340px,42vw);flex:0 0 auto;isolation:isolate}
+.kotor-gold{display:flex;flex-direction:column;align-items:stretch;width:max-content;max-width:100%;box-sizing:border-box;gap:clamp(2px,.4vh,6px)}
+.logo-gold{background:linear-gradient(180deg,#fff8d0 0%,#f2d468 28%,#c9a030 64%,#7a5a14 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
+.logo-main,.logo-or{font-family:var(--serif);font-weight:400;text-transform:uppercase;line-height:1;white-space:nowrap;max-width:100%;overflow:visible;filter:drop-shadow(0 2px 0 #2a1c08) drop-shadow(0 0 16px rgba(232,195,74,.28))}
+.logo-or{font-size:clamp(16px,5.6vw,46px);letter-spacing:0;margin:0;width:100%;box-sizing:border-box;display:flex;justify-content:space-between;align-items:baseline;padding:0}
+.logo-or > span{background:linear-gradient(180deg,#fff8d0 0%,#f2d468 28%,#c9a030 64%,#7a5a14 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
+.logo-or > i{display:block;width:.35em;flex:0 0 .35em}
+.logo-pazaak{position:relative;width:100%}
+.logo-main{display:flex;align-items:flex-start;justify-content:center;font-size:clamp(40px,16.5vw,120px);letter-spacing:0;padding:0;background:none;-webkit-text-fill-color:unset}
+.logo-pk,.logo-core{background:linear-gradient(180deg,#fff8d0 0%,#f2d468 28%,#c9a030 64%,#7a5a14 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
+.logo-pk{font-size:1em;line-height:1;display:inline-block;transform:scale(1.38);transform-origin:top center;margin:0 -.02em;padding-top:.04em}
+.logo-core{font-size:1em;letter-spacing:.06em;line-height:1;padding:.08em .02em .28em}
+.logo-mid{position:absolute;left:7%;right:7%;bottom:.04em;z-index:2;display:flex;align-items:flex-end;gap:clamp(4px,.8vw,8px);width:auto;margin:0;box-sizing:border-box;pointer-events:none}
+.logo-ofthe{flex:0 0 auto;font-family:var(--serif);font-size:clamp(12px,3.1vw,20px);letter-spacing:.2em;text-indent:.2em;padding:.12em .55em .02em;color:#e8c34a;border:0;background:linear-gradient(180deg,#5a4818,#2a1e08 70%,#1a1406);text-shadow:0 1px 0 #000;white-space:nowrap;text-align:center;box-sizing:border-box;line-height:1;clip-path:polygon(8% 0,92% 0,100% 100%,0 100%)}
+.logo-bar{flex:1 1 auto;min-width:0;height:3px;background:linear-gradient(180deg,#ead080,#a07828 48%,#5a4010);box-shadow:0 1px 0 #1a1204,inset 0 1px 0 rgba(255,240,180,.35);align-self:flex-end}
+.logo-bar:first-child{clip-path:polygon(10% 0,100% 0,92% 100%,0 100%)}
+.logo-bar:last-child{clip-path:polygon(0 0,90% 0,100% 100%,8% 100%)}
+/* Barrel well + filled cyan C-brackets. */
+.kotor-menu-shell{position:relative;width:min(520px,56vw,calc(42vh * 500 / 296));aspect-ratio:500/296;height:auto;flex:0 0 auto;isolation:isolate}
 .kotor-menu-svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible;z-index:0}
-.km-fill{fill:#071018;fill-opacity:.92}
-.km-sec{fill:#123a58;fill-opacity:.55;stroke:none}
-.km-rail{fill:none;stroke:#7ec8e8;stroke-width:2.15;stroke-linecap:round;filter:drop-shadow(0 0 2.5px rgba(90,190,230,.55))}
-.km-rail-in{fill:none;stroke:#2a6a88;stroke-width:1.05;stroke-linecap:round;opacity:.75}
-.km-div{fill:none;stroke:#000;stroke-width:1.1;opacity:.82}
-.kotor-menu{position:relative;z-index:1;display:flex;flex-direction:column;padding:4% 12% 4%}
-.kotor-menu button{appearance:none;-webkit-appearance:none;display:flex;align-items:center;justify-content:center;width:100%;margin:0;padding:clamp(8px,1.55vh,13px) 4px;background:transparent;border:0;border-bottom:0;color:#5eb4dc;font-family:var(--gui);font-size:clamp(12px,1.85vh,15px);font-weight:700;letter-spacing:.18em;word-spacing:.28em;text-indent:.09em;text-transform:uppercase;text-align:center;cursor:pointer;text-shadow:0 0 7px rgba(60,170,230,.3)}
+.kotor-menu-svg.km-port{display:none}
+.km-fill{fill:#033152;fill-opacity:.98}
+.km-c{fill:#4aa3c2}
+.km-channel{fill:#000316}
+.km-port .km-fill{fill:url(#menuFillPort);fill-opacity:1;filter:saturate(1.35)}
+.km-port .km-c{fill:#004052;filter:saturate(1.55)}
+.kotor-menu{position:relative;z-index:1;display:flex;flex-direction:column;height:100%;padding:2.2% 17.5% 2.2%;gap:0;background:transparent;overflow:hidden;clip-path:url(#barrelClip)}
+.kotor-menu button{appearance:none;-webkit-appearance:none;display:flex;align-items:center;justify-content:center;width:100%;margin:0;min-height:0;flex:1 1 0;padding:0 .12em 0 .26em;background:transparent;border:0;border-bottom:2px solid #000;border-radius:0;color:#6ec8e8;font-family:var(--menu);font-size:clamp(13px,1.85vh,17px);font-weight:400;font-synthesis:none;letter-spacing:.08em;word-spacing:.04em;text-indent:0;text-transform:none;font-variant-caps:small-caps;-webkit-font-feature-settings:"smcp" 1;font-feature-settings:"smcp" 1;text-align:center;cursor:pointer;touch-action:manipulation;text-shadow:0 0 8px rgba(60,170,230,.35);white-space:nowrap}
 .kotor-menu button:last-child{border-bottom:0}
-.kotor-menu button:hover,.kotor-menu button:focus-visible,.kotor-menu button.sel{color:#cce666;text-shadow:0 0 8px rgba(200,220,70,.5);outline:none}
-.kotor-menu:hover button.sel:not(:hover){color:#5eb4dc;text-shadow:0 0 7px rgba(60,170,230,.3)}
-.kotor-menu button:disabled{opacity:.34;cursor:default;color:#5eb4dc;text-shadow:none}
+.kotor-menu button:hover,.kotor-menu button:focus-visible,.kotor-menu button.sel{color:#cce666;text-shadow:0 0 8px rgba(200,220,70,.5);outline:none;background:rgba(0,40,70,.35)}
+.kotor-menu:hover button.sel:not(:hover){color:#6ec8e8;text-shadow:0 0 8px rgba(60,170,230,.35);background:transparent}
+.kotor-menu button:disabled{opacity:.34;cursor:default;color:#6ec8e8;text-shadow:none}
 .kotor-menu button[hidden]{display:none}
-/* Soft title haze on the full screen so it never hard-crops above the lockup. */
-#scr-title{flex-direction:column;align-items:center;justify-content:center;gap:clamp(18px,4.2vh,44px);padding:calc(clamp(16px,4vh,48px) + env(safe-area-inset-top)) clamp(12px,4vw,64px) calc(clamp(16px,4vh,36px) + env(safe-area-inset-bottom));overflow-x:hidden}
+/* K1 title cavity: metal visor overlay, floor smoke, navy well. */
+#scr-title{flex-direction:column;align-items:center;justify-content:flex-start;gap:0;padding:env(safe-area-inset-top) clamp(12px,4vw,64px) calc(clamp(20px,4vh,36px) + env(safe-area-inset-bottom));overflow:hidden;overflow-y:hidden;background:#02040c}
 #scr-title.active{display:flex}
-#scr-title::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse 90% 55% at 50% 26%,rgba(48,90,160,.3),rgba(20,40,80,.1) 42%,transparent 72%);pointer-events:none;z-index:0}
+#scr-title::before{content:"";position:absolute;inset:0;background:
+  radial-gradient(ellipse 80% 42% at 50% 22%,rgba(70,95,140,.28),transparent 68%),
+  radial-gradient(ellipse 55% 28% at 50% 36%,rgba(18,36,80,.35),transparent 70%);
+  pointer-events:none;z-index:0}
 #scr-title > *{position:relative;z-index:1}
+#scr-title > .title-hood-bot{position:absolute;left:0;right:0;bottom:0;top:auto;height:13%;z-index:0;pointer-events:none;overflow:hidden;filter:none;opacity:.45}
+#scr-title > .title-hood-top{position:absolute;top:0;left:0;right:0;bottom:auto;height:21vh;z-index:3;pointer-events:none;overflow:hidden;filter:drop-shadow(0 16px 16px rgba(0,0,0,.7))}
+#scr-title > .title-hood-frame{display:none;position:absolute;inset:0;z-index:3;pointer-events:none;overflow:hidden}
+#scr-title > .title-smoke{position:absolute;inset:auto 0 0 0;height:48%;z-index:1;pointer-events:none;overflow:hidden}
+.title-stage{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:2.8vh;width:100%;z-index:2;flex:1 1 auto;min-height:0;padding-top:18.5vh;overflow:visible}
+#scr-title .sw-mark{font-size:clamp(24px,6.2vh,48px);margin-bottom:.22em}
+#scr-title .logo-main{font-size:clamp(34px,12.2vh,92px)}
+#scr-title .logo-or{width:100%;font-size:clamp(17px,4.8vh,38px);letter-spacing:0;padding:0}
+.title-hood-svg{display:block;width:100%;height:100%;margin:0}
+.title-hood-top::after{content:"";position:absolute;inset:0;pointer-events:none;background:
+  repeating-linear-gradient(180deg,rgba(255,255,255,.06) 0 1px,transparent 1px 2px),
+  repeating-linear-gradient(95deg,transparent 0 18px,rgba(255,255,255,.04) 18px 19px,transparent 19px 31px);
+  mix-blend-mode:overlay;opacity:.42;mask-image:linear-gradient(180deg,#000 0 62%,transparent 100%);-webkit-mask-image:linear-gradient(180deg,#000 0 62%,transparent 100%)}
+.title-hood-bot::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(0,0,0,.55),rgba(8,8,12,.15) 40%,transparent);mix-blend-mode:multiply;opacity:.9}
+.title-hood-frame::after{content:"";position:absolute;inset:0;pointer-events:none;background:
+  repeating-linear-gradient(180deg,rgba(255,255,255,.045) 0 1px,transparent 1px 3px);
+  mix-blend-mode:overlay;opacity:.2;mask-image:linear-gradient(180deg,#000 0 16%,transparent 24%,transparent 82%,#000 90%);-webkit-mask-image:linear-gradient(180deg,#000 0 16%,transparent 24%,transparent 82%,#000 90%)}
+.title-smoke .sm{position:absolute;border-radius:50%;pointer-events:none;will-change:transform,opacity}
+.title-smoke::after{content:"";position:absolute;inset:auto -10% -18% -10%;height:58%;background:linear-gradient(180deg,transparent,rgba(70,70,76,.28) 40%,rgba(20,20,24,.55));filter:blur(22px);pointer-events:none}
+.sm-a{left:-18%;bottom:-48%;width:90%;height:120%;background:radial-gradient(ellipse at 50% 72%,rgba(160,160,166,.32),rgba(80,80,86,.1) 46%,transparent 72%);filter:blur(46px);animation:titleSmokeA 22s ease-in-out infinite}
+.sm-b{right:-22%;bottom:-44%;width:78%;height:110%;background:radial-gradient(ellipse at 45% 78%,rgba(150,150,156,.26),rgba(70,70,76,.1) 48%,transparent 72%);filter:blur(52px);animation:titleSmokeB 28s ease-in-out infinite}
+.sm-c{left:-8%;bottom:-58%;width:116%;height:88%;background:radial-gradient(ellipse at 50% 92%,rgba(120,120,126,.4),transparent 68%);filter:blur(40px);opacity:.7;animation:titleSmokeC 19s ease-in-out infinite}
+.sm-d{left:18%;bottom:-28%;width:58%;height:70%;background:radial-gradient(ellipse at 50% 60%,rgba(180,180,186,.14),transparent 70%);filter:blur(56px);opacity:.45;animation:titleSmokeA 26s ease-in-out infinite reverse}
+@keyframes titleSmokeA{0%,100%{transform:translate(0,4%) scale(1)}50%{transform:translate(5%,-7%) scale(1.08)}}
+@keyframes titleSmokeB{0%,100%{transform:translate(0,0) scale(1.04)}50%{transform:translate(-6%,-5%) scale(1.12)}}
+@keyframes titleSmokeC{0%,100%{transform:translate(0,2%) scaleX(1)}50%{transform:translate(3%,-4%) scaleX(1.06)}}
+@media (prefers-reduced-motion:reduce){
+  .title-smoke .sm{animation:none}
+}
+#scr-title > .build-mark{position:absolute;left:0;right:0;bottom:calc(18px + env(safe-area-inset-bottom));margin:0;text-align:center;font-family:var(--gui);font-size:clamp(9px,1.15vh,11px);font-weight:700;letter-spacing:.22em;text-indent:.11em;color:#7894aa;opacity:.56;pointer-events:none;user-select:none;z-index:5}
 /* In-game GUI panel: rounded teal-cyan rim, plain charcoal fill (modals use wager style) */
 .gui,.panel{
   background:var(--gui-fill);
@@ -861,12 +917,30 @@ button.mcard:hover,button.mcard:focus-visible{border-color:var(--select);box-sha
 .a11y-hit:disabled{cursor:default;pointer-events:none}
 /* Portrait: steel consoles fill width; deck body stacks. Title barrel untouched. */
 @media (orientation:portrait){
-  #scr-title{padding:calc(clamp(20px,5vh,40px) + env(safe-area-inset-top)) clamp(10px,4vw,28px) calc(clamp(16px,3.5vh,28px) + env(safe-area-inset-bottom));gap:clamp(14px,3vh,28px)}
-  .kotor-lockup{width:min(100%,94vw);max-width:94vw;padding:0}
-  .sw-mark{font-size:clamp(24px,9vw,46px);letter-spacing:.05em;text-indent:.05em}
-  .logo-main{font-size:clamp(36px,15vw,78px);letter-spacing:.06em;padding-left:.06em}
-  .logo-or{font-size:clamp(14px,5.2vw,30px);letter-spacing:.14em;padding-left:.14em}
-  .kotor-menu-shell{width:min(360px,88vw)}
+  #scr-title{padding:0;overflow:hidden;background:#000316}
+  #scr-title::before{opacity:0}
+  #scr-title > .title-hood-top,#scr-title > .title-hood-bot{display:none}
+  #scr-title > .title-hood-frame{display:block}
+  #scr-title > .title-hood-frame::after{display:none}
+  #scr-title > .title-smoke{display:block;height:34%;opacity:.5;z-index:4}
+  #scr-title .title-smoke .sm-a{bottom:-18%}
+  #scr-title .title-smoke .sm-b{bottom:-18%}
+  #scr-title .title-smoke .sm-c{bottom:-4%}
+  #scr-title .title-smoke .sm-d{bottom:0}
+  .title-stage{gap:3.45vh;padding:13vh 3vw 11vh;justify-content:flex-start;container-type:inline-size;container-name:title;flex-shrink:1;overflow:visible}
+  .kotor-menu-shell{width:min(82.3vw,calc(54.7vh * 470 / 560));aspect-ratio:470/560;flex:0 0 auto;max-height:54.7vh}
+  .kotor-menu-svg.km-land{display:none}
+  .kotor-menu-svg.km-port{display:block}
+  .kotor-menu{display:grid;grid-auto-rows:minmax(0,1fr);clip-path:url(#barrelClipPort);padding:1.1% 8% 1.3%}
+  h1.kotor-lockup,.kotor-lockup{width:min(100%,78%);max-width:78%;padding:.04em 0 0}
+  #scr-title .sw-mark{font-size:clamp(24px,8.4vw,48px);line-height:1.16;padding-top:.12em;margin-bottom:-.38em;transform:translate(-.14em,-.22em) scaleX(1.1);transform-origin:center}
+  #scr-title .logo-main{font-size:clamp(34px,13vw,74px);max-width:100%;padding:0 .12em;transform:scaleX(1.04);transform-origin:center top}
+  #scr-title .logo-pk{transform:scale(1.32);transform-origin:top center}
+  #scr-title .logo-or{font-size:clamp(15px,4.9vw,28px);letter-spacing:0;padding:0;width:100%;transform:scale(1.08,1.12);transform-origin:center}
+  #scr-title .logo-or > i{flex:0 0 .55em;width:.55em}
+  #scr-title .logo-ofthe{font-size:clamp(10px,2.65vw,15px);padding:.14em .6em .02em}
+  .kotor-menu button{font-size:clamp(19px,6.65vw,38px);letter-spacing:.055em;word-spacing:.025em;color:#4dc5f0;text-shadow:0 0 5px rgba(70,170,220,.28);border-bottom-width:clamp(4px,1vw,6px)}
+  .kotor-menu button:last-child{border-bottom:clamp(4px,1vw,6px) solid transparent}
   .match-wrap{flex-direction:column;justify-content:center;align-items:stretch;padding:0;gap:0}
   .match-board{flex:1 1 auto;width:100%;min-height:0}
 
@@ -936,10 +1010,13 @@ button.mcard:hover,button.mcard:focus-visible{border-color:var(--select);box-sha
 }
 @media (orientation:landscape){
   .logo-main{font-size:clamp(48px,12.5vh,120px)}
-  .logo-or{font-size:clamp(18px,4.6vh,46px)}
-  .sw-mark{font-size:clamp(28px,7vh,64px)}
-  #scr-title.active{align-items:center;justify-content:center;gap:clamp(12px,3.2vh,36px)}
-  .kotor-menu-shell{width:min(480px,52vw)}
+  .logo-or{font-size:clamp(18px,4.6vh,40px);letter-spacing:0;padding:0;width:100%}
+  .sw-mark{font-size:clamp(30px,7.2vh,58px)}
+  #scr-title.active{align-items:center;justify-content:flex-start}
+  .title-stage{gap:2.6vh;padding-top:18.5vh}
+  #scr-title > .title-hood-top{height:21vh}
+  #scr-title > .title-hood-bot{height:13%}
+  .kotor-menu-shell{width:min(520px,52vw,calc(42vh * 500 / 296));aspect-ratio:500/296}
 }
 @media (orientation:landscape) and (max-width:700px){
   #scr-deck,#scr-circuit,#scr-store,#scr-versus{padding:6px}
@@ -952,10 +1029,13 @@ button.mcard:hover,button.mcard:focus-visible{border-color:var(--select);box-sha
 }
 @media (orientation:landscape) and (max-height:520px){
   .screen{justify-content:flex-start;gap:8px}
-  #scr-title.active{padding:8px 3vw 10px;gap:10px;justify-content:center}
+  #scr-title.active{padding:env(safe-area-inset-top) 3vw 12px;justify-content:flex-start}
+  .title-stage{gap:8px;padding-top:16vh}
+  #scr-title > .title-hood-top{height:17vh}
+  #scr-title > .title-hood-bot{height:10%;opacity:.35}
   .logo-main{font-size:clamp(36px,9vh,72px)}
-  .kotor-menu-shell{width:min(300px,40vw)}
-  .kotor-menu button{font-size:11px;letter-spacing:.16em}
+  .kotor-menu-shell{width:min(380px,52vw,calc(40vh * 500 / 296));aspect-ratio:500/296}
+  .kotor-menu button{font-size:clamp(13px,2.6vh,16px)}
   .kbtn{padding:8px 14px;font-size:12px}
   #scr-deck,#scr-circuit,#scr-store,#scr-versus{justify-content:stretch;padding:4px}
   .steel-console{height:100%;padding:6px;gap:5px;border-radius:12px}
@@ -968,45 +1048,271 @@ button.mcard:hover,button.mcard:focus-visible{border-color:var(--select);box-sha
 <body>
 <main id="app">
   <section id="scr-title" class="screen active">
-    <h1 class="kotor-lockup">
-      <div class="sw-mark">CARD WARS</div>
+    <div class="title-hood title-hood-top" aria-hidden="true">
+      <svg class="title-hood-svg" viewBox="0 0 1000 200" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="hoodMetal" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#5c6576"/>
+            <stop offset=".12" stop-color="#1f232a"/>
+            <stop offset=".2" stop-color="#9aa6b6"/>
+            <stop offset=".42" stop-color="#6a7384"/>
+            <stop offset=".7" stop-color="#4a5460"/>
+            <stop offset="1" stop-color="#12151a"/>
+          </linearGradient>
+          <radialGradient id="hoodLamp" cx="50%" cy="6%" r="52%">
+            <stop offset="0" stop-color="#f7fafc" stop-opacity=".85"/>
+            <stop offset=".28" stop-color="#c8d2e0" stop-opacity=".4"/>
+            <stop offset="1" stop-color="#000" stop-opacity="0"/>
+          </radialGradient>
+          <filter id="hoodGrain" x="-5%" y="-5%" width="110%" height="110%">
+            <feTurbulence type="fractalNoise" baseFrequency="0.7 0.16" numOctaves="2" seed="4" result="n"/>
+            <feColorMatrix in="n" type="saturate" values="0"/>
+            <feComponentTransfer><feFuncA type="linear" slope=".18"/></feComponentTransfer>
+            <feBlend in="SourceGraphic" mode="overlay"/>
+          </filter>
+        </defs>
+        <g filter="url(#hoodGrain)">
+          <path class="hood-body" fill="url(#hoodMetal)" d="M0,0 H1000 V168
+            C1000,152 968,132 888,124
+            C760,114 640,116 500,116
+            C360,116 240,114 112,124
+            C32,132 0,152 0,168 Z"/>
+          <path fill="url(#hoodLamp)" d="M0,0 H1000 V168
+            C1000,152 968,132 888,124
+            C760,114 640,116 500,116
+            C360,116 240,114 112,124
+            C32,132 0,152 0,168 Z"/>
+        </g>
+        <path fill="none" stroke="#080a0e" stroke-opacity=".7" stroke-width="6" d="M0,40 H1000"/>
+        <path fill="none" stroke="#c8d0dc" stroke-opacity=".14" stroke-width="1.2" d="M0,36 H1000"/>
+        <path fill="none" stroke="#05060a" stroke-width="7" d="M118,124 H882"/>
+        <path fill="none" stroke="#b8c2d0" stroke-opacity=".16" stroke-width="1.3" d="M128,120 H872"/>
+      </svg>
+    </div>
+    <div class="title-hood title-hood-bot" aria-hidden="true">
+      <svg class="title-hood-svg" viewBox="0 0 1000 200" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="hoodMetalBot" x1="0" y1="1" x2="0" y2="0">
+            <stop offset="0" stop-color="#0c0e12"/>
+            <stop offset=".35" stop-color="#161a20"/>
+            <stop offset=".7" stop-color="#242a32"/>
+            <stop offset="1" stop-color="#1a1e24"/>
+          </linearGradient>
+          <filter id="hoodGrainBot" x="-5%" y="-5%" width="110%" height="110%">
+            <feTurbulence type="fractalNoise" baseFrequency="0.7 0.16" numOctaves="2" seed="7" result="n"/>
+            <feColorMatrix in="n" type="saturate" values="0"/>
+            <feComponentTransfer><feFuncA type="linear" slope=".12"/></feComponentTransfer>
+            <feBlend in="SourceGraphic" mode="overlay"/>
+          </filter>
+        </defs>
+        <g filter="url(#hoodGrainBot)">
+          <path fill="url(#hoodMetalBot)" d="M0,200 H1000 V84
+            C1000,68 968,48 888,40
+            C760,30 640,32 500,32
+            C360,32 240,30 112,40
+            C32,48 0,68 0,84 Z"/>
+        </g>
+      </svg>
+    </div>
+    <div class="title-hood title-hood-frame" aria-hidden="true">
+      <svg class="title-hood-svg" viewBox="0 0 571 1024" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="hoodMetalFrameTop" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#405a6a"/>
+            <stop offset=".09" stop-color="#415463"/>
+            <stop offset=".12" stop-color="#586e7f"/>
+            <stop offset=".2" stop-color="#7189a3"/>
+            <stop offset=".36" stop-color="#597080"/>
+            <stop offset=".55" stop-color="#3a4652"/>
+            <stop offset="1" stop-color="#161c22"/>
+          </linearGradient>
+          <linearGradient id="hoodMetalFrameBot" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#0d1217"/>
+            <stop offset=".25" stop-color="#1a2026"/>
+            <stop offset=".5" stop-color="#191f24"/>
+            <stop offset=".62" stop-color="#171c20"/>
+            <stop offset=".72" stop-color="#0f1417"/>
+            <stop offset="1" stop-color="#0f1417"/>
+          </linearGradient>
+          <radialGradient id="hoodLampFrame" cx="50%" cy="3%" r="52%">
+            <stop offset="0" stop-color="#dce8f2" stop-opacity=".14"/>
+            <stop offset=".48" stop-color="#8fa3b5" stop-opacity=".04"/>
+            <stop offset="1" stop-color="#000" stop-opacity="0"/>
+          </radialGradient>
+          <linearGradient id="hoodFrameEdgeShade" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stop-color="#020407" stop-opacity=".98"/>
+            <stop offset=".075" stop-color="#020407" stop-opacity="0"/>
+            <stop offset=".925" stop-color="#020407" stop-opacity="0"/>
+            <stop offset="1" stop-color="#020407" stop-opacity=".98"/>
+          </linearGradient>
+          <filter id="hoodGrainFrame" x="-3%" y="-3%" width="106%" height="106%">
+            <feTurbulence type="fractalNoise" baseFrequency=".018 .24" numOctaves="2" seed="12" result="n"/>
+            <feColorMatrix in="n" type="saturate" values="0"/>
+            <feComponentTransfer><feFuncA type="linear" slope=".025"/></feComponentTransfer>
+            <feBlend in="SourceGraphic" mode="overlay"/>
+          </filter>
+        </defs>
+        <g>
+          <path fill="url(#hoodMetalFrameTop)" d="M0,0 H571 V252
+            C547,252 529,230 518,193
+            C504,148 494,113 460,104
+            C426,102 145,102 111,104
+            C77,113 67,148 53,193
+            C42,230 24,252 0,252 Z"/>
+          <path fill="url(#hoodMetalFrameBot)" d="M0,748
+            C24,748 42,770 53,807
+            C67,852 77,895 111,914
+            C145,914 426,914 460,914
+            C494,895 504,852 518,807
+            C529,770 547,748 571,748
+            V1024 H0 Z"/>
+        </g>
+        <path fill="url(#hoodLampFrame)" d="M0,0 H571 V252
+          C547,252 529,230 518,193
+          C504,148 494,113 460,104
+          C426,102 145,102 111,104
+          C77,113 67,148 53,193
+          C42,230 24,252 0,252 Z"/>
+        <path fill="url(#hoodFrameEdgeShade)" d="M0,0 H571 V252
+          C547,252 529,230 518,193
+          C504,148 494,113 460,104
+          C426,102 145,102 111,104
+          C77,113 67,148 53,193
+          C42,230 24,252 0,252 Z"/>
+        <path fill="none" stroke="#05070b" stroke-opacity=".92" stroke-width="14"
+          d="M0,252 C24,252 42,230 53,193 C67,148 77,113 111,104
+             C145,102 426,102 460,104 C494,113 504,148 518,193
+             C529,230 547,252 571,252"/>
+        <path fill="none" stroke="#aebdca" stroke-opacity=".14" stroke-width="1.4"
+          d="M0,246 C22,246 38,226 49,191 C63,146 75,109 109,100
+             C143,98 428,98 462,100 C496,109 508,146 522,191
+             C533,226 549,246 571,246"/>
+        <path fill="none" stroke="#05070b" stroke-opacity=".9" stroke-width="9"
+          d="M0,748 C24,748 42,770 53,807 C67,852 77,895 111,914
+             C145,914 426,914 460,914 C494,895 504,852 518,807
+             C529,770 547,748 571,748"/>
+        <path fill="none" stroke="#7b8791" stroke-opacity=".12" stroke-width="1.3"
+          d="M0,754 C22,754 38,774 49,809 C63,856 75,900 109,920
+             C143,925 428,925 462,920 C496,900 508,856 522,809
+             C533,774 549,754 571,754"/>
+        <path fill="none" stroke="#07090d" stroke-opacity=".86" stroke-width="3" d="M0,26 H571"/>
+        <path fill="none" stroke="#c2ced8" stroke-opacity=".12" stroke-width="1.2" d="M0,23 H571"/>
+        <path fill="none" stroke="#06080b" stroke-width="5" d="M0,1001 H571"/>
+        <path fill="none" stroke="#66717a" stroke-opacity=".13" stroke-width="1.1" d="M0,997 H571"/>
+      </svg>
+    </div>
+    <div class="title-smoke" aria-hidden="true">
+      <span class="sm sm-a"></span>
+      <span class="sm sm-b"></span>
+      <span class="sm sm-c"></span>
+      <span class="sm sm-d"></span>
+    </div>
+    <div class="title-stage">
+    <h1 class="kotor-lockup" aria-label="Card Wars Pazaak of the Old Republic">
+      <div class="sw-mark" aria-hidden="true">card wars</div>
       <div class="kotor-gold">
-        <div class="logo-main">PAZAAK</div>
-        <div class="logo-mid">
-          <span class="logo-bar"></span>
-          <span class="logo-ofthe">OF THE</span>
-          <span class="logo-bar"></span>
+        <div class="logo-pazaak">
+          <div class="logo-main"><span class="logo-pk">P</span><span class="logo-core">AZAA</span><span class="logo-pk">K</span></div>
+          <div class="logo-mid">
+            <span class="logo-bar"></span>
+            <span class="logo-ofthe">OF THE</span>
+            <span class="logo-bar"></span>
+          </div>
         </div>
-        <div class="logo-or">OLD REPUBLIC</div>
+        <div class="logo-or"><span>O</span><span>L</span><span>D</span><i></i><span>R</span><span>E</span><span>P</span><span>U</span><span>B</span><span>L</span><span>I</span><span>C</span></div>
       </div>
     </h1>
     <div class="kotor-menu-shell">
-      <!-- Barrel traced from refs/menu/yt-68s-qgJjsv8-maxresdefault.jpg + user-k1-title.png -->
-      <svg class="kotor-menu-svg" viewBox="0 0 200 100" preserveAspectRatio="none" aria-hidden="true">
-        <!-- Outer secondary wings (dark blue panels outside cyan rails) -->
-        <path class="km-sec" d="M10.2 3.2C6.2 16 4.6 32 4.5 50C4.6 68 6.2 84 10.2 96.8L15.2 96.8C11 84 8.9 68 8.7 50C8.9 32 11 16 15.2 3.2Z"/>
-        <path class="km-sec" d="M189.8 3.2C193.8 16 195.4 32 195.5 50C195.4 68 193.8 84 189.8 96.8L184.8 96.8C189 84 191.1 68 191.3 50C191.1 32 189 16 184.8 3.2Z"/>
-        <path class="km-fill" d="M16.2 3.2
-          C12.5 12 10.2 22 9.2 32 C8.5 42 8.4 52 9.2 62 C10.2 74 12.8 85 16.8 96.5
-          L183.2 96.5
-          C187.2 85 189.8 74 190.8 62 C191.6 52 191.5 42 190.8 32 C189.8 22 187.5 12 183.8 3.2
-          Z"/>
-        <path class="km-rail" d="M15.2 3.2C11 16 8.9 32 8.7 50C8.9 68 11 84 15.2 96.8"/>
-        <path class="km-rail" d="M184.8 3.2C189 16 191.1 32 191.3 50C191.1 68 189 84 184.8 96.8"/>
-        <path class="km-rail-in" d="M21.2 5C16.8 18 14.8 33 14.6 50C14.8 67 16.8 82 21.2 95"/>
-        <path class="km-rail-in" d="M178.8 5C183.2 18 185.2 33 185.4 50C185.2 67 183.2 82 178.8 95"/>
-        <path class="km-div" d="M26 18.8H174M24 34.4H176M24 50H176M24 65.6H176M26 81.2H174"/>
+      <svg class="kotor-menu-svg km-land" viewBox="0 0 500 296" preserveAspectRatio="none" aria-hidden="true">
+        <defs>
+          <clipPath id="barrelClip" clipPathUnits="objectBoundingBox">
+            <path d="M0.16,0.027 C0.08,0.236 0.04,0.4 0.04,0.5 C0.04,0.6 0.08,0.764 0.16,0.973 H0.84 C0.92,0.764 0.96,0.6 0.96,0.5 C0.96,0.4 0.92,0.236 0.84,0.027 Z"/>
+          </clipPath>
+        </defs>
+        <path class="km-fill" d="M80,8 C40,70 20,118 20,148 C20,178 40,226 80,288
+          H420 C460,226 480,178 480,148 C480,118 460,70 420,8 Z"/>
+        <path class="km-c" d="M44,3 C8,72 0,118 2,148 C0,178 8,224 44,293
+          L80,288 C50,248 38,208 32,176
+          L36,160 L36,136
+          C42,102 54,56 80,8 Z"/>
+        <path class="km-c" d="M456,3 C492,72 500,118 498,148 C500,178 492,224 456,293
+          L420,288 C450,248 462,208 468,176
+          L464,160 L464,136
+          C458,102 446,56 420,8 Z"/>
+      </svg>
+      <svg class="kotor-menu-svg km-port" viewBox="0 0 500 680" preserveAspectRatio="none" aria-hidden="true">
+        <defs>
+          <linearGradient id="menuFillPort" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#002a40"/>
+            <stop offset=".52" stop-color="#00273d"/>
+            <stop offset="1" stop-color="#002837"/>
+          </linearGradient>
+          <clipPath id="barrelClipPort" clipPathUnits="objectBoundingBox">
+            <path d="M0.164,0.021
+              C0.144,0.077 0.122,0.141 0.108,0.206
+              C0.1,0.24 0.094,0.266 0.094,0.291
+              C0.086,0.347 0.078,0.424 0.078,0.5
+              C0.078,0.576 0.086,0.653 0.104,0.729
+              C0.118,0.798 0.15,0.894 0.196,0.979
+              H0.804
+              C0.85,0.894 0.882,0.798 0.896,0.729
+              C0.914,0.653 0.922,0.576 0.922,0.5
+              C0.922,0.424 0.914,0.347 0.906,0.291
+              C0.906,0.266 0.9,0.24 0.892,0.206
+              C0.878,0.141 0.856,0.077 0.836,0.021 Z"/>
+          </clipPath>
+        </defs>
+        <path class="km-channel" d="M50,8
+          C18,110 5,230 3,340
+          C5,450 18,570 50,672
+          H450
+          C482,570 495,450 497,340
+          C495,230 482,110 450,8 Z"/>
+        <path class="km-fill" d="M82,14
+          C72,52 61,96 54,140
+          C50,163 47,181 47,198
+          C43,236 39,288 39,340
+          C39,392 43,444 52,496
+          C59,543 75,608 98,666
+          H402
+          C425,608 441,543 448,496
+          C457,444 461,392 461,340
+          C461,288 457,236 453,198
+          C453,181 450,163 446,140
+          C439,96 428,52 418,14 Z"/>
+        <path class="km-c" d="M46,8
+          C14,110 2,230 0,340
+          C2,450 22,570 62,672
+          L86,666
+          C62,600 46,540 40,496
+          H29
+          C25,445 20,390 18,340
+          C18,285 19,235 23,194
+          H32
+          C36,135 49,72 70,14 Z"/>
+        <path class="km-c" d="M454,8
+          C486,110 498,230 500,340
+          C498,450 478,570 438,672
+          L414,666
+          C438,600 454,540 460,496
+          H471
+          C475,445 480,390 482,340
+          C482,285 481,235 477,194
+          H468
+          C464,135 451,72 430,14 Z"/>
       </svg>
       <nav class="kotor-menu" aria-label="Main menu">
-        <button type="button" id="bt-new">NEW GAME</button>
-        <button type="button" id="bt-continue">LOAD GAME</button>
-        <button type="button" id="bt-vs">2-PLAYER</button>
-        <button type="button" id="bt-how">HOW TO PLAY</button>
-        <button type="button" id="bt-options">OPTIONS</button>
-        <button type="button" id="bt-install" hidden>INSTALL APP</button>
-        <button type="button" id="bt-quit">QUIT</button>
+        <button type="button" id="bt-new">New Game</button>
+        <button type="button" id="bt-continue">Load Game</button>
+        <button type="button" id="bt-vs">2-Player</button>
+        <button type="button" id="bt-how">How to Play</button>
+        <button type="button" id="bt-options">Options</button>
+        <button type="button" id="bt-install" hidden>Install App</button>
+        <button type="button" id="bt-quit">Quit</button>
       </nav>
     </div>
+    </div>
+    <p id="build-mark" class="build-mark">v0.9.1</p>
   </section>
   <section id="scr-versus" class="screen">
     <div class="steel-console vs-console">
@@ -1394,6 +1700,7 @@ function aiDecide(snap){
   const stand=shouldStand(score,snap);
   return {play,stand};
 }
+const GAME_VERSION='0.9.1';
 const STARTER_COLLECTION={'+1':2,'+2':2,'+3':2,'-1':2,'-2':2,'-3':2};
 const START_CREDITS=400;
 const STORE_CAP=4;
@@ -3297,8 +3604,14 @@ function paintVsSetup(){
   const note=$('#vs-tier-note');
   if(note)note.textContent=vsTierNote(t);
 }
-function openVersus(){
-  vsSetup={tier:vsSetup.tier||1,names:vsSetup.names||['Player 1','Player 2'],decks:[null,null],who:0};
+function openVersus(opts){
+  const keep=opts&&opts.keepDecks;
+  vsSetup={
+    tier:vsSetup.tier||1,
+    names:vsSetup.names||['Player 1','Player 2'],
+    decks:keep&&vsSetup.decks?vsSetup.decks:[null,null],
+    who:keep&&vsSetup.who||0
+  };
   resetDeckMode();
   const p=$('#vs-name-p'),o=$('#vs-name-o');
   if(p)p.value=vsSetup.names[0]||'Player 1';
@@ -3481,6 +3794,8 @@ function refreshTitle(){
   document.querySelectorAll('.kotor-menu button').forEach(b=>b.classList.remove('sel'));
   (hasSave()?load:$('#bt-new')).classList.add('sel');
   if(typeof refreshInstallUi==='function')refreshInstallUi();
+  const ver=$('#build-mark');
+  if(ver)ver.textContent='v'+GAME_VERSION;
   refreshCredits();
 }
 function placeA11yHit(btn,rect){
@@ -3756,7 +4071,7 @@ async function init(){
   $('#bt-autofill').onclick=autoFill;
   $('#bt-dback').onclick=()=>{
     AUDIO.play('click');
-    if(deckMode==='vs'){deckCovered=false;openVersus();return;}
+    if(deckMode==='vs'){deckCovered=false;openVersus({keepDecks:true});return;}
     buildCircuit();showScreen('circuit');
   };
   $('#bt-begin').onclick=()=>{
@@ -3822,7 +4137,9 @@ async function init(){
   if(document.fonts&&document.fonts.load){
     try{
       await Promise.all([
+        document.fonts.load('400 48px "Star Jedi"'),
         document.fonts.load('700 32px "Orbitron"'),
+        document.fonts.load('400 32px "Science Gothic"'),
         document.fonts.load('700 32px "Bank Gothic"'),
         document.fonts.load('500 32px "BlairMdITC TT"'),
         document.fonts.load('500 32px "ITC Blair"'),
@@ -3916,7 +4233,7 @@ globalThis.PZ={shuffle,buildMainDeck,boardScore,placeMain,placeSide,applyDouble,
   matchWager,storeStock,storeMinCircuit,addToCollection,isClutterId,CARD_PRICE,getSave:()=>SAVE,
   persist,normalizeSave,applyRecoveredWager,startMatch,leaveMatch,matchEnd,defaultSave,START_CREDITS,SAVE_KEY,
   blockPersist:v=>{PERSIST_BLOCK=!!v;},
-  vsTierIds,vsCollection,startVsMatch,acceptPass,viewWho,plateName,isVs};
+  vsTierIds,vsCollection,startVsMatch,acceptPass,viewWho,plateName,isVs,GAME_VERSION};
 if(typeof document!=='undefined'){
   document.addEventListener('DOMContentLoaded',init);
 }

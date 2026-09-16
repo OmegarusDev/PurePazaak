@@ -52,7 +52,7 @@ async function init(){
   $('#bt-autofill').onclick=autoFill;
   $('#bt-dback').onclick=()=>{
     AUDIO.play('click');
-    if(deckMode==='vs'){deckCovered=false;openVersus();return;}
+    if(deckMode==='vs'){deckCovered=false;openVersus({keepDecks:true});return;}
     buildCircuit();showScreen('circuit');
   };
   $('#bt-begin').onclick=()=>{
@@ -118,7 +118,9 @@ async function init(){
   if(document.fonts&&document.fonts.load){
     try{
       await Promise.all([
+        document.fonts.load('400 48px "Star Jedi"'),
         document.fonts.load('700 32px "Orbitron"'),
+        document.fonts.load('400 32px "Science Gothic"'),
         document.fonts.load('700 32px "Bank Gothic"'),
         document.fonts.load('500 32px "BlairMdITC TT"'),
         document.fonts.load('500 32px "ITC Blair"'),
@@ -212,7 +214,7 @@ globalThis.PZ={shuffle,buildMainDeck,boardScore,placeMain,placeSide,applyDouble,
   matchWager,storeStock,storeMinCircuit,addToCollection,isClutterId,CARD_PRICE,getSave:()=>SAVE,
   persist,normalizeSave,applyRecoveredWager,startMatch,leaveMatch,matchEnd,defaultSave,START_CREDITS,SAVE_KEY,
   blockPersist:v=>{PERSIST_BLOCK=!!v;},
-  vsTierIds,vsCollection,startVsMatch,acceptPass,viewWho,plateName,isVs};
+  vsTierIds,vsCollection,startVsMatch,acceptPass,viewWho,plateName,isVs,GAME_VERSION};
 if(typeof document!=='undefined'){
   document.addEventListener('DOMContentLoaded',init);
 }
