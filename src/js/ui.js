@@ -55,7 +55,8 @@ function buildCircuit(){
     const label=st==='done'?'WON':st==='next'?'NEXT':'LOCKED';
     btn.disabled=st==='locked';
     btn.setAttribute('aria-pressed',i===circuitSel?'true':'false');
-    btn.setAttribute('aria-label',opp.name+', '+label+', tier '+opp.tier+', wager '+matchWager(opp.tier)+' credits');
+    const wagerLabel=st==='done'?'custom replay wager 0 to '+matchWager(opp.tier)+' credits':'standard wager '+matchWager(opp.tier)+' credits';
+    btn.setAttribute('aria-label',opp.name+', '+label+', tier '+opp.tier+', '+wagerLabel);
     btn.innerHTML=`<div class="ricon"><span class="tier t${opp.tier}">${['I','II','III'][opp.tier-1]}</span></div>`+
       `<div class="rbody"><span class="rname"></span>`+
       `<span class="rstat">(${label})</span></div>`;
@@ -66,10 +67,8 @@ function buildCircuit(){
   if(keep)wrap.querySelector('.rung.pick')?.focus();
   const st=circuitSel<SAVE.circuit?'done':circuitSel===SAVE.circuit?'next':'locked';
   const bt=$('#bt-challenge');
-  const opp=SAVE.roster[circuitSel];
-  const w=opp?matchWager(opp.tier):50;
   bt.disabled=st==='locked';
-  bt.textContent=st==='done'?'REPLAY  \u00B7  '+w+' CR':st==='next'?'CHALLENGE  \u00B7  '+w+' CR':'LOCKED';
+  bt.textContent=st==='locked'?'LOCKED':'CHALLENGE';
   bt.classList.toggle('sel',st!=='locked');
   refreshCredits();
 }
@@ -159,12 +158,12 @@ function buildDeckUI(){
     begin.classList.toggle('sel',ready);
     begin.title='';
   }else{
-    const opp=SAVE.roster[deckRung], wager=opp?matchWager(opp.tier):50;
+    const opp=SAVE.roster[deckRung], wager=deckWager==null?(opp?matchWager(opp.tier):50):deckWager;
     const broke=SAVE.credits<wager;
     begin.disabled=!ready||broke;
     begin.textContent=!ready?'PLAY':broke?'NEED '+wager+' CR':'PLAY';
     begin.classList.toggle('sel',ready&&!broke);
-    begin.title=ready&&!broke?('WAGER '+wager+' CR'):'';
+    begin.title=ready&&!broke?(wager===0?'PRACTICE - NO REWARDS':'WAGER '+wager+' CR'):'';
   }
   refreshCredits();
 }
@@ -177,14 +176,45 @@ function validateDeck(deck){
   return out;
 }
 function resetDeckMode(){
-  deckMode='campaign';deckPool=null;deckCovered=false;
+  deckMode='campaign';deckPool=null;deckCovered=false;deckWager=null;
 }
-function openDeckBuilder(rung){
+function openDeckBuilder(rung,wager){
   resetDeckMode();
   deckRung=rung;
+  const opp=SAVE.roster[rung];
+  deckWager=wager==null?null:clampReplayWager(opp?opp.tier:1,wager);
   deckSel=validateDeck(SAVE.lastDeck);
   buildDeckUI();
   showScreen('deck');
+}
+function openReplayWager(rung){
+  const opp=Array.isArray(SAVE.roster)?SAVE.roster[rung]:null;
+  if(!opp||rung>=SAVE.circuit){openDeckBuilder(rung);return;}
+  const max=matchWager(opp.tier),initial=Math.min(max,SAVE.credits);
+  openModal(
+    '<h2 id="modal-title">REPLAY '+escapeHtml(opp.name)+'</h2>'+
+    '<p>CHOOSE A WAGER FROM 0 TO '+max+' CREDITS.</p>'+
+    '<div class="wager-picker">'+
+      '<div class="wager-readout"><label for="replay-wager">WAGER</label><output id="replay-wager-value">'+initial+' CR</output></div>'+
+      '<input id="replay-wager" type="range" min="0" max="'+max+'" step="1" value="'+initial+'" aria-describedby="replay-wager-note">'+
+      '<p id="replay-wager-note"></p>'+
+    '</div>'+
+    '<div class="mrow"><button type="button" id="wager-cancel" class="kbtn">CANCEL</button><button type="button" id="wager-start" class="kbtn sel">WAGER '+initial+' CR</button></div>');
+  const range=$('#replay-wager'),out=$('#replay-wager-value'),note=$('#replay-wager-note'),start=$('#wager-start');
+  const paint=()=>{
+    const value=clampReplayWager(opp.tier,range.value),broke=value>SAVE.credits;
+    out.textContent=value+' CR';
+    start.textContent=value===0?'PRACTICE':'WAGER '+value+' CR';
+    start.disabled=broke;
+    note.textContent=value===0?'PRACTICE MATCH - NO CREDITS OR CARD SPOILS':broke?'NOT ENOUGH CREDITS - '+SAVE.credits+' AVAILABLE':'WIN RETURNS '+(value*2)+' CR AND A CARD SPOIL';
+  };
+  range.oninput=paint;paint();
+  $('#wager-cancel').onclick=()=>{AUDIO.play('click');closeModal();};
+  start.onclick=()=>{
+    const value=clampReplayWager(opp.tier,range.value);
+    if(value>SAVE.credits)return;
+    AUDIO.play('click');closeModal();openDeckBuilder(rung,value);
+  };
 }
 function openVsDeck(who){
   deckMode='vs';
@@ -321,11 +351,52 @@ function buildStoreUI(){
   });
   if(keepId)wrap.querySelector('[data-card="'+CSS.escape(keepId)+'"]')?.focus();
   const note=$('#store-note');
-  if(note)note.textContent=SAVE.circuit>=CIRCUIT_LEN?'Full cantina stock.':'Stock improves as you climb the circuit.';
+  if(note)note.textContent=SAVE.circuit>=CIRCUIT_LEN?'Full cantina stock.':'Stock improves as you climb the tournament.';
 }
 function openStore(){
   buildStoreUI();
   showScreen('store');
+}
+function buildSellUI(){
+  const wrap=$('#sell-stock');if(!wrap)return;
+  const keepId=document.activeElement&&wrap.contains(document.activeElement)&&document.activeElement.getAttribute('data-card');
+  const total=collectionCount(),atFloor=total<=10,atCreditCap=SAVE.credits>=999999999,blocked=atFloor||atCreditCap;
+  wrap.innerHTML='';
+  DECK_ORDER.filter(id=>(SAVE.unlocked[id]||0)>0).forEach(id=>{
+    const owned=SAVE.unlocked[id]||0,value=cardSellPrice(id);
+    const cell=document.createElement('button');
+    cell.type='button';
+    cell.className='cell sell-cell'+(blocked?' maxed':'');
+    cell.dataset.card=id;
+    cell.disabled=blocked;
+    const speak=cardSpeak(makeCard(id),1,1,true);
+    cell.setAttribute('aria-label',atFloor?speak+', owned '+owned+', keep at least 10 cards':atCreditCap?speak+', owned '+owned+', credit limit reached':speak+', sell one for '+value+' credits, owned '+owned);
+    const cvs=document.createElement('canvas');
+    cvs.setAttribute('aria-hidden','true');
+    cell.appendChild(cvs);
+    const cnt=document.createElement('span');
+    cnt.className='cnt';cnt.textContent=value+' CR  \u00B7  OWN '+owned;
+    cell.appendChild(cnt);
+    drawMini(cvs,id);
+    if(!blocked)cell.onclick=()=>{
+      AUDIO.play('click');
+      if(!sellCard(id)){
+        presentDialog('SALE FAILED','THE CARD COULD NOT BE SOLD',()=>{});
+        buildSellUI();
+        return;
+      }
+      buildSellUI();
+    };
+    wrap.appendChild(cell);
+  });
+  const again=keepId?wrap.querySelector('[data-card="'+CSS.escape(keepId)+'"]'):null;
+  (again||wrap.querySelector('button:not([disabled])')||wrap.querySelector('button'))?.focus();
+  const note=$('#sell-note');
+  if(note)note.textContent=atFloor?'KEEP AT LEAST 10 CARDS FOR A SIDE DECK.':atCreditCap?'CREDIT LIMIT REACHED.':'CARDS SELL FOR HALF THEIR CANTINA PRICE.';
+}
+function openSell(){
+  buildSellUI();
+  showScreen('sell');
 }
 function openModal(html){
   const modal=$('#modal');
@@ -370,7 +441,7 @@ function startNewGame(){
   AUDIO.play('click');
   if(!hasSave()){wipeKeepAudio();enterCircuit();return;}
   openModal(
-    '<h2 id="modal-title">NEW GAME</h2><p>THIS WIPES YOUR CIRCUIT, CARD COLLECTION, AND CREDITS.</p>'+
+    '<h2 id="modal-title">NEW GAME</h2><p>THIS WIPES YOUR TOURNAMENT, CARD COLLECTION, AND CREDITS.</p>'+
     '<div class="mrow"><button type="button" id="mno" class="kbtn">CANCEL</button><button type="button" id="myes" class="kbtn sel">START</button></div>');
   $('#myes').onclick=()=>{AUDIO.play('click');closeModal();wipeKeepAudio();enterCircuit();};
   $('#mno').onclick=()=>{AUDIO.play('click');closeModal();};
@@ -378,7 +449,7 @@ function startNewGame(){
 function confirmReset(){
   AUDIO.play('click');
   openModal(
-    '<h2 id="modal-title">RESET PROGRESS</h2><p>THIS WIPES YOUR CIRCUIT, CARD COLLECTION, AND CREDITS.</p>'+
+    '<h2 id="modal-title">RESET PROGRESS</h2><p>THIS WIPES YOUR TOURNAMENT, CARD COLLECTION, AND CREDITS.</p>'+
     '<div class="mrow"><button type="button" id="mno" class="kbtn">KEEP IT</button><button type="button" id="myes" class="kbtn danger sel">WIPE IT</button></div>');
   $('#myes').onclick=()=>{resetSave();location.reload();};
   $('#mno').onclick=()=>{AUDIO.play('click');closeModal();};

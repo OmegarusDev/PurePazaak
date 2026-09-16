@@ -22,7 +22,7 @@ const PZ = globalThis.PZ;
 let fail = 0;
 const t = (name, cond) => { console.log((cond ? 'PASS' : 'FAIL') + ' ' + name); if (!cond) fail++; };
 
-t('game-version', PZ.GAME_VERSION === '0.9.1');
+t('game-version', PZ.GAME_VERSION === '0.9.2');
 
 t('main-deck-40', PZ.buildMainDeck().length === 40);
 t('boardScore', PZ.boardScore([{ eff: 10 }, { eff: -3 }, null]) === 7);
@@ -68,6 +68,7 @@ t('playValue-flex', PZ.playValue(PZ.makeCard('1\u00B12'),-1,2)===-2);
 t('cardLabel-D', PZ.cardLabel({kind:'dbl'})==='D');
 t('cardLabel-tie', PZ.cardLabel({kind:'tie',v:1},-1)==='-1T');
 t('wager-tiers', PZ.matchWager(1)===50 && PZ.matchWager(2)===100 && PZ.matchWager(3)===200);
+t('replay-wager-clamp', PZ.clampReplayWager(1,-5)===0 && PZ.clampReplayWager(1,80)===50 && PZ.clampReplayWager(2,73)===73 && PZ.clampReplayWager(3,500)===200);
 {
   const decks=Array.from({length:24},()=>PZ.genSideDeck(1));
   const std=/^[+-][1-6]$/;
@@ -81,6 +82,22 @@ save.circuit=9;
 t('store-unlocks-flex', PZ.storeStock().indexOf('1\u00B12')>=0);
 save.circuit=0;
 t('add-card', PZ.addToCollection('+4') && save.unlocked['+4']>=1);
+t('sell-price-half', PZ.cardSellPrice('+3')===22 && PZ.cardSellPrice('+4')===35 && PZ.cardSellPrice('1\u00B12')===200);
+{
+  const credits=save.credits;
+  save.lastDeck=['+4'];
+  t('sell-owned-card', PZ.sellCard('+4')===true && !save.unlocked['+4'] && save.credits===credits+35 && save.lastDeck.length===0);
+  const unlocked=save.unlocked,lastDeck=save.lastDeck,credits2=save.credits;
+  save.unlocked={'+1':10};save.lastDeck=Array(10).fill('+1');
+  t('sell-keeps-ten', PZ.collectionCount()===10 && PZ.sellCard('+1')===false && save.unlocked['+1']===10 && save.credits===credits2);
+  save.unlocked=unlocked;save.lastDeck=lastDeck;
+  PZ.addToCollection('+4');
+  const rollbackOwned=save.unlocked['+4'],rollbackCredits=save.credits;
+  PZ.blockPersist(true);
+  t('sell-persist-rollback', PZ.sellCard('+4')===false && save.unlocked['+4']===rollbackOwned && save.credits===rollbackCredits);
+  PZ.blockPersist(false);
+  delete save.unlocked['+4'];
+}
 t('clutter-plus1', PZ.isClutterId('+1') && !PZ.isClutterId('TIE'));
 
 {
@@ -451,6 +468,19 @@ function prepPlay(deck, handIds) {
   t('start-debits', PZ.getSave().credits === before - wager && PZ.getSave().activeMatch && PZ.getSave().activeMatch.wager === wager && !!PZ.getM());
   PZ.leaveMatch();
   t('forfeit-no-refund', PZ.getSave().credits === before - wager && !PZ.getSave().activeMatch && !PZ.getM());
+
+  save.credits = before;
+  save.circuit = 1;
+  PZ.persist();
+  PZ.startMatch(0,17);
+  t('replay-custom-wager', PZ.getSave().credits === before - 17 && PZ.getSave().activeMatch.wager === 17 && PZ.getM().wager === 17 && PZ.getM().replayRung === 0);
+  PZ.leaveMatch();
+  save.credits = before;
+  PZ.persist();
+  PZ.startMatch(0,0);
+  t('replay-practice-wager', PZ.getSave().credits === before && !PZ.getSave().activeMatch && PZ.getM().wager === 0 && PZ.getM().replayRung === 0);
+  PZ.leaveMatch();
+  save.circuit = 0;
 
   save.credits = before;
   PZ.persist();

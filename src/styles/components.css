@@ -166,6 +166,11 @@ h1.kotor-lockup,.kotor-lockup{display:flex;flex-direction:column;align-items:cen
   padding:16px 8px 6px;
 }
 #modalbox .volrow{padding:10px 8px 0;color:var(--dlg)}
+.wager-picker{display:flex;flex-direction:column;gap:8px;padding:12px 18px 0}
+.wager-readout{display:flex;align-items:center;justify-content:space-between;gap:12px;font-family:var(--gui);font-size:12px;letter-spacing:.12em;color:var(--dlg)}
+.wager-readout output{color:var(--dlg-gold);font-weight:700}
+.wager-picker input[type=range]{width:100%;accent-color:var(--dlg-gold)}
+#modalbox #replay-wager-note{min-height:26px;padding:2px 0 0;font-size:11px;letter-spacing:.06em}
 /* Wager-style pill buttons: cyan idle, gold selected/hover */
 #modalbox .kbtn{
   width:auto;

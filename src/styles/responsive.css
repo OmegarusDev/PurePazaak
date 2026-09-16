@@ -27,7 +27,7 @@
   .match-wrap{flex-direction:column;justify-content:center;align-items:stretch;padding:0;gap:0}
   .match-board{flex:1 1 auto;width:100%;min-height:0}
 
-  #scr-circuit,#scr-store,#scr-deck,#scr-versus{
+  #scr-circuit,#scr-store,#scr-sell,#scr-deck,#scr-versus{
     padding:calc(6px + env(safe-area-inset-top)) 6px calc(6px + env(safe-area-inset-bottom));
   }
   .steel-console{
@@ -102,7 +102,7 @@
   .kotor-menu-shell{width:min(520px,52vw,calc(42vh * 500 / 296));aspect-ratio:500/296}
 }
 @media (orientation:landscape) and (max-width:700px){
-  #scr-deck,#scr-circuit,#scr-store,#scr-versus{padding:6px}
+  #scr-deck,#scr-circuit,#scr-store,#scr-sell,#scr-versus{padding:6px}
   .steel-console{width:100%;padding:8px;gap:6px}
   .deck-headers{grid-template-columns:minmax(80px,.8fr) minmax(0,2fr) minmax(90px,.9fr)}
   .steel-hbadge{font-size:10px;letter-spacing:.1em;min-height:26px;padding:3px 6px}
@@ -120,7 +120,7 @@
   .kotor-menu-shell{width:min(380px,52vw,calc(40vh * 500 / 296));aspect-ratio:500/296}
   .kotor-menu button{font-size:clamp(13px,2.6vh,16px)}
   .kbtn{padding:8px 14px;font-size:12px}
-  #scr-deck,#scr-circuit,#scr-store,#scr-versus{justify-content:stretch;padding:4px}
+  #scr-deck,#scr-circuit,#scr-store,#scr-sell,#scr-versus{justify-content:stretch;padding:4px}
   .steel-console{height:100%;padding:6px;gap:5px;border-radius:12px}
   .steel-hbadge{min-height:22px;font-size:9px}
   .kplate{padding:8px 10px;font-size:11px;min-height:36px}

@@ -267,7 +267,7 @@
       </nav>
     </div>
     </div>
-    <p id="build-mark" class="build-mark">v0.9.1</p>
+    <p id="build-mark" class="build-mark">v0.9.2</p>
   </section>
   <section id="scr-versus" class="screen">
     <div class="steel-console vs-console">
@@ -314,12 +314,29 @@
         <div class="steel-hbadge" data-credits data-credits-after>0 CREDITS</div>
         <div class="steel-hbadge">CANTINA COUNTER</div>
       </div>
-      <p id="store-note" class="store-note">Stock improves as you climb the circuit.</p>
+      <p id="store-note" class="store-note">Stock improves as you climb the tournament.</p>
       <div class="steel-well store-well">
         <div id="stock"></div>
       </div>
-      <div class="steel-foot">
-        <button type="button" id="bt-sback" class="kplate">CIRCUIT</button>
+      <div class="steel-foot store-actions">
+        <button type="button" id="bt-sback" class="kplate">TOURNAMENT</button>
+        <button type="button" id="bt-sell" class="kplate">SELL</button>
+      </div>
+    </div>
+  </section>
+  <section id="scr-sell" class="screen">
+    <div class="steel-console store-console sell-console">
+      <div class="steel-headers steel-headers-2">
+        <div class="steel-hbadge" data-credits data-credits-after>0 CREDITS</div>
+        <div class="steel-hbadge">CANTINA BUYBACK</div>
+      </div>
+      <p id="sell-note" class="store-note">Cards sell for half their cantina price.</p>
+      <div class="steel-well store-well">
+        <div id="sell-stock"></div>
+      </div>
+      <div class="steel-foot store-actions">
+        <button type="button" id="bt-sell-buy" class="kplate">BUY</button>
+        <button type="button" id="bt-sell-tournament" class="kplate">TOURNAMENT</button>
       </div>
     </div>
   </section>

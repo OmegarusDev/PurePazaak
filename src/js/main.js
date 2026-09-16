@@ -25,7 +25,9 @@ async function init(){
   $('#bt-continue').onclick=()=>{if(!hasSave())return;AUDIO.play('click');enterCircuit();};
   $('#bt-challenge').onclick=()=>{
     if(circuitSel>SAVE.circuit)return;
-    AUDIO.play('click');openDeckBuilder(circuitSel);
+    AUDIO.play('click');
+    if(circuitSel<SAVE.circuit){openReplayWager(circuitSel);return;}
+    openDeckBuilder(circuitSel);
   };
   $('#bt-cback').onclick=()=>{AUDIO.play('click');refreshTitle();showScreen('title');};
   $('#bt-how').onclick=()=>{AUDIO.play('click');openModal(
@@ -39,13 +41,16 @@ async function init(){
     '<li>Arrow keys move between menus and table controls. Tab also works. Click a hand card to arm it, click again to play. FLIP, F, or right-click cycles +/- on duals, tiebreakers, and the 1\u00B12 card.</li>'+
     '<li>Keys: Space or E end turn, Enter or S stand, F or right-click flip, Esc cancel or close. Click a hand card twice to play it.</li>'+
     '<li>Two Player is pass-and-play on one device. Whoever holds the phone sits at the bottom with the full-size hand. Hands flip face-down between turns; tap when the device has changed hands.</li>'+
-    '<li>Matches are played for a credits wager. Win and you may take one card from their side deck, or skip if it is clutter.</li>'+
-    '<li>The cantina store sells side-deck cards. Better stock unlocks as you climb the circuit.</li>'+
+    '<li>Matches are played for a credits wager. Win and you may take one card from their side deck, or skip if it is clutter. Completed opponents can be replayed for a custom wager up to their tier maximum; zero credits is practice with no rewards.</li>'+
+    '<li>The cantina buys and sells side-deck cards. Sales pay half price, and you must keep at least 10 cards. Better stock unlocks as you climb the tournament.</li>'+
     '</ul><div class="mrow"><button type="button" id="mclose" class="kbtn sel">CLOSE</button></div>');
     $('#mclose').onclick=()=>{AUDIO.play('click');closeModal();};
   };
   $('#bt-store').onclick=()=>{AUDIO.play('click');openStore();};
   $('#bt-sback').onclick=()=>{AUDIO.play('click');buildCircuit();showScreen('circuit');};
+  $('#bt-sell').onclick=()=>{AUDIO.play('click');openSell();};
+  $('#bt-sell-buy').onclick=()=>{AUDIO.play('click');openStore();};
+  $('#bt-sell-tournament').onclick=()=>{AUDIO.play('click');buildCircuit();showScreen('circuit');};
   $('#bt-options').onclick=()=>{AUDIO.play('click');openOptions();};
   $('#bt-install').onclick=offerInstall;
   $('#bt-quit').onclick=askQuit;
@@ -53,6 +58,7 @@ async function init(){
   $('#bt-dback').onclick=()=>{
     AUDIO.play('click');
     if(deckMode==='vs'){deckCovered=false;openVersus({keepDecks:true});return;}
+    resetDeckMode();
     buildCircuit();showScreen('circuit');
   };
   $('#bt-begin').onclick=()=>{
@@ -60,7 +66,7 @@ async function init(){
     AUDIO.play('click');
     if(deckMode==='vs'){vsReadNames();vsConfirmDeck();return;}
     SAVE.lastDeck=deckSel.slice();persist();
-    startMatch(deckRung);
+    startMatch(deckRung,deckWager);
   };
   $('#bt-vback').onclick=()=>{AUDIO.play('click');resetDeckMode();refreshTitle();showScreen('title');};
   $('#bt-vnext').onclick=()=>{
@@ -211,7 +217,7 @@ globalThis.PZ={shuffle,buildMainDeck,boardScore,placeMain,placeSide,applyDouble,
   startSet,beginTurn,endPlayerTurn,playerStand,confirmPlay,endSet,resolveBoard,resolveStandoff,boardCount,dialogOK,
   newMatchForTest:(deckIds,opp,opts)=>{SAVE.lastDeck=deckIds;newMatch(opp,null,opts);},
   getM:()=>M,setSleepScale:v=>{SLEEP_SCALE=v;},chanState,fitCard,CARD_ASPECT,
-  matchWager,storeStock,storeMinCircuit,addToCollection,isClutterId,CARD_PRICE,getSave:()=>SAVE,
+  matchWager,clampReplayWager,storeStock,storeMinCircuit,addToCollection,isClutterId,CARD_PRICE,cardSellPrice,collectionCount,trimDeckToCollection,sellCard,getSave:()=>SAVE,
   persist,normalizeSave,applyRecoveredWager,startMatch,leaveMatch,matchEnd,defaultSave,START_CREDITS,SAVE_KEY,
   blockPersist:v=>{PERSIST_BLOCK=!!v;},
   vsTierIds,vsCollection,startVsMatch,acceptPass,viewWho,plateName,isVs,GAME_VERSION};

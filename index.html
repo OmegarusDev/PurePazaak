@@ -287,6 +287,11 @@ h1.kotor-lockup,.kotor-lockup{display:flex;flex-direction:column;align-items:cen
   padding:16px 8px 6px;
 }
 #modalbox .volrow{padding:10px 8px 0;color:var(--dlg)}
+.wager-picker{display:flex;flex-direction:column;gap:8px;padding:12px 18px 0}
+.wager-readout{display:flex;align-items:center;justify-content:space-between;gap:12px;font-family:var(--gui);font-size:12px;letter-spacing:.12em;color:var(--dlg)}
+.wager-readout output{color:var(--dlg-gold);font-weight:700}
+.wager-picker input[type=range]{width:100%;accent-color:var(--dlg-gold)}
+#modalbox #replay-wager-note{min-height:26px;padding:2px 0 0;font-size:11px;letter-spacing:.06em}
 /* Wager-style pill buttons: cyan idle, gold selected/hover */
 #modalbox .kbtn{
   width:auto;
@@ -792,7 +797,7 @@ button.mcard:hover,button.mcard:focus-visible{border-color:var(--select);box-sha
 #bt-begin{min-width:clamp(120px,22cqw,180px)}
 
 /* Store — same steel language */
-#scr-store{
+#scr-store,#scr-sell{
   justify-content:center;
   align-items:center;
   background:#05060c;
@@ -817,7 +822,7 @@ button.mcard:hover,button.mcard:focus-visible{border-color:var(--select);box-sha
   text-transform:none;
 }
 .store-well{padding:8px}
-#stock{
+#stock,#sell-stock{
   display:grid;
   grid-template-columns:repeat(auto-fill,minmax(min(88px,100%),1fr));
   gap:10px;
@@ -944,7 +949,7 @@ button.mcard:hover,button.mcard:focus-visible{border-color:var(--select);box-sha
   .match-wrap{flex-direction:column;justify-content:center;align-items:stretch;padding:0;gap:0}
   .match-board{flex:1 1 auto;width:100%;min-height:0}
 
-  #scr-circuit,#scr-store,#scr-deck,#scr-versus{
+  #scr-circuit,#scr-store,#scr-sell,#scr-deck,#scr-versus{
     padding:calc(6px + env(safe-area-inset-top)) 6px calc(6px + env(safe-area-inset-bottom));
   }
   .steel-console{
@@ -1019,7 +1024,7 @@ button.mcard:hover,button.mcard:focus-visible{border-color:var(--select);box-sha
   .kotor-menu-shell{width:min(520px,52vw,calc(42vh * 500 / 296));aspect-ratio:500/296}
 }
 @media (orientation:landscape) and (max-width:700px){
-  #scr-deck,#scr-circuit,#scr-store,#scr-versus{padding:6px}
+  #scr-deck,#scr-circuit,#scr-store,#scr-sell,#scr-versus{padding:6px}
   .steel-console{width:100%;padding:8px;gap:6px}
   .deck-headers{grid-template-columns:minmax(80px,.8fr) minmax(0,2fr) minmax(90px,.9fr)}
   .steel-hbadge{font-size:10px;letter-spacing:.1em;min-height:26px;padding:3px 6px}
@@ -1037,7 +1042,7 @@ button.mcard:hover,button.mcard:focus-visible{border-color:var(--select);box-sha
   .kotor-menu-shell{width:min(380px,52vw,calc(40vh * 500 / 296));aspect-ratio:500/296}
   .kotor-menu button{font-size:clamp(13px,2.6vh,16px)}
   .kbtn{padding:8px 14px;font-size:12px}
-  #scr-deck,#scr-circuit,#scr-store,#scr-versus{justify-content:stretch;padding:4px}
+  #scr-deck,#scr-circuit,#scr-store,#scr-sell,#scr-versus{justify-content:stretch;padding:4px}
   .steel-console{height:100%;padding:6px;gap:5px;border-radius:12px}
   .steel-hbadge{min-height:22px;font-size:9px}
   .kplate{padding:8px 10px;font-size:11px;min-height:36px}
@@ -1312,7 +1317,7 @@ button.mcard:hover,button.mcard:focus-visible{border-color:var(--select);box-sha
       </nav>
     </div>
     </div>
-    <p id="build-mark" class="build-mark">v0.9.1</p>
+    <p id="build-mark" class="build-mark">v0.9.2</p>
   </section>
   <section id="scr-versus" class="screen">
     <div class="steel-console vs-console">
@@ -1359,12 +1364,29 @@ button.mcard:hover,button.mcard:focus-visible{border-color:var(--select);box-sha
         <div class="steel-hbadge" data-credits data-credits-after>0 CREDITS</div>
         <div class="steel-hbadge">CANTINA COUNTER</div>
       </div>
-      <p id="store-note" class="store-note">Stock improves as you climb the circuit.</p>
+      <p id="store-note" class="store-note">Stock improves as you climb the tournament.</p>
       <div class="steel-well store-well">
         <div id="stock"></div>
       </div>
-      <div class="steel-foot">
-        <button type="button" id="bt-sback" class="kplate">CIRCUIT</button>
+      <div class="steel-foot store-actions">
+        <button type="button" id="bt-sback" class="kplate">TOURNAMENT</button>
+        <button type="button" id="bt-sell" class="kplate">SELL</button>
+      </div>
+    </div>
+  </section>
+  <section id="scr-sell" class="screen">
+    <div class="steel-console store-console sell-console">
+      <div class="steel-headers steel-headers-2">
+        <div class="steel-hbadge" data-credits data-credits-after>0 CREDITS</div>
+        <div class="steel-hbadge">CANTINA BUYBACK</div>
+      </div>
+      <p id="sell-note" class="store-note">Cards sell for half their cantina price.</p>
+      <div class="steel-well store-well">
+        <div id="sell-stock"></div>
+      </div>
+      <div class="steel-foot store-actions">
+        <button type="button" id="bt-sell-buy" class="kplate">BUY</button>
+        <button type="button" id="bt-sell-tournament" class="kplate">TOURNAMENT</button>
       </div>
     </div>
   </section>
@@ -1700,7 +1722,7 @@ function aiDecide(snap){
   const stand=shouldStand(score,snap);
   return {play,stand};
 }
-const GAME_VERSION='0.9.1';
+const GAME_VERSION='0.9.2';
 const STARTER_COLLECTION={'+1':2,'+2':2,'+3':2,'-1':2,'-2':2,'-3':2};
 const START_CREDITS=400;
 const STORE_CAP=4;
@@ -1757,6 +1779,10 @@ function buildRoster(){
   return [1,1,1,2,2,2,3,3,3].map(t=>generateOpponent(t,used));
 }
 function matchWager(tier){return tier===3?200:tier===2?100:50;}
+function clampReplayWager(tier,value){
+  const n=Number(value);
+  return Math.max(0,Math.min(matchWager(tier),Number.isFinite(n)?Math.floor(n):0));
+}
 const CARD_PRICE={
   '+1':20,'-1':20,'+2':30,'-2':30,'+3':45,'-3':45,
   '+4':70,'-4':70,'+5':120,'-5':120,'+6':180,'-6':180,
@@ -1872,6 +1898,33 @@ function persist(){
     SAVE_CONFLICT=false;
   }catch(e){return false;}
   refreshCredits();return true;
+}
+function cardSellPrice(id){
+  const price=CARD_PRICE[id];
+  return Number.isFinite(price)&&price>0?Math.floor(price/2):0;
+}
+function collectionCount(unlocked=SAVE.unlocked){
+  return Object.values(unlocked||{}).reduce((sum,n)=>sum+(Number.isFinite(Number(n))?Math.max(0,Math.floor(Number(n))):0),0);
+}
+function trimDeckToCollection(deck,unlocked=SAVE.unlocked){
+  const out=[],used={};
+  for(const id of deck||[]){
+    if(out.length>=10||!hasCardId(id))continue;
+    used[id]=(used[id]||0)+1;
+    if(used[id]<=(unlocked[id]||0))out.push(id);
+  }
+  return out;
+}
+function sellCard(id){
+  const value=cardSellPrice(id),owned=SAVE.unlocked[id]||0;
+  if(!value||owned<=0||collectionCount()<=10||SAVE.credits>=999999999)return false;
+  const prevCredits=SAVE.credits,prevDeck=SAVE.lastDeck.slice();
+  if(owned===1)delete SAVE.unlocked[id];else SAVE.unlocked[id]=owned-1;
+  SAVE.lastDeck=trimDeckToCollection(SAVE.lastDeck);
+  SAVE.credits=Math.min(999999999,SAVE.credits+value);
+  if(persist())return true;
+  SAVE.credits=prevCredits;SAVE.unlocked[id]=owned;SAVE.lastDeck=prevDeck;
+  refreshCredits();return false;
 }
 function adoptExternalSave(raw){
   const incoming=normalizeSave(raw,false);
@@ -2874,7 +2927,7 @@ function drawTableButton(g,r,label,opts){
   if(hint)drawKeyHint(g,r.x+r.w-hintW/2-3,r.y+r.h/2+0.5,hint,col,r.h);
   g.restore();
 }
-let M=null,STATIC=null,DPR=1,curScreen='title',deckRung=0,deckSel=[];
+let M=null,STATIC=null,DPR=1,curScreen='title',deckRung=0,deckSel=[],deckWager=null;
 let cv=null,ctx=null;
 /** View hooks — ui/main bind these so game.js never touches the DOM. */
 const gameHooks={dialog:null,spoils:null,onEnterMatch:null,onLeaveMatch:null};
@@ -3175,11 +3228,16 @@ function matchEnd(winner){
     SAVE.credits=Math.min(999999999,SAVE.credits+wager*2);
     if(!rematch)SAVE.circuit=Math.min(CIRCUIT_LEN,SAVE.circuit+1);
     persist();
+    if(rematch&&wager===0){
+      presentDialog('PRACTICE WON.','NO CREDITS OR CARD SPOILS',()=>leaveMatch());
+      return;
+    }
     if(gameHooks.spoils)gameHooks.spoils(wager,rematch);
   }else{
     AUDIO.play('lose');
     persist();
-    presentDialog('DEFEAT.','YOU LOSE THE WAGER  \u00B7  '+(M.wager||0)+' CR',()=>leaveMatch());
+    const practice=M.replayRung!=null&&(M.wager||0)===0;
+    presentDialog(practice?'PRACTICE DEFEAT.':'DEFEAT.',practice?'NO CREDITS LOST':'YOU LOSE THE WAGER  \u00B7  '+(M.wager||0)+' CR',()=>leaveMatch());
   }
 }
 function leaveMatch(){
@@ -3199,25 +3257,27 @@ function startVsMatch(names,tier,pDeck,oDeck){
   if(gameHooks.onEnterMatch)gameHooks.onEnterMatch();
   startSet();
 }
-function startMatch(rung){
+function startMatch(rung,requestedWager){
   const opp=Array.isArray(SAVE.roster)?SAVE.roster[rung]:null;
   if(!opp||!Number.isInteger(opp.tier)||opp.tier<1||opp.tier>3){presentDialog('MATCH UNAVAILABLE','THE OPPONENT DATA IS INVALID',()=>{});return;}
-  const wager=matchWager(opp.tier);
+  const replay=rung<SAVE.circuit,maxWager=matchWager(opp.tier);
+  const wager=replay&&requestedWager!=null?clampReplayWager(opp.tier,requestedWager):maxWager;
   if(SAVE.credits<wager){
     presentDialog('NOT ENOUGH CREDITS','THIS TABLE WANTS '+wager+' CR',()=>{});
     return;
   }
   SAVE.credits-=wager;
-  newMatch(opp,rung<SAVE.circuit?rung:null);
+  newMatch(opp,replay?rung:null);
   M.wager=wager;
-  SAVE.activeMatch={wager,rung,startedAt:Date.now()};
+  SAVE.activeMatch=wager>0?{wager,rung,startedAt:Date.now()}:null;
   if(!persist()){
     SAVE.credits+=wager;SAVE.activeMatch=null;M=null;refreshCredits();
     presentDialog('MATCH UNAVAILABLE','YOUR SAVE COULD NOT BE UPDATED',()=>{});
     return;
   }
   if(gameHooks.onEnterMatch)gameHooks.onEnterMatch();
-  presentDialog('VS '+opp.name.toUpperCase(),'WAGER '+wager+' CR  \u00B7  TIER '+opp.tier+'  \u00B7  FIRST TO 3 SETS',()=>startSet());
+  const terms=wager>0?'WAGER '+wager+' CR  \u00B7  TIER '+opp.tier+'  \u00B7  FIRST TO 3 SETS':'PRACTICE  \u00B7  TIER '+opp.tier+'  \u00B7  NO REWARDS';
+  presentDialog('VS '+opp.name.toUpperCase(),terms,()=>startSet());
 }
 function dealProgress(who,slot,now){
   const a=M&&M.anims.deal;
@@ -3433,7 +3493,8 @@ function buildCircuit(){
     const label=st==='done'?'WON':st==='next'?'NEXT':'LOCKED';
     btn.disabled=st==='locked';
     btn.setAttribute('aria-pressed',i===circuitSel?'true':'false');
-    btn.setAttribute('aria-label',opp.name+', '+label+', tier '+opp.tier+', wager '+matchWager(opp.tier)+' credits');
+    const wagerLabel=st==='done'?'custom replay wager 0 to '+matchWager(opp.tier)+' credits':'standard wager '+matchWager(opp.tier)+' credits';
+    btn.setAttribute('aria-label',opp.name+', '+label+', tier '+opp.tier+', '+wagerLabel);
     btn.innerHTML=`<div class="ricon"><span class="tier t${opp.tier}">${['I','II','III'][opp.tier-1]}</span></div>`+
       `<div class="rbody"><span class="rname"></span>`+
       `<span class="rstat">(${label})</span></div>`;
@@ -3444,10 +3505,8 @@ function buildCircuit(){
   if(keep)wrap.querySelector('.rung.pick')?.focus();
   const st=circuitSel<SAVE.circuit?'done':circuitSel===SAVE.circuit?'next':'locked';
   const bt=$('#bt-challenge');
-  const opp=SAVE.roster[circuitSel];
-  const w=opp?matchWager(opp.tier):50;
   bt.disabled=st==='locked';
-  bt.textContent=st==='done'?'REPLAY  \u00B7  '+w+' CR':st==='next'?'CHALLENGE  \u00B7  '+w+' CR':'LOCKED';
+  bt.textContent=st==='locked'?'LOCKED':'CHALLENGE';
   bt.classList.toggle('sel',st!=='locked');
   refreshCredits();
 }
@@ -3537,12 +3596,12 @@ function buildDeckUI(){
     begin.classList.toggle('sel',ready);
     begin.title='';
   }else{
-    const opp=SAVE.roster[deckRung], wager=opp?matchWager(opp.tier):50;
+    const opp=SAVE.roster[deckRung], wager=deckWager==null?(opp?matchWager(opp.tier):50):deckWager;
     const broke=SAVE.credits<wager;
     begin.disabled=!ready||broke;
     begin.textContent=!ready?'PLAY':broke?'NEED '+wager+' CR':'PLAY';
     begin.classList.toggle('sel',ready&&!broke);
-    begin.title=ready&&!broke?('WAGER '+wager+' CR'):'';
+    begin.title=ready&&!broke?(wager===0?'PRACTICE - NO REWARDS':'WAGER '+wager+' CR'):'';
   }
   refreshCredits();
 }
@@ -3555,14 +3614,45 @@ function validateDeck(deck){
   return out;
 }
 function resetDeckMode(){
-  deckMode='campaign';deckPool=null;deckCovered=false;
+  deckMode='campaign';deckPool=null;deckCovered=false;deckWager=null;
 }
-function openDeckBuilder(rung){
+function openDeckBuilder(rung,wager){
   resetDeckMode();
   deckRung=rung;
+  const opp=SAVE.roster[rung];
+  deckWager=wager==null?null:clampReplayWager(opp?opp.tier:1,wager);
   deckSel=validateDeck(SAVE.lastDeck);
   buildDeckUI();
   showScreen('deck');
+}
+function openReplayWager(rung){
+  const opp=Array.isArray(SAVE.roster)?SAVE.roster[rung]:null;
+  if(!opp||rung>=SAVE.circuit){openDeckBuilder(rung);return;}
+  const max=matchWager(opp.tier),initial=Math.min(max,SAVE.credits);
+  openModal(
+    '<h2 id="modal-title">REPLAY '+escapeHtml(opp.name)+'</h2>'+
+    '<p>CHOOSE A WAGER FROM 0 TO '+max+' CREDITS.</p>'+
+    '<div class="wager-picker">'+
+      '<div class="wager-readout"><label for="replay-wager">WAGER</label><output id="replay-wager-value">'+initial+' CR</output></div>'+
+      '<input id="replay-wager" type="range" min="0" max="'+max+'" step="1" value="'+initial+'" aria-describedby="replay-wager-note">'+
+      '<p id="replay-wager-note"></p>'+
+    '</div>'+
+    '<div class="mrow"><button type="button" id="wager-cancel" class="kbtn">CANCEL</button><button type="button" id="wager-start" class="kbtn sel">WAGER '+initial+' CR</button></div>');
+  const range=$('#replay-wager'),out=$('#replay-wager-value'),note=$('#replay-wager-note'),start=$('#wager-start');
+  const paint=()=>{
+    const value=clampReplayWager(opp.tier,range.value),broke=value>SAVE.credits;
+    out.textContent=value+' CR';
+    start.textContent=value===0?'PRACTICE':'WAGER '+value+' CR';
+    start.disabled=broke;
+    note.textContent=value===0?'PRACTICE MATCH - NO CREDITS OR CARD SPOILS':broke?'NOT ENOUGH CREDITS - '+SAVE.credits+' AVAILABLE':'WIN RETURNS '+(value*2)+' CR AND A CARD SPOIL';
+  };
+  range.oninput=paint;paint();
+  $('#wager-cancel').onclick=()=>{AUDIO.play('click');closeModal();};
+  start.onclick=()=>{
+    const value=clampReplayWager(opp.tier,range.value);
+    if(value>SAVE.credits)return;
+    AUDIO.play('click');closeModal();openDeckBuilder(rung,value);
+  };
 }
 function openVsDeck(who){
   deckMode='vs';
@@ -3699,11 +3789,52 @@ function buildStoreUI(){
   });
   if(keepId)wrap.querySelector('[data-card="'+CSS.escape(keepId)+'"]')?.focus();
   const note=$('#store-note');
-  if(note)note.textContent=SAVE.circuit>=CIRCUIT_LEN?'Full cantina stock.':'Stock improves as you climb the circuit.';
+  if(note)note.textContent=SAVE.circuit>=CIRCUIT_LEN?'Full cantina stock.':'Stock improves as you climb the tournament.';
 }
 function openStore(){
   buildStoreUI();
   showScreen('store');
+}
+function buildSellUI(){
+  const wrap=$('#sell-stock');if(!wrap)return;
+  const keepId=document.activeElement&&wrap.contains(document.activeElement)&&document.activeElement.getAttribute('data-card');
+  const total=collectionCount(),atFloor=total<=10,atCreditCap=SAVE.credits>=999999999,blocked=atFloor||atCreditCap;
+  wrap.innerHTML='';
+  DECK_ORDER.filter(id=>(SAVE.unlocked[id]||0)>0).forEach(id=>{
+    const owned=SAVE.unlocked[id]||0,value=cardSellPrice(id);
+    const cell=document.createElement('button');
+    cell.type='button';
+    cell.className='cell sell-cell'+(blocked?' maxed':'');
+    cell.dataset.card=id;
+    cell.disabled=blocked;
+    const speak=cardSpeak(makeCard(id),1,1,true);
+    cell.setAttribute('aria-label',atFloor?speak+', owned '+owned+', keep at least 10 cards':atCreditCap?speak+', owned '+owned+', credit limit reached':speak+', sell one for '+value+' credits, owned '+owned);
+    const cvs=document.createElement('canvas');
+    cvs.setAttribute('aria-hidden','true');
+    cell.appendChild(cvs);
+    const cnt=document.createElement('span');
+    cnt.className='cnt';cnt.textContent=value+' CR  \u00B7  OWN '+owned;
+    cell.appendChild(cnt);
+    drawMini(cvs,id);
+    if(!blocked)cell.onclick=()=>{
+      AUDIO.play('click');
+      if(!sellCard(id)){
+        presentDialog('SALE FAILED','THE CARD COULD NOT BE SOLD',()=>{});
+        buildSellUI();
+        return;
+      }
+      buildSellUI();
+    };
+    wrap.appendChild(cell);
+  });
+  const again=keepId?wrap.querySelector('[data-card="'+CSS.escape(keepId)+'"]'):null;
+  (again||wrap.querySelector('button:not([disabled])')||wrap.querySelector('button'))?.focus();
+  const note=$('#sell-note');
+  if(note)note.textContent=atFloor?'KEEP AT LEAST 10 CARDS FOR A SIDE DECK.':atCreditCap?'CREDIT LIMIT REACHED.':'CARDS SELL FOR HALF THEIR CANTINA PRICE.';
+}
+function openSell(){
+  buildSellUI();
+  showScreen('sell');
 }
 function openModal(html){
   const modal=$('#modal');
@@ -3748,7 +3879,7 @@ function startNewGame(){
   AUDIO.play('click');
   if(!hasSave()){wipeKeepAudio();enterCircuit();return;}
   openModal(
-    '<h2 id="modal-title">NEW GAME</h2><p>THIS WIPES YOUR CIRCUIT, CARD COLLECTION, AND CREDITS.</p>'+
+    '<h2 id="modal-title">NEW GAME</h2><p>THIS WIPES YOUR TOURNAMENT, CARD COLLECTION, AND CREDITS.</p>'+
     '<div class="mrow"><button type="button" id="mno" class="kbtn">CANCEL</button><button type="button" id="myes" class="kbtn sel">START</button></div>');
   $('#myes').onclick=()=>{AUDIO.play('click');closeModal();wipeKeepAudio();enterCircuit();};
   $('#mno').onclick=()=>{AUDIO.play('click');closeModal();};
@@ -3756,7 +3887,7 @@ function startNewGame(){
 function confirmReset(){
   AUDIO.play('click');
   openModal(
-    '<h2 id="modal-title">RESET PROGRESS</h2><p>THIS WIPES YOUR CIRCUIT, CARD COLLECTION, AND CREDITS.</p>'+
+    '<h2 id="modal-title">RESET PROGRESS</h2><p>THIS WIPES YOUR TOURNAMENT, CARD COLLECTION, AND CREDITS.</p>'+
     '<div class="mrow"><button type="button" id="mno" class="kbtn">KEEP IT</button><button type="button" id="myes" class="kbtn danger sel">WIPE IT</button></div>');
   $('#myes').onclick=()=>{resetSave();location.reload();};
   $('#mno').onclick=()=>{AUDIO.play('click');closeModal();};
@@ -4044,7 +4175,9 @@ async function init(){
   $('#bt-continue').onclick=()=>{if(!hasSave())return;AUDIO.play('click');enterCircuit();};
   $('#bt-challenge').onclick=()=>{
     if(circuitSel>SAVE.circuit)return;
-    AUDIO.play('click');openDeckBuilder(circuitSel);
+    AUDIO.play('click');
+    if(circuitSel<SAVE.circuit){openReplayWager(circuitSel);return;}
+    openDeckBuilder(circuitSel);
   };
   $('#bt-cback').onclick=()=>{AUDIO.play('click');refreshTitle();showScreen('title');};
   $('#bt-how').onclick=()=>{AUDIO.play('click');openModal(
@@ -4058,13 +4191,16 @@ async function init(){
     '<li>Arrow keys move between menus and table controls. Tab also works. Click a hand card to arm it, click again to play. FLIP, F, or right-click cycles +/- on duals, tiebreakers, and the 1\u00B12 card.</li>'+
     '<li>Keys: Space or E end turn, Enter or S stand, F or right-click flip, Esc cancel or close. Click a hand card twice to play it.</li>'+
     '<li>Two Player is pass-and-play on one device. Whoever holds the phone sits at the bottom with the full-size hand. Hands flip face-down between turns; tap when the device has changed hands.</li>'+
-    '<li>Matches are played for a credits wager. Win and you may take one card from their side deck, or skip if it is clutter.</li>'+
-    '<li>The cantina store sells side-deck cards. Better stock unlocks as you climb the circuit.</li>'+
+    '<li>Matches are played for a credits wager. Win and you may take one card from their side deck, or skip if it is clutter. Completed opponents can be replayed for a custom wager up to their tier maximum; zero credits is practice with no rewards.</li>'+
+    '<li>The cantina buys and sells side-deck cards. Sales pay half price, and you must keep at least 10 cards. Better stock unlocks as you climb the tournament.</li>'+
     '</ul><div class="mrow"><button type="button" id="mclose" class="kbtn sel">CLOSE</button></div>');
     $('#mclose').onclick=()=>{AUDIO.play('click');closeModal();};
   };
   $('#bt-store').onclick=()=>{AUDIO.play('click');openStore();};
   $('#bt-sback').onclick=()=>{AUDIO.play('click');buildCircuit();showScreen('circuit');};
+  $('#bt-sell').onclick=()=>{AUDIO.play('click');openSell();};
+  $('#bt-sell-buy').onclick=()=>{AUDIO.play('click');openStore();};
+  $('#bt-sell-tournament').onclick=()=>{AUDIO.play('click');buildCircuit();showScreen('circuit');};
   $('#bt-options').onclick=()=>{AUDIO.play('click');openOptions();};
   $('#bt-install').onclick=offerInstall;
   $('#bt-quit').onclick=askQuit;
@@ -4072,6 +4208,7 @@ async function init(){
   $('#bt-dback').onclick=()=>{
     AUDIO.play('click');
     if(deckMode==='vs'){deckCovered=false;openVersus({keepDecks:true});return;}
+    resetDeckMode();
     buildCircuit();showScreen('circuit');
   };
   $('#bt-begin').onclick=()=>{
@@ -4079,7 +4216,7 @@ async function init(){
     AUDIO.play('click');
     if(deckMode==='vs'){vsReadNames();vsConfirmDeck();return;}
     SAVE.lastDeck=deckSel.slice();persist();
-    startMatch(deckRung);
+    startMatch(deckRung,deckWager);
   };
   $('#bt-vback').onclick=()=>{AUDIO.play('click');resetDeckMode();refreshTitle();showScreen('title');};
   $('#bt-vnext').onclick=()=>{
@@ -4230,7 +4367,7 @@ globalThis.PZ={shuffle,buildMainDeck,boardScore,placeMain,placeSide,applyDouble,
   startSet,beginTurn,endPlayerTurn,playerStand,confirmPlay,endSet,resolveBoard,resolveStandoff,boardCount,dialogOK,
   newMatchForTest:(deckIds,opp,opts)=>{SAVE.lastDeck=deckIds;newMatch(opp,null,opts);},
   getM:()=>M,setSleepScale:v=>{SLEEP_SCALE=v;},chanState,fitCard,CARD_ASPECT,
-  matchWager,storeStock,storeMinCircuit,addToCollection,isClutterId,CARD_PRICE,getSave:()=>SAVE,
+  matchWager,clampReplayWager,storeStock,storeMinCircuit,addToCollection,isClutterId,CARD_PRICE,cardSellPrice,collectionCount,trimDeckToCollection,sellCard,getSave:()=>SAVE,
   persist,normalizeSave,applyRecoveredWager,startMatch,leaveMatch,matchEnd,defaultSave,START_CREDITS,SAVE_KEY,
   blockPersist:v=>{PERSIST_BLOCK=!!v;},
   vsTierIds,vsCollection,startVsMatch,acceptPass,viewWho,plateName,isVs,GAME_VERSION};

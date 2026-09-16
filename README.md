@@ -39,6 +39,10 @@ You may then play **at most one** side-deck card from your 4-card hand, then END
   immediately, so there is no remaining slot for a rescue play.
 - **Exactly 20 auto-stands.** Fill all 9 slots without busting for an instant win.
 - First to win **3 sets** takes the match. Tied sets replay.
+- Completed opponents can be replayed for any wager from 0 up to that tier's standard
+  stake. A zero-credit replay is practice and awards no credits or card spoil.
+- The cantina buys owned cards for half their listed price. You must keep at least
+  10 cards so a playable side deck always remains.
 
 Climb the Outer Rim circuit through nine opponents across three tiers, unlocking stronger
 side-deck cards as you win.

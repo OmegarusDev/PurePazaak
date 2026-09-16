@@ -1,4 +1,4 @@
-let M=null,STATIC=null,DPR=1,curScreen='title',deckRung=0,deckSel=[];
+let M=null,STATIC=null,DPR=1,curScreen='title',deckRung=0,deckSel=[],deckWager=null;
 let cv=null,ctx=null;
 /** View hooks — ui/main bind these so game.js never touches the DOM. */
 const gameHooks={dialog:null,spoils:null,onEnterMatch:null,onLeaveMatch:null};
@@ -299,11 +299,16 @@ function matchEnd(winner){
     SAVE.credits=Math.min(999999999,SAVE.credits+wager*2);
     if(!rematch)SAVE.circuit=Math.min(CIRCUIT_LEN,SAVE.circuit+1);
     persist();
+    if(rematch&&wager===0){
+      presentDialog('PRACTICE WON.','NO CREDITS OR CARD SPOILS',()=>leaveMatch());
+      return;
+    }
     if(gameHooks.spoils)gameHooks.spoils(wager,rematch);
   }else{
     AUDIO.play('lose');
     persist();
-    presentDialog('DEFEAT.','YOU LOSE THE WAGER  \u00B7  '+(M.wager||0)+' CR',()=>leaveMatch());
+    const practice=M.replayRung!=null&&(M.wager||0)===0;
+    presentDialog(practice?'PRACTICE DEFEAT.':'DEFEAT.',practice?'NO CREDITS LOST':'YOU LOSE THE WAGER  \u00B7  '+(M.wager||0)+' CR',()=>leaveMatch());
   }
 }
 function leaveMatch(){
@@ -323,25 +328,27 @@ function startVsMatch(names,tier,pDeck,oDeck){
   if(gameHooks.onEnterMatch)gameHooks.onEnterMatch();
   startSet();
 }
-function startMatch(rung){
+function startMatch(rung,requestedWager){
   const opp=Array.isArray(SAVE.roster)?SAVE.roster[rung]:null;
   if(!opp||!Number.isInteger(opp.tier)||opp.tier<1||opp.tier>3){presentDialog('MATCH UNAVAILABLE','THE OPPONENT DATA IS INVALID',()=>{});return;}
-  const wager=matchWager(opp.tier);
+  const replay=rung<SAVE.circuit,maxWager=matchWager(opp.tier);
+  const wager=replay&&requestedWager!=null?clampReplayWager(opp.tier,requestedWager):maxWager;
   if(SAVE.credits<wager){
     presentDialog('NOT ENOUGH CREDITS','THIS TABLE WANTS '+wager+' CR',()=>{});
     return;
   }
   SAVE.credits-=wager;
-  newMatch(opp,rung<SAVE.circuit?rung:null);
+  newMatch(opp,replay?rung:null);
   M.wager=wager;
-  SAVE.activeMatch={wager,rung,startedAt:Date.now()};
+  SAVE.activeMatch=wager>0?{wager,rung,startedAt:Date.now()}:null;
   if(!persist()){
     SAVE.credits+=wager;SAVE.activeMatch=null;M=null;refreshCredits();
     presentDialog('MATCH UNAVAILABLE','YOUR SAVE COULD NOT BE UPDATED',()=>{});
     return;
   }
   if(gameHooks.onEnterMatch)gameHooks.onEnterMatch();
-  presentDialog('VS '+opp.name.toUpperCase(),'WAGER '+wager+' CR  \u00B7  TIER '+opp.tier+'  \u00B7  FIRST TO 3 SETS',()=>startSet());
+  const terms=wager>0?'WAGER '+wager+' CR  \u00B7  TIER '+opp.tier+'  \u00B7  FIRST TO 3 SETS':'PRACTICE  \u00B7  TIER '+opp.tier+'  \u00B7  NO REWARDS';
+  presentDialog('VS '+opp.name.toUpperCase(),terms,()=>startSet());
 }
 function dealProgress(who,slot,now){
   const a=M&&M.anims.deal;

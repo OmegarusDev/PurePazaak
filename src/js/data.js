@@ -1,4 +1,4 @@
-const GAME_VERSION='0.9.1';
+const GAME_VERSION='0.9.2';
 const STARTER_COLLECTION={'+1':2,'+2':2,'+3':2,'-1':2,'-2':2,'-3':2};
 const START_CREDITS=400;
 const STORE_CAP=4;
@@ -55,6 +55,10 @@ function buildRoster(){
   return [1,1,1,2,2,2,3,3,3].map(t=>generateOpponent(t,used));
 }
 function matchWager(tier){return tier===3?200:tier===2?100:50;}
+function clampReplayWager(tier,value){
+  const n=Number(value);
+  return Math.max(0,Math.min(matchWager(tier),Number.isFinite(n)?Math.floor(n):0));
+}
 const CARD_PRICE={
   '+1':20,'-1':20,'+2':30,'-2':30,'+3':45,'-3':45,
   '+4':70,'-4':70,'+5':120,'-5':120,'+6':180,'-6':180,
@@ -170,6 +174,33 @@ function persist(){
     SAVE_CONFLICT=false;
   }catch(e){return false;}
   refreshCredits();return true;
+}
+function cardSellPrice(id){
+  const price=CARD_PRICE[id];
+  return Number.isFinite(price)&&price>0?Math.floor(price/2):0;
+}
+function collectionCount(unlocked=SAVE.unlocked){
+  return Object.values(unlocked||{}).reduce((sum,n)=>sum+(Number.isFinite(Number(n))?Math.max(0,Math.floor(Number(n))):0),0);
+}
+function trimDeckToCollection(deck,unlocked=SAVE.unlocked){
+  const out=[],used={};
+  for(const id of deck||[]){
+    if(out.length>=10||!hasCardId(id))continue;
+    used[id]=(used[id]||0)+1;
+    if(used[id]<=(unlocked[id]||0))out.push(id);
+  }
+  return out;
+}
+function sellCard(id){
+  const value=cardSellPrice(id),owned=SAVE.unlocked[id]||0;
+  if(!value||owned<=0||collectionCount()<=10||SAVE.credits>=999999999)return false;
+  const prevCredits=SAVE.credits,prevDeck=SAVE.lastDeck.slice();
+  if(owned===1)delete SAVE.unlocked[id];else SAVE.unlocked[id]=owned-1;
+  SAVE.lastDeck=trimDeckToCollection(SAVE.lastDeck);
+  SAVE.credits=Math.min(999999999,SAVE.credits+value);
+  if(persist())return true;
+  SAVE.credits=prevCredits;SAVE.unlocked[id]=owned;SAVE.lastDeck=prevDeck;
+  refreshCredits();return false;
 }
 function adoptExternalSave(raw){
   const incoming=normalizeSave(raw,false);
